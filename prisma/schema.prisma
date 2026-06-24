@@ -1,0 +1,188 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+}
+
+// ============================================
+// User
+// ============================================
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  passwordHash String
+  role         String   @default("customer") // customer | engineer | admin | contractor
+  avatar       String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  customerProjects Project[]        @relation("CustomerProjects")
+  engineerProjects Project[]        @relation("EngineerProjects")
+  progressUpdates  ProgressUpdate[]
+  notifications    Notification[]
+  assignedLeads    Lead[]           @relation("AssignedLeads")
+}
+
+// ============================================
+// Project
+// ============================================
+
+model Project {
+  id                   String   @id @default(cuid())
+  name                 String
+  siteAddress          String
+  city                 String
+  plotSize             String
+  builtUpArea          String
+  startDate            DateTime?
+  expectedCompletion   DateTime?
+  currentStage         String    @default("planning")  // planning|foundation|columns|walls|slab|plumbing|electrical|finishing|handover
+  status               String    @default("not_started") // not_started|in_progress|on_hold|completed|cancelled
+  completionPercentage Int       @default(0)
+  totalValue           Float     @default(0)
+  amountPaid           Float     @default(0)
+  planName             String?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  // Relations
+  customerId String
+  customer   User   @relation("CustomerProjects", fields: [customerId], references: [id])
+  engineerId String?
+  engineer   User?  @relation("EngineerProjects", fields: [engineerId], references: [id])
+
+  milestones      ProjectMilestone[]
+  progressUpdates ProgressUpdate[]
+  documents       Document[]
+  payments        PaymentMilestone[]
+}
+
+// ============================================
+// Project Milestone (one per construction stage)
+// ============================================
+
+model ProjectMilestone {
+  id            String   @id @default(cuid())
+  stage         String   // planning|foundation|columns|walls|slab|plumbing|electrical|finishing|handover
+  title         String
+  status        String   @default("upcoming") // completed|in_progress|upcoming
+  startDate     DateTime?
+  completedDate DateTime?
+  description   String
+  photoCount    Int      @default(0)
+  notes         String?
+  createdAt     DateTime @default(now())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// Progress Update
+// ============================================
+
+model ProgressUpdate {
+  id                   String   @id @default(cuid())
+  title                String
+  description          String
+  stage                String
+  completionPercentage Int      @default(0)
+  photos               String   @default("[]") // JSON array of photo URLs
+  date                 String
+  time                 String
+  createdAt            DateTime @default(now())
+
+  projectId  String
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  uploadedById String
+  uploadedBy   User    @relation(fields: [uploadedById], references: [id])
+}
+
+// ============================================
+// Document
+// ============================================
+
+model Document {
+  id         String   @id @default(cuid())
+  name       String
+  category   String   // agreement|plan|receipt|certificate|government|other
+  fileType   String   // pdf|doc|img|dwg|xls
+  fileSize   String
+  uploadDate String
+  uploadedBy String
+  url        String
+  isVisible  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// Payment Milestone
+// ============================================
+
+model PaymentMilestone {
+  id          String   @id @default(cuid())
+  name        String
+  amount      Float
+  dueDate     String
+  paidDate    String?
+  status      String   @default("pending") // paid|pending|overdue
+  receiptUrl  String?
+  description String
+  createdAt   DateTime @default(now())
+
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// Lead / Enquiry
+// ============================================
+
+model Lead {
+  id               String   @id @default(cuid())
+  name             String
+  email            String
+  phone            String
+  city             String
+  plotSize         String?
+  builtUpArea      String?
+  budgetRange      String?
+  homeType         String?  // independent_house|duplex|villa|row_house|farmhouse|commercial
+  servicesNeeded   String   @default("[]") // JSON array
+  timeline         String?
+  preferredContact String   @default("phone") // phone|email|whatsapp
+  notes            String?
+  status           String   @default("new") // new|contacted|qualified|converted|rejected
+  createdAt        DateTime @default(now())
+  lastContactedAt  DateTime?
+
+  assignedToId String?
+  assignedTo   User?   @relation("AssignedLeads", fields: [assignedToId], references: [id])
+}
+
+// ============================================
+// Notification
+// ============================================
+
+model Notification {
+  id        String   @id @default(cuid())
+  title     String
+  message   String
+  type      String   @default("info") // info|success|warning|error
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
