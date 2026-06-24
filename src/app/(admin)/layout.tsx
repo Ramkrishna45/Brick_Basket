@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Link from "next/link";
 import { HardHat, Bell, LogOut, ChevronDown, Search } from "lucide-react";
 import {
@@ -37,9 +38,23 @@ const breadcrumbMap: Record<string, string> = {
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useCurrentUser();
+  const { user, isAuthenticated, isLoading } = useCurrentUser();
 
-  const pageTitle = breadcrumbMap[pathname] || "Admin";
+  useEffect(() => {
+    if (!isLoading) {
+      if (!isAuthenticated) {
+        router.push("/login");
+      } else if (user?.role !== "admin" && user?.role !== "engineer") {
+        router.push("/dashboard");
+      }
+    }
+  }, [isLoading, isAuthenticated, user, router]);
+
+  if (isLoading || !isAuthenticated || (user?.role !== "admin" && user?.role !== "engineer")) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
+
+  const pageTitle = breadcrumbMap[pathname] || "Admin Portal";
   const initials = user?.name?.split(" ").map((n) => n[0]).join("").toUpperCase() || "A";
 
   function handleLogout() { signOut({ callbackUrl: "/login" }); }

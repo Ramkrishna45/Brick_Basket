@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import Link from "next/link";
 import { HardHat, Bell, LogOut, ChevronDown, User } from "lucide-react";
 import {
@@ -35,7 +36,17 @@ const breadcrumbMap: Record<string, string> = {
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user } = useCurrentUser();
+  const { user, isAuthenticated, isLoading } = useCurrentUser();
+
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/login");
+    }
+  }, [isLoading, isAuthenticated, router]);
+
+  if (isLoading || !isAuthenticated) {
+    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  }
 
   const pageTitle = breadcrumbMap[pathname] || "Dashboard";
   const initials = user?.name?.split(" ").map((n) => n[0]).join("").toUpperCase() || "U";
