@@ -1,8 +1,6 @@
 "use server";
 import { auth } from "@/lib/auth";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
+import { createClient } from "@supabase/supabase-js";
 
 export async function uploadFileAction(formData: FormData) {
   try {
@@ -16,6 +14,15 @@ export async function uploadFileAction(formData: FormData) {
       return { error: "No file provided" };
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      return { error: "Supabase storage is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables." };
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -24,18 +31,23 @@ export async function uploadFileAction(formData: FormData) {
     const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "");
     const filename = `${timestamp}-${cleanFileName}`;
 
-    // Ensure uploads directory exists
-    const uploadsDir = join(process.cwd(), "public", "uploads");
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
+    const { data, error } = await supabase.storage
+      .from("uploads")
+      .upload(filename, buffer, {
+        contentType: file.type,
+        upsert: false
+      });
+
+    if (error) {
+      console.error("Supabase storage error:", error);
+      return { error: "Failed to upload file to cloud storage: " + error.message };
     }
 
-    // Write file
-    const path = join(uploadsDir, filename);
-    await writeFile(path, buffer);
+    const { data: { publicUrl } } = supabase.storage
+      .from("uploads")
+      .getPublicUrl(filename);
 
-    // Return public URL
-    return { success: true, url: `/uploads/${filename}` };
+    return { success: true, url: publicUrl };
   } catch (error) {
     console.error("Upload error:", error);
     return { error: "Failed to upload file" };

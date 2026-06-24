@@ -13,6 +13,7 @@
     "@base-ui/react": "^1.5.0",
     "@hookform/resolvers": "^5.4.0",
     "@prisma/client": "^6.19.3",
+    "@supabase/supabase-js": "^2.108.2",
     "@tanstack/react-table": "^8.21.3",
     "bcryptjs": "^3.0.3",
     "class-variance-authority": "^0.7.1",
