@@ -341,7 +341,7 @@ export default function DashboardPage() {
   const completionPercentage = project.completionPercentage || 0;
   const nextPaymentAmount = paymentSummary?.nextDue?.amount || 0;
   const nextPaymentDate = paymentSummary?.nextDue?.dueDate || "No pending dues";
-  const engineerName = project.engineer?.name || "Unassigned";
+  const engineerName = project.staff && project.staff.length > 0 ? project.staff.map((s: any) => s.name).join(", ") : "Unassigned";
   const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString() : "TBD";
   const expectedCompletion = project.expectedCompletion ? new Date(project.expectedCompletion).toLocaleDateString() : "TBD";
 

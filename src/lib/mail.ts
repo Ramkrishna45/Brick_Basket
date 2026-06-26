@@ -22,10 +22,15 @@ export async function sendEmail({
       return { success: true };
     }
 
+    // Resend free tier (onboarding@resend.dev) only allows sending to the verified email.
+    // For testing purposes, we'll force the 'to' address to the admin email if using the free domain.
+    const isFreeTier = true; // Hardcoded for this testing phase
+    const finalTo = isFreeTier ? "tripathiramkrishna16@gmail.com" : to;
+
     const { data, error } = await resend.emails.send({
-      from: "Brick Basket <onboarding@resend.dev>", // This is Resend's free testing email
-      to,
-      subject,
+      from: "Brick Basket <onboarding@resend.dev>",
+      to: finalTo,
+      subject: isFreeTier ? `[TEST FOR ${to}] ${subject}` : subject,
       html,
     });
 

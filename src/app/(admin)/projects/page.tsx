@@ -2,20 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Plus, Search, User, MapPin, Calendar } from "lucide-react";
+import { Plus, Search, User, MapPin, Calendar, Users as UsersIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { Input as FormInput } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/components/shared/states";
 import { CONSTRUCTION_STAGES } from "@/lib/constants";
 import { toast } from "sonner";
-import { getAllProjectsAction } from "@/lib/actions/projects";
+import { getAllProjectsAction, updateProjectAction } from "@/lib/actions/projects";
+import { getAllStaffAction } from "@/lib/actions/staff";
 import { format } from "date-fns";
 
 function formatINR(n: number) {
@@ -25,18 +25,32 @@ function formatINR(n: number) {
 export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<any[]>([]);
+  const [staffList, setStaffList] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  
+  // Assign Staff Dialog State
+  const [staffDialogOpen, setStaffDialogOpen] = useState(false);
+  const [assigningProject, setAssigningProject] = useState<any>(null);
+  const [selectedStaffIds, setSelectedStaffIds] = useState<string[]>([]);
+  const [isUpdatingStaff, setIsUpdatingStaff] = useState(false);
+
+  async function loadData() {
+    const [projRes, staffRes] = await Promise.all([
+      getAllProjectsAction(),
+      getAllStaffAction(),
+    ]);
+    if (projRes.success && projRes.data) {
+      setProjects(projRes.data);
+    }
+    if (staffRes.success && staffRes.data) {
+      setStaffList(staffRes.data);
+    }
+    setLoading(false);
+  }
 
   useEffect(() => {
-    async function load() {
-      const res = await getAllProjectsAction();
-      if (res.success && res.data) {
-        setProjects(res.data);
-      }
-      setLoading(false);
-    }
-    load();
+    loadData();
   }, []);
 
   const filtered = projects.filter((p) => {
@@ -49,6 +63,32 @@ export default function ProjectsPage() {
     );
   });
 
+  const openAssignStaff = (project: any) => {
+    setAssigningProject(project);
+    setSelectedStaffIds(project.staff?.map((s: any) => s.id) || []);
+    setStaffDialogOpen(true);
+  };
+
+  const handleToggleStaff = (staffId: string) => {
+    setSelectedStaffIds((prev) => 
+      prev.includes(staffId) ? prev.filter((id) => id !== staffId) : [...prev, staffId]
+    );
+  };
+
+  const handleSaveStaffAssignment = async () => {
+    if (!assigningProject) return;
+    setIsUpdatingStaff(true);
+    const res = await updateProjectAction(assigningProject.id, { staffIds: selectedStaffIds });
+    if (res.success) {
+      toast.success("Staff assignment updated! Notifications sent.");
+      setStaffDialogOpen(false);
+      loadData();
+    } else {
+      toast.error(res.error || "Failed to assign staff");
+    }
+    setIsUpdatingStaff(false);
+  };
+
   if (loading) {
     return <div className="space-y-5"><Skeleton className="h-8 w-48" /><div className="grid grid-cols-1 md:grid-cols-2 gap-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-48 rounded-xl" />)}</div></div>;
   }
@@ -58,49 +98,16 @@ export default function ProjectsPage() {
       <div className="flex items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
         <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger className="inline-flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
-            <Plus className="h-4 w-4" /> New Project
-          </DialogTrigger>
+          <DialogTrigger render={<Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2"><Plus className="h-4 w-4" /> New Project</Button>} />
           <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle>Create New Project</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-2">
-              {[
-                { id: "pname", label: "Project Name", placeholder: "e.g. Patel Residence" },
-                { id: "customer", label: "Customer Name", placeholder: "e.g. Vikram Patel" },
-                { id: "address", label: "Site Address", placeholder: "Full address" },
-                { id: "city", label: "City", placeholder: "e.g. Bengaluru" },
-                { id: "plot", label: "Plot Size", placeholder: "e.g. 2,400 sq.ft" },
-                { id: "area", label: "Built-up Area", placeholder: "e.g. 1,800 sq.ft" },
-              ].map(({ id, label, placeholder }) => (
-                <div key={id}>
-                  <Label htmlFor={id}>{label}</Label>
-                  <FormInput id={id} className="mt-1" placeholder={placeholder} />
-                </div>
-              ))}
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Assign Engineer</Label>
-                  <Select>
-                    <SelectTrigger className="mt-1"><SelectValue placeholder="Select engineer" /></SelectTrigger>
-                    <SelectContent>
-                      {["Arjun Nair", "Ravi Kumar", "Priya Sharma"].map((e) => (
-                        <SelectItem key={e} value={e}>{e}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="start-date">Start Date</Label>
-                  <FormInput id="start-date" type="date" className="mt-1" />
-                </div>
-              </div>
+              <p className="text-sm text-slate-500">Project creation via UI is coming soon in the next update.</p>
               <div className="flex justify-end gap-3 pt-2">
                 <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button className="bg-amber-600 hover:bg-amber-700" onClick={() => { setOpen(false); toast.success("Project created successfully!"); }}>
-                  Create Project
-                </Button>
+                <Button className="bg-amber-600 hover:bg-amber-700" onClick={() => setOpen(false)}>Okay</Button>
               </div>
             </div>
           </DialogContent>
@@ -122,7 +129,7 @@ export default function ProjectsPage() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.08 }}
-              className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-md transition-shadow flex flex-col"
             >
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div>
@@ -139,7 +146,10 @@ export default function ProjectsPage() {
                   <MapPin className="h-3 w-3 text-amber-500" />{project.city}
                 </div>
                 <div className="flex items-center gap-1.5 text-slate-500">
-                  <User className="h-3 w-3 text-amber-500" />{project.engineer?.name || "Unassigned"}
+                  <UsersIcon className="h-3 w-3 text-amber-500" />
+                  <span className="truncate max-w-[120px]">
+                    {project.staff && project.staff.length > 0 ? project.staff.map((s: any) => s.name).join(", ") : "No staff"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5 text-slate-500">
                   <Calendar className="h-3 w-3 text-amber-500" />Due: {expectedCompletionDate}
@@ -149,23 +159,20 @@ export default function ProjectsPage() {
                 </div>
               </div>
 
-              <div className="mb-3">
+              <div className="mb-3 flex-1">
                 <div className="flex justify-between text-xs text-slate-500 mb-1.5">
                   <span>Progress</span><span className="font-semibold text-amber-600">{project.completionPercentage}%</span>
                 </div>
                 <Progress value={project.completionPercentage} className="h-2" />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between pt-2">
                 <div className="text-xs text-slate-500">
                   Value: <span className="font-semibold text-slate-900">{formatINR(project.totalValue)}</span>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" className="h-7 text-xs hover:text-amber-600" onClick={() => toast.info("Project detail view coming soon!")}>
-                    View
-                  </Button>
-                  <Button variant="outline" size="sm" className="h-7 text-xs hover:border-amber-400 hover:text-amber-700" onClick={() => toast.info("Edit project coming soon!")}>
-                    Edit
+                  <Button variant="outline" size="sm" className="h-7 text-xs hover:border-amber-400 hover:text-amber-700" onClick={() => openAssignStaff(project)}>
+                    Assign Staff
                   </Button>
                 </div>
               </div>
@@ -173,6 +180,49 @@ export default function ProjectsPage() {
           );
         })}
       </div>
+
+      {/* Assign Staff Dialog */}
+      <Dialog open={staffDialogOpen} onOpenChange={setStaffDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Assign Staff to Project</DialogTitle>
+          </DialogHeader>
+          <div className="py-2">
+            <p className="text-sm text-slate-500 mb-4">
+              Select engineers or contractors to assign to <strong className="text-slate-900">{assigningProject?.name}</strong>.
+            </p>
+            <div className="space-y-2 max-h-60 overflow-y-auto pr-2 border rounded-md p-2">
+              {staffList.map((staff) => (
+                <label key={staff.id} className="flex items-center space-x-3 p-2 hover:bg-slate-50 rounded-md cursor-pointer border border-transparent hover:border-slate-100 transition-colors">
+                  <input 
+                    type="checkbox" 
+                    className="w-4 h-4 text-amber-600 rounded border-slate-300 focus:ring-amber-500" 
+                    checked={selectedStaffIds.includes(staff.id)}
+                    onChange={() => handleToggleStaff(staff.id)}
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium text-slate-900">{staff.name}</span>
+                    <span className="text-xs text-slate-500 capitalize">{staff.role} • {staff.email}</span>
+                  </div>
+                </label>
+              ))}
+              {staffList.length === 0 && (
+                <p className="text-sm text-slate-500 text-center py-4">No staff members available.</p>
+              )}
+            </div>
+            <div className="flex justify-end gap-3 pt-6">
+              <Button variant="outline" onClick={() => setStaffDialogOpen(false)}>Cancel</Button>
+              <Button 
+                className="bg-amber-600 hover:bg-amber-700 text-white" 
+                onClick={handleSaveStaffAssignment}
+                disabled={isUpdatingStaff}
+              >
+                {isUpdatingStaff ? "Saving..." : "Save Assignments"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

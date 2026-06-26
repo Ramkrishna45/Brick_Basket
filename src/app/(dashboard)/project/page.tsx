@@ -52,7 +52,7 @@ export default function ProjectPage() {
   const completionPercentage = project.completionPercentage || 0;
   const startDate = project.startDate ? new Date(project.startDate).toLocaleDateString() : "TBD";
   const expectedCompletion = project.expectedCompletion ? new Date(project.expectedCompletion).toLocaleDateString() : "TBD";
-  const engineerName = project.engineer?.name || "Unassigned";
+  const engineerName = project.staff && project.staff.length > 0 ? project.staff.map((s: any) => s.name).join(", ") : "Unassigned";
 
   return (
     <div className="space-y-6">

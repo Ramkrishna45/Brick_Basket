@@ -25,7 +25,7 @@ model User {
 
   // Relations
   customerProjects Project[]        @relation("CustomerProjects")
-  engineerProjects Project[]        @relation("EngineerProjects")
+  assignedProjects Project[]        @relation("ProjectStaff")
   progressUpdates  ProgressUpdate[]
   notifications    Notification[]
   assignedLeads    Lead[]           @relation("AssignedLeads")
@@ -56,8 +56,7 @@ model Project {
   // Relations
   customerId String
   customer   User   @relation("CustomerProjects", fields: [customerId], references: [id])
-  engineerId String?
-  engineer   User?  @relation("EngineerProjects", fields: [engineerId], references: [id])
+  staff      User[] @relation("ProjectStaff")
 
   milestones      ProjectMilestone[]
   progressUpdates ProgressUpdate[]

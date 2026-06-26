@@ -150,7 +150,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Breadcrumb>
           <div className="ml-auto flex items-center gap-2">
             <DropdownMenu>
-              <DropdownMenuTrigger className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
+              <DropdownMenuTrigger render={<button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none" />}>
                 <Bell className="h-4 w-4 text-slate-600" />
                 {unreadCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-amber-500 rounded-full" />
@@ -183,7 +183,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* User Profile Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="focus:outline-none">
+              <DropdownMenuTrigger render={<button className="focus:outline-none rounded-full" />}>
                 <Avatar className="h-8 w-8 cursor-pointer border border-slate-200">
                   <AvatarFallback className="bg-amber-100 text-amber-700 text-xs font-bold">{initials}</AvatarFallback>
                 </Avatar>

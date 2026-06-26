@@ -69,6 +69,7 @@ export const ADMIN_NAV: NavItem[] = [
   { title: "Dashboard", href: "/admin", icon: BarChart3 },
   { title: "Leads", href: "/leads", icon: Users },
   { title: "Projects", href: "/projects", icon: Building2 },
+  { title: "Staff", href: "/staff", icon: HardHat },
   { title: "Upload Progress", href: "/uploads", icon: Upload },
   { title: "Payments", href: "/admin-payments", icon: CreditCard },
   { title: "Documents", href: "/admin-documents", icon: FolderOpen },

@@ -125,7 +125,7 @@ async function main() {
     data: {
       name: "Patel Residence",
       customerId: customer.id,
-      engineerId: engineer.id,
+      staff: { connect: [{ id: engineer.id }] },
       siteAddress: "Plot 42, Sunrise Layout, Whitefield",
       city: "Bengaluru",
       plotSize: "2,400 sq.ft",
@@ -147,7 +147,7 @@ async function main() {
     data: {
       name: "Sharma Villa",
       customerId: customerPriya.id,
-      engineerId: contractor.id,
+      staff: { connect: [{ id: contractor.id }] },
       siteAddress: "Plot 78, Green Valley, Jubilee Hills",
       city: "Hyderabad",
       plotSize: "3,000 sq.ft",
@@ -169,7 +169,7 @@ async function main() {
     data: {
       name: "Irfan Residence",
       customerId: customerIrfan.id,
-      engineerId: engineer.id,
+      staff: { connect: [{ id: engineer.id }] },
       siteAddress: "Plot 15, Lake View, Anna Nagar",
       city: "Chennai",
       plotSize: "1,800 sq.ft",

@@ -32,7 +32,7 @@ export async function getMyProjectAction() {
       where: { customerId: userId },
       include: {
         milestones: { orderBy: { createdAt: "asc" } },
-        engineer: { select: { id: true, name: true, phone: true } },
+        staff: { select: { id: true, name: true, phone: true, role: true } },
       },
     });
 
@@ -46,7 +46,7 @@ export async function getMyProjectAction() {
         expectedCompletion: project.expectedCompletion?.toISOString() ?? null,
         createdAt: project.createdAt.toISOString(),
         updatedAt: project.updatedAt.toISOString(),
-        milestones: project.milestones.map((m) => ({
+        milestones: project.milestones.map((m: any) => ({
           ...m,
           startDate: m.startDate?.toISOString() ?? null,
           completedDate: m.completedDate?.toISOString() ?? null,
@@ -73,7 +73,7 @@ export async function getMyProjectsAction() {
       where: { customerId: userId },
       include: {
         milestones: { orderBy: { createdAt: "asc" } },
-        engineer: { select: { id: true, name: true, phone: true } },
+        staff: { select: { id: true, name: true, phone: true, role: true } },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -86,7 +86,7 @@ export async function getMyProjectsAction() {
         expectedCompletion: project.expectedCompletion?.toISOString() ?? null,
         createdAt: project.createdAt.toISOString(),
         updatedAt: project.updatedAt.toISOString(),
-        milestones: project.milestones.map((m) => ({
+        milestones: project.milestones.map((m: any) => ({
           ...m,
           startDate: m.startDate?.toISOString() ?? null,
           completedDate: m.completedDate?.toISOString() ?? null,
@@ -139,7 +139,7 @@ export async function getAllProjectsAction() {
     const projects = await prisma.project.findMany({
       include: {
         customer: { select: { id: true, name: true, email: true, phone: true } },
-        engineer: { select: { id: true, name: true } },
+        staff: { select: { id: true, name: true, role: true } },
       },
       orderBy: { createdAt: "desc" },
     });
@@ -167,7 +167,7 @@ const createProjectSchema = z.object({
   plotSize: z.string().min(1),
   builtUpArea: z.string().min(1),
   customerId: z.string().min(1),
-  engineerId: z.string().optional(),
+  staffIds: z.array(z.string()).optional(),
   planName: z.string().optional(),
   totalValue: z.number().optional(),
   startDate: z.string().optional(),
@@ -194,7 +194,7 @@ export async function createProjectAction(
         plotSize: parsed.data.plotSize,
         builtUpArea: parsed.data.builtUpArea,
         customerId: parsed.data.customerId,
-        engineerId: parsed.data.engineerId ?? null,
+        staff: parsed.data.staffIds ? { connect: parsed.data.staffIds.map(id => ({ id })) } : undefined,
         planName: parsed.data.planName ?? null,
         totalValue: parsed.data.totalValue ?? 0,
         startDate: parsed.data.startDate
@@ -235,7 +235,7 @@ const updateProjectSchema = z.object({
   totalValue: z.number().optional(),
   amountPaid: z.number().optional(),
   planName: z.string().optional(),
-  engineerId: z.string().optional(),
+  staffIds: z.array(z.string()).optional(),
   startDate: z.string().optional(),
   expectedCompletion: z.string().optional(),
 });
@@ -260,6 +260,8 @@ export async function updateProjectAction(
       if (value !== undefined) {
         if (key === "startDate" || key === "expectedCompletion") {
           updateData[key] = new Date(value as string);
+        } else if (key === "staffIds") {
+          updateData["staff"] = { set: (value as string[]).map((id) => ({ id })) };
         } else {
           updateData[key] = value;
         }
@@ -288,7 +290,7 @@ export async function getProjectByIdAction(id: string) {
       where: { id },
       include: {
         customer: { select: { id: true, name: true, email: true, phone: true } },
-        engineer: { select: { id: true, name: true, phone: true } },
+        staff: { select: { id: true, name: true, phone: true, role: true } },
         milestones: { orderBy: { createdAt: "asc" } },
         progressUpdates: {
           orderBy: { createdAt: "desc" },
