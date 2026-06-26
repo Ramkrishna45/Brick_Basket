@@ -3,6 +3,11 @@
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { 
+  CustomDropdown, 
+  CustomDropdownLabel, 
+  CustomDropdownSeparator 
+} from "@/components/shared/custom-dropdown";
+import { 
   Building2, 
   ClipboardList,
   MessageSquare,
@@ -112,9 +117,19 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
               </h2>
             </div>
             <div className="flex items-center gap-3">
-              <button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none">
-                <Bell className="h-5 w-5 text-slate-600" />
-              </button>
+              <CustomDropdown
+                className="w-72"
+                align="end"
+                trigger={
+                  <button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto">
+                    <Bell className="h-5 w-5 text-slate-600 pointer-events-none" />
+                  </button>
+                }
+              >
+                <CustomDropdownLabel>Notifications</CustomDropdownLabel>
+                <CustomDropdownSeparator />
+                <div className="p-4 text-center text-sm text-slate-500">No new notifications</div>
+              </CustomDropdown>
             </div>
           </header>
 

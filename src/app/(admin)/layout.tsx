@@ -3,7 +3,7 @@
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import Link from "next/link";
-import { HardHat, Bell, LogOut, ChevronDown, Search } from "lucide-react";
+import { HardHat, Bell, LogOut, ChevronDown, Search, User } from "lucide-react";
 import {
   Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent,
   SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
@@ -144,13 +144,45 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
               <Input className="pl-8 w-48 h-8 text-sm bg-slate-50 border-slate-200" placeholder="Search..." />
             </div>
-            <button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
-              <Bell className="h-4 w-4 text-slate-600" />
-              <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-amber-500 rounded-full" />
-            </button>
-            <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarFallback className="bg-amber-100 text-amber-700 text-xs font-bold">{initials}</AvatarFallback>
-            </Avatar>
+            <CustomDropdown
+              className="w-72"
+              trigger={
+                <button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto">
+                  <Bell className="h-5 w-5 text-slate-600 pointer-events-none" />
+                  <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-amber-500 rounded-full pointer-events-none" />
+                </button>
+              }
+            >
+              <CustomDropdownLabel>Notifications</CustomDropdownLabel>
+              <CustomDropdownSeparator />
+              <div className="p-4 text-center text-sm text-slate-500">No new notifications</div>
+            </CustomDropdown>
+
+            <CustomDropdown
+              className="w-52"
+              trigger={
+                <button className="focus:outline-none rounded-full ring-2 ring-transparent hover:ring-amber-500 transition-all">
+                  <Avatar className="h-8 w-8 border border-slate-200 pointer-events-none">
+                    <AvatarFallback className="bg-amber-100 text-amber-700 font-bold text-xs">{initials}</AvatarFallback>
+                  </Avatar>
+                </button>
+              }
+            >
+              <CustomDropdownLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none text-slate-900">{user?.name}</p>
+                  <p className="text-xs leading-none text-slate-500">{user?.email}</p>
+                </div>
+              </CustomDropdownLabel>
+              <CustomDropdownSeparator />
+              <CustomDropdownItem onClick={() => router.push("/admin-settings")}>
+                <div className="flex items-center"><User className="h-4 w-4 mr-2" />Admin Settings</div>
+              </CustomDropdownItem>
+              <CustomDropdownSeparator />
+              <CustomDropdownItem onClick={handleLogout} className="text-red-600">
+                <div className="flex items-center"><LogOut className="h-4 w-4 mr-2" />Logout</div>
+              </CustomDropdownItem>
+            </CustomDropdown>
           </div>
         </header>
 
