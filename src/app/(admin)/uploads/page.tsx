@@ -49,7 +49,7 @@ export default function UploadsPage() {
       if (uploadRes.success && uploadRes.url) {
         uploadedUrls.push(uploadRes.url);
       } else {
-        toast.error(`Failed to upload ${file.name}`);
+        toast.error(`Failed to upload ${file.name}: ${uploadRes.error || 'Unknown error'}`);
       }
     }
 
