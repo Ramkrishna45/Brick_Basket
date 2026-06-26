@@ -12,10 +12,12 @@ import {
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import {
-  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { 
+  CustomDropdown, 
+  CustomDropdownItem, 
+  CustomDropdownLabel, 
+  CustomDropdownSeparator 
+} from "@/components/shared/custom-dropdown";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
 import { signOut } from "next-auth/react";
 import { useCurrentUser } from "@/lib/auth-client";
@@ -110,29 +112,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </SidebarContent>
 
         <SidebarFooter className="p-3 border-t border-slate-200">
-          <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-3 w-full p-2.5 rounded-lg hover:bg-slate-100 transition-colors text-left">
-              <Avatar className="h-8 w-8 flex-shrink-0">
-                <AvatarFallback className="bg-amber-100 text-amber-700 text-xs font-bold">{initials}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-slate-900 truncate">{user?.name}</div>
-                <div className="text-xs text-slate-500 truncate">{user?.email}</div>
+          <CustomDropdown
+            align="start"
+            trigger={
+              <div className="flex items-center gap-3 w-full p-2.5 rounded-lg hover:bg-slate-100 transition-colors text-left border border-transparent hover:border-slate-200">
+                <Avatar className="h-8 w-8 flex-shrink-0 pointer-events-none">
+                  <AvatarFallback className="bg-amber-100 text-amber-700 text-xs font-bold">{initials}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0 pointer-events-none">
+                  <div className="text-sm font-medium text-slate-900 truncate">{user?.name}</div>
+                  <div className="text-xs text-slate-500 truncate">{user?.email}</div>
+                </div>
+                <ChevronDown className="h-4 w-4 text-slate-400 flex-shrink-0 pointer-events-none" />
               </div>
-              <ChevronDown className="h-4 w-4 text-slate-400 flex-shrink-0" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" className="w-52">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => router.push("/settings")}>
-                <User className="h-4 w-4 mr-2" />Profile Settings
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
-                <LogOut className="h-4 w-4 mr-2" />Logout
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            }
+          >
+            <CustomDropdownLabel>My Account</CustomDropdownLabel>
+            <CustomDropdownSeparator />
+            <CustomDropdownItem onClick={() => router.push("/settings")}>
+              <div className="flex items-center"><User className="h-4 w-4 mr-2" />Profile Settings</div>
+            </CustomDropdownItem>
+            <CustomDropdownSeparator />
+            <CustomDropdownItem onClick={handleLogout} className="text-red-600">
+              <div className="flex items-center"><LogOut className="h-4 w-4 mr-2" />Logout</div>
+            </CustomDropdownItem>
+          </CustomDropdown>
         </SidebarFooter>
       </Sidebar>
 
@@ -149,64 +153,66 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </BreadcrumbList>
           </Breadcrumb>
           <div className="ml-auto flex items-center gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none" />}>
-                <Bell className="h-4 w-4 text-slate-600" />
-                {unreadCount > 0 && (
-                  <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-amber-500 rounded-full" />
-                )}
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-72">
-                <DropdownMenuLabel>Notifications ({unreadCount})</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-slate-500">No new notifications</div>
-                ) : (
-                  notifications.map((n) => (
-                    <DropdownMenuItem 
-                      key={n.id} 
-                      className={cn("flex-col items-start py-2.5 cursor-pointer", !n.read && "bg-slate-50")}
-                      onClick={() => handleNotificationClick(n.id)}
-                    >
-                      <div className="flex items-center justify-between w-full">
-                        <span className={cn("text-xs font-semibold text-slate-900", !n.read && "text-amber-700")}>{n.title}</span>
-                        <span className="text-xs text-slate-400">
-                          {new Date(n.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <span className="text-xs text-slate-500 mt-0.5">{n.message}</span>
-                    </DropdownMenuItem>
-                  ))
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <CustomDropdown
+              className="w-72"
+              trigger={
+                <button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto">
+                  <Bell className="h-5 w-5 text-slate-600 pointer-events-none" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-amber-500 rounded-full pointer-events-none" />
+                  )}
+                </button>
+              }
+            >
+              <CustomDropdownLabel>Notifications ({unreadCount})</CustomDropdownLabel>
+              <CustomDropdownSeparator />
+              {notifications.length === 0 ? (
+                <div className="p-4 text-center text-sm text-slate-500">No new notifications</div>
+              ) : (
+                notifications.map((n) => (
+                  <div 
+                    key={n.id} 
+                    className={cn("flex flex-col items-start py-2.5 px-4 cursor-pointer hover:bg-slate-50", !n.read && "bg-slate-50")}
+                    onClick={() => handleNotificationClick(n.id)}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className={cn("text-xs font-semibold text-slate-900", !n.read && "text-amber-700")}>{n.title}</span>
+                      <span className="text-xs text-slate-400">
+                        {new Date(n.createdAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <span className="text-xs text-slate-500 mt-0.5">{n.message}</span>
+                  </div>
+                ))
+              )}
+            </CustomDropdown>
 
             {/* User Profile Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger render={<button className="focus:outline-none rounded-full" />}>
-                <Avatar className="h-8 w-8 cursor-pointer border border-slate-200">
-                  <AvatarFallback className="bg-amber-100 text-amber-700 text-xs font-bold">{initials}</AvatarFallback>
-                </Avatar>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-52">
-                <DropdownMenuLabel>
-                  <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.name}</p>
-                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
-                  </div>
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/settings")}>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <CustomDropdown
+              className="w-52"
+              trigger={
+                <button className="focus:outline-none rounded-full ring-2 ring-transparent hover:ring-amber-500 transition-all">
+                  <Avatar className="h-8 w-8 border border-slate-200 pointer-events-none">
+                    <AvatarFallback className="bg-amber-100 text-amber-700 font-bold text-xs">{initials}</AvatarFallback>
+                  </Avatar>
+                </button>
+              }
+            >
+              <CustomDropdownLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium leading-none text-slate-900">{user?.name}</p>
+                  <p className="text-xs leading-none text-slate-500">{user?.email}</p>
+                </div>
+              </CustomDropdownLabel>
+              <CustomDropdownSeparator />
+              <CustomDropdownItem onClick={() => router.push("/settings")}>
+                <div className="flex items-center"><User className="h-4 w-4 mr-2" />Profile Settings</div>
+              </CustomDropdownItem>
+              <CustomDropdownSeparator />
+              <CustomDropdownItem onClick={handleLogout} className="text-red-600">
+                <div className="flex items-center"><LogOut className="h-4 w-4 mr-2" />Logout</div>
+              </CustomDropdownItem>
+            </CustomDropdown>
           </div>
         </header>
 

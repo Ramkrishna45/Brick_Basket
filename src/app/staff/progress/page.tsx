@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { toast } from "sonner";
-import { getStaffAssignedProjectsAction } from "@/lib/actions/staff-projects";
+import { getStaffAssignedProjectsAction, createProgressUpdateAction } from "@/lib/actions/staff-projects";
 import { CONSTRUCTION_STAGES } from "@/lib/constants";
 
 export default function StaffProgressUploadPage() {
@@ -24,6 +24,7 @@ export default function StaffProgressUploadPage() {
   const [projectId, setProjectId] = useState("");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [stage, setStage] = useState("");
   const [completionPercentage, setCompletionPercentage] = useState([0]);
 
@@ -60,17 +61,34 @@ export default function StaffProgressUploadPage() {
     
     setIsSubmitting(true);
     
-    // In a real app, this would call a server action to save the progress update
-    // and handle actual file uploads to Supabase Storage.
-    // For this mockup, we'll simulate the API call.
     
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    // Convert image file to data URL for mockup upload (in a real app, upload to S3/Supabase Storage)
+    let imageUrl = "https://images.unsplash.com/photo-1541888081622-19e0789d970a?q=80&w=600";
+    if (imageFile) {
+      imageUrl = URL.createObjectURL(imageFile);
+    }
+    
+    const res = await createProgressUpdateAction({
+      projectId,
+      title,
+      description,
+      stage,
+      completionPercentage: completionPercentage[0],
+      images: [imageUrl],
+    });
+    
+    if (res.error) {
+      toast.error(res.error);
+      setIsSubmitting(false);
+      return;
+    }
     
     toast.success("Progress update published successfully!");
     
     // Reset form partially
     setTitle("");
     setDescription("");
+    setImageFile(null);
     setIsSubmitting(false);
   };
 
@@ -170,19 +188,45 @@ export default function StaffProgressUploadPage() {
             </div>
 
             <div className="space-y-2">
+              <div className="space-y-2">
               <Label>Photos & Videos</Label>
-              <div className="border-2 border-dashed border-slate-300 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer group">
-                <div className="bg-amber-100 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                  <Upload className="h-6 w-6 text-amber-600" />
-                </div>
-                <h3 className="font-semibold text-slate-900 mb-1">Click to upload photos</h3>
-                <p className="text-xs text-slate-500 mb-4">PNG, JPG, HEIC up to 10MB each</p>
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm" type="button" className="text-xs">
-                    <ImageIcon className="h-3 w-3 mr-2" /> Browse Files
-                  </Button>
-                </div>
+              <div 
+                className="border-2 border-dashed border-slate-300 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer group relative overflow-hidden"
+                onClick={() => document.getElementById('photo-upload')?.click()}
+              >
+                <input 
+                  type="file" 
+                  id="photo-upload" 
+                  className="hidden" 
+                  accept="image/png, image/jpeg, image/heic"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) setImageFile(file);
+                  }}
+                />
+                
+                {imageFile ? (
+                  <div className="flex flex-col items-center">
+                    <CheckCircle2 className="h-8 w-8 text-emerald-500 mb-2" />
+                    <span className="font-medium text-emerald-700">{imageFile.name}</span>
+                    <span className="text-xs text-slate-500 mt-1">Click to replace</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="bg-amber-100 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
+                      <Upload className="h-6 w-6 text-amber-600" />
+                    </div>
+                    <h3 className="font-semibold text-slate-900 mb-1">Click to upload photos</h3>
+                    <p className="text-xs text-slate-500 mb-4">PNG, JPG, HEIC up to 10MB each</p>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" type="button" className="text-xs pointer-events-none">
+                        <ImageIcon className="h-3 w-3 mr-2" /> Browse Files
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
+            </div>
             </div>
 
             <div className="pt-4 flex items-center justify-between border-t border-slate-100">
