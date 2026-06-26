@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 
 // ── Default construction milestones ─────────────────────────────────
 
@@ -273,6 +274,7 @@ export async function updateProjectAction(
       data: updateData,
     });
 
+    revalidatePath("/admin/projects");
     return { success: true, data: { id: project.id } };
   } catch {
     return { error: "Failed to update project." };
