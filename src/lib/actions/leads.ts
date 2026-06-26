@@ -50,7 +50,7 @@ export async function submitEnquiryAction(
 
     // Notify Admin
     await sendEmail({
-      to: "admin@brickbasket.com", // You can change this to the real admin email later
+      to: "tripathiramkrishna16@gmail.com",
       subject: `New Enquiry from ${lead.name}`,
       html: `
         <h2>New Enquiry Received!</h2>
