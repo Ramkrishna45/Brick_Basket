@@ -54,12 +54,22 @@ export async function submitEnquiryAction(
       subject: `New Enquiry from ${lead.name}`,
       html: `
         <h2>New Enquiry Received!</h2>
-        <p><strong>Name:</strong> ${lead.name}</p>
-        <p><strong>Email:</strong> ${lead.email}</p>
-        <p><strong>Phone:</strong> ${lead.phone}</p>
-        <p><strong>City:</strong> ${lead.city}</p>
-        <p><strong>Home Type:</strong> ${lead.homeType || "Not specified"}</p>
-        <p>Log in to the Admin Dashboard to view more details.</p>
+        <table border="1" cellpadding="8" style="border-collapse: collapse; width: 100%; max-width: 600px;">
+          <tr><td><strong>Name:</strong></td><td>${lead.name}</td></tr>
+          <tr><td><strong>Email:</strong></td><td>${lead.email}</td></tr>
+          <tr><td><strong>Phone:</strong></td><td>${lead.phone}</td></tr>
+          <tr><td><strong>City/Location:</strong></td><td>${lead.city}</td></tr>
+          <tr><td><strong>Plot Size:</strong></td><td>${lead.plotSize || "N/A"}</td></tr>
+          <tr><td><strong>Built-up Area:</strong></td><td>${lead.builtUpArea || "N/A"}</td></tr>
+          <tr><td><strong>Budget Range:</strong></td><td>${lead.budgetRange || "N/A"}</td></tr>
+          <tr><td><strong>Type of Home:</strong></td><td>${(lead.homeType || "N/A").replace(/_/g, ' ')}</td></tr>
+          <tr><td><strong>Timeline:</strong></td><td>${lead.timeline || "N/A"}</td></tr>
+          <tr><td><strong>Services Needed:</strong></td><td>${JSON.parse(lead.servicesNeeded || "[]").join(', ') || "N/A"}</td></tr>
+          <tr><td><strong>Preferred Contact:</strong></td><td>${lead.preferredContact}</td></tr>
+          <tr><td><strong>Notes:</strong></td><td>${lead.notes || "None"}</td></tr>
+        </table>
+        <br/>
+        <p>Log in to the Admin Dashboard to view more details and convert this lead.</p>
       `,
     });
 
