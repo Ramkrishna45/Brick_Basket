@@ -7,10 +7,11 @@ interface DropdownProps {
   trigger: React.ReactNode;
   children: React.ReactNode;
   align?: "start" | "end";
+  side?: "top" | "bottom";
   className?: string;
 }
 
-export function CustomDropdown({ trigger, children, align = "end", className }: DropdownProps) {
+export function CustomDropdown({ trigger, children, align = "end", side = "bottom", className }: DropdownProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -37,8 +38,9 @@ export function CustomDropdown({ trigger, children, align = "end", className }: 
       {open && (
         <div 
           className={cn(
-            "absolute z-50 mt-2 min-w-[12rem] origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none",
-            align === "end" ? "right-0" : "left-0",
+            "absolute z-50 min-w-[12rem] rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none",
+            align === "end" ? "right-0 origin-right" : "left-0 origin-left",
+            side === "top" ? "bottom-full mb-2 origin-bottom" : "mt-2 origin-top",
             "animate-in fade-in-0 zoom-in-95",
             className
           )}

@@ -106,6 +106,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <SidebarFooter className="p-3 border-t border-slate-200">
           <CustomDropdown
             align="start"
+            side="top"
             trigger={
               <div className="flex items-center gap-3 w-full p-2.5 rounded-lg hover:bg-slate-100 transition-colors text-left border border-transparent hover:border-slate-200 cursor-pointer">
                 <Avatar className="h-8 w-8 flex-shrink-0 pointer-events-none">
