@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { HardHat, Bell, LogOut, ChevronDown, User } from "lucide-react";
 import {
@@ -21,6 +21,7 @@ import { signOut } from "next-auth/react";
 import { useCurrentUser } from "@/lib/auth-client";
 import { CUSTOMER_NAV, BRAND } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { getNotificationsAction, markNotificationReadAction } from "@/lib/actions/notifications";
 
 const breadcrumbMap: Record<string, string> = {
   "/dashboard": "Dashboard",
@@ -38,10 +39,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const router = useRouter();
   const { user, isAuthenticated, isLoading } = useCurrentUser();
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       router.push("/login");
+    } else if (isAuthenticated) {
+      getNotificationsAction().then((res: any) => {
+        if (res.success && res.data) {
+          setNotifications(res.data);
+        }
+      });
     }
   }, [isLoading, isAuthenticated, router]);
 
@@ -54,6 +63,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   function handleLogout() {
     signOut({ callbackUrl: "/login" });
+  }
+
+  async function handleNotificationClick(id: string) {
+    await markNotificationReadAction(id);
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
   }
 
   return (
@@ -138,29 +152,61 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <DropdownMenu>
               <DropdownMenuTrigger className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors">
                 <Bell className="h-4 w-4 text-slate-600" />
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-amber-500 rounded-full" />
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-amber-500 rounded-full" />
+                )}
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-72">
-                <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                <DropdownMenuLabel>Notifications ({unreadCount})</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {[
-                  { title: "New Progress Update", msg: "Wall work — east side completed", time: "Just now" },
-                  { title: "Payment Due Soon", msg: "₹7,56,000 due on Jan 15", time: "2h ago" },
-                  { title: "Document Uploaded", msg: "Material Quality Certificate", time: "Yesterday" },
-                ].map((n, i) => (
-                  <DropdownMenuItem key={i} className="flex-col items-start py-2.5 cursor-pointer">
-                    <div className="flex items-center justify-between w-full">
-                      <span className="text-xs font-semibold text-slate-900">{n.title}</span>
-                      <span className="text-xs text-slate-400">{n.time}</span>
-                    </div>
-                    <span className="text-xs text-slate-500 mt-0.5">{n.msg}</span>
-                  </DropdownMenuItem>
-                ))}
+                {notifications.length === 0 ? (
+                  <div className="p-4 text-center text-sm text-slate-500">No new notifications</div>
+                ) : (
+                  notifications.map((n) => (
+                    <DropdownMenuItem 
+                      key={n.id} 
+                      className={cn("flex-col items-start py-2.5 cursor-pointer", !n.read && "bg-slate-50")}
+                      onClick={() => handleNotificationClick(n.id)}
+                    >
+                      <div className="flex items-center justify-between w-full">
+                        <span className={cn("text-xs font-semibold text-slate-900", !n.read && "text-amber-700")}>{n.title}</span>
+                        <span className="text-xs text-slate-400">
+                          {new Date(n.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-500 mt-0.5">{n.message}</span>
+                    </DropdownMenuItem>
+                  ))
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Avatar className="h-8 w-8 cursor-pointer">
-              <AvatarFallback className="bg-amber-100 text-amber-700 text-xs font-bold">{initials}</AvatarFallback>
-            </Avatar>
+
+            {/* User Profile Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="focus:outline-none">
+                <Avatar className="h-8 w-8 cursor-pointer border border-slate-200">
+                  <AvatarFallback className="bg-amber-100 text-amber-700 text-xs font-bold">{initials}</AvatarFallback>
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-52">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">{user?.name}</p>
+                    <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push("/settings")}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 

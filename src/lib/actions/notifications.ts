@@ -77,3 +77,54 @@ export async function markAllReadAction() {
     return { error: "Failed to mark all notifications as read." };
   }
 }
+
+// ── Admin: Send Notification ────────────────────────────────────────
+
+export async function sendNotificationAction(data: {
+  title: string;
+  message: string;
+  type?: string;
+  userId?: string; // If null/empty/all, send to all customers
+}) {
+  try {
+    const session = await auth();
+    if (!session || (session.user as any).role !== "admin")
+      return { error: "Forbidden" };
+
+    if (data.userId && data.userId !== "all") {
+      // Send to specific user
+      await prisma.notification.create({
+        data: {
+          title: data.title,
+          message: data.message,
+          type: data.type || "info",
+          userId: data.userId,
+        },
+      });
+    } else {
+      // Send to all customers
+      const customers = await prisma.user.findMany({
+        where: { role: "customer" },
+        select: { id: true },
+      });
+
+      const notifications = customers.map((c) => ({
+        title: data.title,
+        message: data.message,
+        type: data.type || "info",
+        userId: c.id,
+      }));
+
+      if (notifications.length > 0) {
+        await prisma.notification.createMany({
+          data: notifications,
+        });
+      }
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error(err);
+    return { error: "Failed to send notification." };
+  }
+}

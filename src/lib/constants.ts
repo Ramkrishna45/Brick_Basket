@@ -18,6 +18,7 @@ import {
   Package,
   Plus,
   Compass,
+  Bell,
   type LucideIcon,
 } from "lucide-react";
 
@@ -71,6 +72,7 @@ export const ADMIN_NAV: NavItem[] = [
   { title: "Upload Progress", href: "/uploads", icon: Upload },
   { title: "Payments", href: "/admin-payments", icon: CreditCard },
   { title: "Documents", href: "/admin-documents", icon: FolderOpen },
+  { title: "Notifications", href: "/notifications", icon: Bell },
   { title: "Reports", href: "/reports", icon: BarChart3 },
   { title: "Settings", href: "/admin-settings", icon: Settings },
 ];
