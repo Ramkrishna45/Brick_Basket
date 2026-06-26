@@ -3,6 +3,8 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
+import { sendEmail } from "@/lib/mail";
+import bcrypt from "bcryptjs";
 
 // ── Public: Submit Enquiry ──────────────────────────────────────────
 
@@ -44,6 +46,21 @@ export async function submitEnquiryAction(
         notes: parsed.data.notes ?? null,
         status: "new",
       },
+    });
+
+    // Notify Admin
+    await sendEmail({
+      to: "admin@brickbasket.com", // You can change this to the real admin email later
+      subject: `New Enquiry from ${lead.name}`,
+      html: `
+        <h2>New Enquiry Received!</h2>
+        <p><strong>Name:</strong> ${lead.name}</p>
+        <p><strong>Email:</strong> ${lead.email}</p>
+        <p><strong>Phone:</strong> ${lead.phone}</p>
+        <p><strong>City:</strong> ${lead.city}</p>
+        <p><strong>Home Type:</strong> ${lead.homeType || "Not specified"}</p>
+        <p>Log in to the Admin Dashboard to view more details.</p>
+      `,
     });
 
     return { success: true, data: { id: lead.id } };
@@ -114,8 +131,66 @@ export async function updateLeadStatusAction(id: string, status: string) {
       },
     });
 
+    // If converted, create user and project
+    if (status === "converted") {
+      // Check if user exists
+      const existingUser = await prisma.user.findUnique({ where: { email: lead.email } });
+      
+      let customerId = existingUser?.id;
+
+      if (!existingUser) {
+        // Generate random password
+        const randomPassword = Math.random().toString(36).slice(-8) + "Aa1@";
+        const passwordHash = await bcrypt.hash(randomPassword, 10);
+
+        const newUser = await prisma.user.create({
+          data: {
+            name: lead.name,
+            email: lead.email,
+            phone: lead.phone,
+            role: "customer",
+            passwordHash,
+          },
+        });
+        customerId = newUser.id;
+
+        // Email credentials to customer
+        await sendEmail({
+          to: lead.email,
+          subject: "Welcome to Brick Basket!",
+          html: `
+            <h2>Welcome to Brick Basket!</h2>
+            <p>Hi ${lead.name},</p>
+            <p>Your account has been successfully created. You can now log in to track your project progress, view documents, and more.</p>
+            <p><strong>Login URL:</strong> https://brick-basket.vercel.app/login</p>
+            <p><strong>Email:</strong> ${lead.email}</p>
+            <p><strong>Password:</strong> ${randomPassword}</p>
+            <p>We recommend changing your password after logging in.</p>
+            <p>Best regards,<br/>The Brick Basket Team</p>
+          `,
+        });
+      }
+
+      if (customerId) {
+        // Create an empty project for this lead
+        await prisma.project.create({
+          data: {
+            name: `${lead.name}'s Residence`,
+            customerId: customerId,
+            siteAddress: `TBD (${lead.city})`,
+            city: lead.city,
+            plotSize: lead.plotSize || "TBD",
+            builtUpArea: lead.builtUpArea || "TBD",
+            status: "not_started",
+            currentStage: "planning",
+          },
+        });
+      }
+    }
+
     return { success: true, data: { id: lead.id, status: lead.status } };
-  } catch {
+  } catch (err: any) {
+    console.error("Update lead error:", err);
     return { error: "Failed to update lead status." };
   }
 }
