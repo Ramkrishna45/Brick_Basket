@@ -31,6 +31,7 @@ const breadcrumbMap: Record<string, string> = {
   "/photos": "Photos & Videos",
   "/messages": "Messages",
   "/settings": "Settings",
+  "/new-enquiry": "New Enquiry",
 };
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

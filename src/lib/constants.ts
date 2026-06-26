@@ -16,6 +16,8 @@ import {
   Activity,
   FileCheck,
   Package,
+  Plus,
+  Compass,
   type LucideIcon,
 } from "lucide-react";
 
@@ -58,6 +60,8 @@ export const CUSTOMER_NAV: NavItem[] = [
   { title: "Daily Progress", href: "/progress", icon: ClipboardList },
   { title: "Documents", href: "/documents", icon: FileText },
   { title: "Payments", href: "/payments", icon: CreditCard },
+  { title: "New Enquiry", href: "/new-enquiry", icon: Plus },
+  { title: "Explore Plans", href: "/plans", icon: Compass },
 ];
 
 export const ADMIN_NAV: NavItem[] = [

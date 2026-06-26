@@ -18,7 +18,7 @@ const DEFAULT_MILESTONES = [
   { stage: "handover", title: "Final Handover", description: "Quality check, documentation, and key handover" },
 ];
 
-// ── Customer: Get My Project ────────────────────────────────────────
+// ── Customer: Get My Project (single — backward compat) ────────────
 
 export async function getMyProjectAction() {
   try {
@@ -56,6 +56,74 @@ export async function getMyProjectAction() {
     };
   } catch {
     return { error: "Failed to fetch project." };
+  }
+}
+
+// ── Customer: Get All My Projects ───────────────────────────────────
+
+export async function getMyProjectsAction() {
+  try {
+    const session = await auth();
+    if (!session) return { error: "Unauthorized" };
+
+    const userId = session.user?.id;
+    if (!userId) return { error: "Unauthorized" };
+
+    const projects = await prisma.project.findMany({
+      where: { customerId: userId },
+      include: {
+        milestones: { orderBy: { createdAt: "asc" } },
+        engineer: { select: { id: true, name: true, phone: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return {
+      success: true,
+      data: projects.map((project) => ({
+        ...project,
+        startDate: project.startDate?.toISOString() ?? null,
+        expectedCompletion: project.expectedCompletion?.toISOString() ?? null,
+        createdAt: project.createdAt.toISOString(),
+        updatedAt: project.updatedAt.toISOString(),
+        milestones: project.milestones.map((m) => ({
+          ...m,
+          startDate: m.startDate?.toISOString() ?? null,
+          completedDate: m.completedDate?.toISOString() ?? null,
+          createdAt: m.createdAt.toISOString(),
+        })),
+      })),
+    };
+  } catch {
+    return { error: "Failed to fetch projects." };
+  }
+}
+
+// ── Customer: Get My Enquiries ──────────────────────────────────────
+
+export async function getMyEnquiriesAction() {
+  try {
+    const session = await auth();
+    if (!session) return { error: "Unauthorized" };
+
+    const email = session.user?.email;
+    if (!email) return { error: "Unauthorized" };
+
+    const leads = await prisma.lead.findMany({
+      where: { email },
+      orderBy: { createdAt: "desc" },
+    });
+
+    return {
+      success: true,
+      data: leads.map((l) => ({
+        ...l,
+        createdAt: l.createdAt.toISOString(),
+        lastContactedAt: l.lastContactedAt?.toISOString() ?? null,
+      })),
+    };
+  } catch {
+    return { error: "Failed to fetch enquiries." };
   }
 }
 
