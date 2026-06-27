@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { sendOtpAction, verifyOtpAction, resetPasswordAction } from "@/lib/actions/auth";
 
 export default function ForgotPasswordPage() {
   const [step, setStep] = useState(1);
@@ -20,8 +21,14 @@ export default function ForgotPasswordPage() {
   async function handleEmailSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
+    const res = await sendOtpAction(email);
     setLoading(false);
+    
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
+    
     toast.success("OTP sent to your email!");
     setStep(2);
   }
@@ -35,18 +42,33 @@ export default function ForgotPasswordPage() {
 
   async function handleOtpSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (otp.join("").length < 6) { toast.error("Please enter the complete OTP"); return; }
+    const otpString = otp.join("");
+    if (otpString.length < 6) { toast.error("Please enter the complete OTP"); return; }
+    
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 800));
+    const res = await verifyOtpAction(email, otpString);
     setLoading(false);
+
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
+
     setStep(3);
   }
 
   async function handlePasswordReset(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
+    const otpString = otp.join("");
+    const res = await resetPasswordAction(email, otpString, password);
     setLoading(false);
+
+    if (res.error) {
+      toast.error(res.error);
+      return;
+    }
+
     setStep(4);
     toast.success("Password reset successfully!");
   }

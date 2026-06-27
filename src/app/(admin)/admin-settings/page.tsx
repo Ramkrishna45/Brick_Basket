@@ -1,5 +1,16 @@
-import { ComingSoon } from "@/components/shared/ComingSoon";
+import { ChangePasswordForm } from "@/components/shared/ChangePasswordForm";
 
 export default function AdminSettingsPage() {
-  return <ComingSoon title="Admin Settings" description="Configure platform settings, roles, and preferences. Coming soon." backHref="/admin" backLabel="Back to Dashboard" />;
+  return (
+    <div className="p-6 max-w-4xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-slate-900">Admin Settings</h1>
+        <p className="text-slate-500">Manage your platform preferences and security.</p>
+      </div>
+      
+      <div className="space-y-6">
+        <ChangePasswordForm />
+      </div>
+    </div>
+  );
 }

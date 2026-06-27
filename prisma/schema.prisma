@@ -20,6 +20,8 @@ model User {
   passwordHash String
   role         String   @default("customer") // customer | engineer | admin | contractor
   avatar       String?
+  otpCode      String?
+  otpExpiry    DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
