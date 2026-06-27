@@ -8,6 +8,7 @@ import { Menu, X, HardHat, Phone } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { PUBLIC_NAV, BRAND } from "@/lib/constants";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -67,6 +68,7 @@ export function Header() {
 
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             <Link
               href="/login"
               className={cn(
@@ -84,15 +86,17 @@ export function Header() {
           </div>
 
           {/* Mobile Menu */}
-          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-            <SheetTrigger
-              className={cn(
-                "md:hidden p-2 rounded-lg transition-colors",
-                scrolled ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/10"
-              )}
-            >
-              <Menu className="h-5 w-5" />
-            </SheetTrigger>
+          <div className="flex md:hidden items-center gap-2">
+            <ThemeToggle />
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger
+                className={cn(
+                  "p-2 rounded-lg transition-colors",
+                  scrolled ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/10"
+                )}
+              >
+                <Menu className="h-5 w-5" />
+              </SheetTrigger>
             <SheetContent side="right" className="w-72 p-0">
               <div className="flex flex-col h-full">
                 <div className="flex items-center justify-between p-4 border-b">
@@ -141,6 +145,7 @@ export function Header() {
               </div>
             </SheetContent>
           </Sheet>
+          </div>
         </div>
       </div>
     </motion.header>

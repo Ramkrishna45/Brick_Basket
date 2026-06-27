@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { CreateProjectForm } from "@/components/admin/CreateProjectForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input as FormInput } from "@/components/ui/input";
@@ -99,16 +102,18 @@ export default function ProjectsPage() {
         <h1 className="text-2xl font-bold text-slate-900">Projects</h1>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger render={<Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2"><Plus className="h-4 w-4" /> New Project</Button>} />
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Create New Project</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4 py-2">
-              <p className="text-sm text-slate-500">Project creation via UI is coming soon in the next update.</p>
-              <div className="flex justify-end gap-3 pt-2">
-                <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                <Button className="bg-amber-600 hover:bg-amber-700" onClick={() => setOpen(false)}>Okay</Button>
-              </div>
+            <div className="py-2">
+              <CreateProjectForm 
+                onSuccess={() => {
+                  setOpen(false);
+                  loadData();
+                }}
+                onCancel={() => setOpen(false)}
+              />
             </div>
           </DialogContent>
         </Dialog>

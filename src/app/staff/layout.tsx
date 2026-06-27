@@ -2,11 +2,15 @@
 
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { 
-  CustomDropdown, 
-  CustomDropdownLabel, 
-  CustomDropdownSeparator 
-} from "@/components/shared/custom-dropdown";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { 
   Building2, 
   ClipboardList,
@@ -107,29 +111,29 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
         </Sidebar>
 
         <SidebarInset className="flex flex-col flex-1 min-w-0 bg-transparent">
-          <header className="h-16 flex items-center justify-between px-4 sm:px-8 border-b border-slate-200 bg-white shrink-0">
+          <header className="h-16 flex items-center justify-between px-4 sm:px-8 border-b border-border bg-background shrink-0">
             <div className="flex items-center gap-4">
               <SidebarTrigger className="md:hidden">
                 <Menu className="h-5 w-5" />
               </SidebarTrigger>
-              <h2 className="text-sm font-medium text-slate-500 capitalize hidden sm:block">
+              <h2 className="text-sm font-medium text-muted-foreground capitalize hidden sm:block">
                 {pathname.split("/").pop()?.replace("-", " ")}
               </h2>
             </div>
             <div className="flex items-center gap-3">
-              <CustomDropdown
-                className="w-72"
-                align="end"
-                trigger={
-                  <button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto">
-                    <Bell className="h-5 w-5 text-slate-600 pointer-events-none" />
+              <ThemeToggle />
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto cursor-pointer">
+                    <Bell className="h-5 w-5 text-slate-600" />
                   </button>
-                }
-              >
-                <CustomDropdownLabel>Notifications</CustomDropdownLabel>
-                <CustomDropdownSeparator />
-                <div className="p-4 text-center text-sm text-slate-500">No new notifications</div>
-              </CustomDropdown>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-72">
+                  <DropdownMenuLabel>Notifications</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <div className="p-4 text-center text-sm text-slate-500">No new notifications</div>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
 

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
+import { sendEmail } from "@/lib/email";
 
 // ── Default construction milestones ─────────────────────────────────
 
@@ -159,66 +160,137 @@ export async function getAllProjectsAction() {
   }
 }
 
-// ── Admin: Create Project ───────────────────────────────────────────
+
 
 const createProjectSchema = z.object({
-  name: z.string().min(2),
-  siteAddress: z.string().min(2),
-  city: z.string().min(2),
-  plotSize: z.string().min(1),
-  builtUpArea: z.string().min(1),
-  customerId: z.string().min(1),
-  staffIds: z.array(z.string()).optional(),
-  planName: z.string().optional(),
-  totalValue: z.number().optional(),
-  startDate: z.string().optional(),
-  expectedCompletion: z.string().optional(),
+  name: z.string().min(1, "Project name is required"),
+  siteAddress: z.string().min(1, "Site address is required"),
+  city: z.string().min(1, "City is required"),
+  plotSize: z.string().min(1, "Plot size is required"),
+  builtUpArea: z.string().min(1, "Built-up area is required"),
+  totalValue: z.number().min(0),
+  startDate: z.string().min(1, "Start date is required"),
+  expectedCompletion: z.string().min(1, "Expected completion is required"),
+  customerName: z.string().min(1, "Customer name is required"),
+  customerEmail: z.string().email("Valid email is required"),
+  customerPhone: z.string().min(10, "Valid phone is required"),
 });
 
-export async function createProjectAction(
-  data: z.infer<typeof createProjectSchema>
-) {
+export async function createProjectAction(data: z.infer<typeof createProjectSchema>) {
   try {
     const session = await auth();
-    if (!session) return { error: "Unauthorized" };
-    if ((session.user as { role?: string }).role !== "admin")
-      return { error: "Forbidden" };
+    if (!session || (session.user as any).role !== "admin") {
+      return { error: "Unauthorized" };
+    }
 
     const parsed = createProjectSchema.safeParse(data);
     if (!parsed.success) return { error: "Invalid data" };
 
+    const {
+      name, siteAddress, city, plotSize, builtUpArea, totalValue,
+      startDate, expectedCompletion, customerName, customerEmail, customerPhone
+    } = parsed.data;
+
+    // 1. Get or Create Customer
+    let customer = await prisma.user.findUnique({ where: { email: customerEmail } });
+    if (!customer) {
+      // Generate a random password for new customer
+      const randomPassword = Math.random().toString(36).slice(-8);
+      // In a real app, hash the password and send it via email
+      // Here we just use a basic hash representation for demo
+      const bcrypt = require("bcryptjs");
+      const passwordHash = await bcrypt.hash(randomPassword, 10);
+      
+      customer = await prisma.user.create({
+        data: {
+          name: customerName,
+          email: customerEmail,
+          phone: customerPhone,
+          passwordHash,
+          role: "customer"
+        }
+      });
+      
+      // Send welcome email with credentials
+      await sendEmail({
+        to: customerEmail,
+        subject: "Welcome to Brick Basket - Your Construction Portal",
+        html: `
+          <h2>Welcome to Brick Basket, ${customerName}!</h2>
+          <p>Your customer account has been created. You can now track your construction project online.</p>
+          <p><strong>Login URL:</strong> <a href="${process.env.NEXTAUTH_URL}/login">${process.env.NEXTAUTH_URL}/login</a></p>
+          <p><strong>Email:</strong> ${customerEmail}</p>
+          <p><strong>Password:</strong> ${randomPassword}</p>
+          <br/>
+          <p>Please change your password after logging in.</p>
+          <p>Best regards,<br/>The Brick Basket Team</p>
+        `
+      });
+    }
+
+    // 2. Create Project
+    const sDate = new Date(startDate);
+    const cDate = new Date(expectedCompletion);
+    
     const project = await prisma.project.create({
       data: {
-        name: parsed.data.name,
-        siteAddress: parsed.data.siteAddress,
-        city: parsed.data.city,
-        plotSize: parsed.data.plotSize,
-        builtUpArea: parsed.data.builtUpArea,
-        customerId: parsed.data.customerId,
-        staff: parsed.data.staffIds ? { connect: parsed.data.staffIds.map(id => ({ id })) } : undefined,
-        planName: parsed.data.planName ?? null,
-        totalValue: parsed.data.totalValue ?? 0,
-        startDate: parsed.data.startDate
-          ? new Date(parsed.data.startDate)
-          : null,
-        expectedCompletion: parsed.data.expectedCompletion
-          ? new Date(parsed.data.expectedCompletion)
-          : null,
-        milestones: {
-          create: DEFAULT_MILESTONES.map((m) => ({
-            stage: m.stage,
-            title: m.title,
-            description: m.description,
-            status: "upcoming",
-          })),
-        },
-      },
-      include: { milestones: true },
+        name,
+        siteAddress,
+        city,
+        plotSize,
+        builtUpArea,
+        totalValue,
+        startDate: sDate,
+        expectedCompletion: cDate,
+        currentStage: "planning",
+        status: "not_started",
+        customerId: customer.id,
+      }
     });
 
+    // 3. Create Default Construction Milestones
+    await prisma.projectMilestone.createMany({
+      data: DEFAULT_MILESTONES.map((m) => ({
+        projectId: project.id,
+        stage: m.stage,
+        title: m.title,
+        description: m.description,
+        status: "upcoming"
+      }))
+    });
+
+    // 4. Create Payment Milestones Automatically
+    // 10% Advance, 20% Foundation, 20% Walls, 20% Slab, 20% Finishing, 10% Handover
+    const durationMs = cDate.getTime() - sDate.getTime();
+    
+    const paymentStages = [
+      { name: "Advance / Booking", percent: 0.10, timeOffset: 0 },
+      { name: "Foundation & Plinth", percent: 0.20, timeOffset: 0.15 },
+      { name: "Columns & Brickwork", percent: 0.20, timeOffset: 0.35 },
+      { name: "Roof Slab Casting", percent: 0.20, timeOffset: 0.60 },
+      { name: "Plastering & Finishing", percent: 0.20, timeOffset: 0.85 },
+      { name: "Final Handover", percent: 0.10, timeOffset: 1.0 },
+    ];
+
+    await prisma.paymentMilestone.createMany({
+      data: paymentStages.map((stage) => {
+        const dueDate = new Date(sDate.getTime() + durationMs * stage.timeOffset);
+        return {
+          projectId: project.id,
+          name: stage.name,
+          amount: totalValue * stage.percent,
+          dueDate: dueDate.toISOString(),
+          status: "pending",
+          description: `Payment for ${stage.name} stage`
+        };
+      })
+    });
+
+    revalidatePath("/admin/projects");
     return { success: true, data: { id: project.id } };
-  } catch {
-    return { error: "Failed to create project." };
+  } catch (error: any) {
+    console.error("Create project error:", error);
+    return { error: error.message || "Failed to create project." };
   }
 }
 
@@ -269,12 +341,50 @@ export async function updateProjectAction(
       }
     }
 
+    // Fetch current project to check staff changes
+    let existingStaffIds: string[] = [];
+    if (parsed.data.staffIds) {
+      const currentProj = await prisma.project.findUnique({
+        where: { id },
+        include: { staff: true }
+      });
+      if (currentProj) {
+        existingStaffIds = currentProj.staff.map(s => s.id);
+      }
+    }
+
     const project = await prisma.project.update({
       where: { id },
       data: updateData,
+      include: { staff: true, customer: true }
     });
 
+    // Send emails to newly added staff
+    if (parsed.data.staffIds) {
+      const newStaff = project.staff.filter(s => !existingStaffIds.includes(s.id));
+      for (const staffMember of newStaff) {
+        await sendEmail({
+          to: staffMember.email,
+          subject: "You've been assigned to a new project",
+          html: `
+            <h2>Hello ${staffMember.name},</h2>
+            <p>You have been assigned to the project: <strong>${project.name}</strong>.</p>
+            <p>Customer: ${project.customer.name}</p>
+            <p>Site Address: ${project.siteAddress}</p>
+            <br/>
+            <p>Please login to the staff portal to view more details.</p>
+            <p><a href="${process.env.NEXTAUTH_URL}/login">${process.env.NEXTAUTH_URL}/login</a></p>
+            <br/>
+            <p>Best regards,<br/>The Brick Basket Team</p>
+          `
+        });
+      }
+    }
+
     revalidatePath("/admin/projects");
+    revalidatePath("/staff/dashboard");
+    revalidatePath("/staff/progress");
+    revalidatePath("/staff/documents");
     return { success: true, data: { id: project.id } };
   } catch {
     return { error: "Failed to update project." };
