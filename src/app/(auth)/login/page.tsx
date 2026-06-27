@@ -37,7 +37,13 @@ export default function LoginPage() {
         const res = await fetch("/api/auth/session");
         const session = await res.json();
         const role = session?.user?.role;
-        router.push(role === "admin" || role === "engineer" ? "/admin" : "/dashboard");
+        if (role === "admin") {
+          router.push("/admin");
+        } else if (role === "engineer" || role === "contractor") {
+          router.push("/staff/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
         router.refresh();
       }
     } catch {
@@ -63,7 +69,13 @@ export default function LoginPage() {
         const session = await res.json();
         const role = session?.user?.role;
         toast.success(`Logged in as ${role}`);
-        router.push(role === "admin" || role === "engineer" ? "/admin" : "/dashboard");
+        if (role === "admin") {
+          router.push("/admin");
+        } else if (role === "engineer" || role === "contractor") {
+          router.push("/staff/dashboard");
+        } else {
+          router.push("/dashboard");
+        }
         router.refresh();
       }
     } finally {
@@ -119,6 +131,14 @@ export default function LoginPage() {
           <Button variant="outline" onClick={() => quickLogin("admin@brickbasket.in")} disabled={loading}
             className="text-sm border-slate-300 hover:border-amber-400 hover:text-amber-700">
             🛡️ Admin Demo
+          </Button>
+          <Button variant="outline" onClick={() => quickLogin("arjun@brickbasket.in")} disabled={loading}
+            className="text-sm border-slate-300 hover:border-amber-400 hover:text-amber-700">
+            📐 Engineer Demo
+          </Button>
+          <Button variant="outline" onClick={() => quickLogin("ravi@brickbasket.in")} disabled={loading}
+            className="text-sm border-slate-300 hover:border-amber-400 hover:text-amber-700">
+            👷 Contractor Demo
           </Button>
         </div>
       </div>
