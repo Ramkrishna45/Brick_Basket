@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { 
   MapPin, Calendar, User, CheckCircle2, Circle, Clock, ChevronDown, ChevronUp, 
-  Building2, Phone, Mail, FileText, IndianRupee, Image as ImageIcon, Camera
+  Building2, Phone, Mail, FileText, IndianRupee, Image as ImageIcon, Camera, Download
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -353,8 +353,8 @@ export function ProjectDetailsView({ projectId, role }: { projectId: string; rol
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                   {project.documents.map((doc: any) => (
-                    <div key={doc.id} className="flex items-center gap-3 p-3 border rounded-lg hover:border-amber-400 transition-colors bg-white">
-                      <div className="h-10 w-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 flex-shrink-0">
+                    <a href={doc.url} target="_blank" rel="noopener noreferrer" key={doc.id} className="flex items-center gap-3 p-3 border rounded-lg hover:border-amber-400 hover:shadow-sm transition-all bg-white cursor-pointer group">
+                      <div className="h-10 w-10 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600 flex-shrink-0 group-hover:bg-amber-100 transition-colors">
                         <FileText className="h-5 w-5" />
                       </div>
                       <div className="flex-1 min-w-0">
@@ -365,7 +365,8 @@ export function ProjectDetailsView({ projectId, role }: { projectId: string; rol
                           <span>{doc.fileSize}</span>
                         </div>
                       </div>
-                    </div>
+                      <Download className="h-4 w-4 text-slate-300 group-hover:text-amber-600 transition-colors" />
+                    </a>
                   ))}
                 </div>
               )}

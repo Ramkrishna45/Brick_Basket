@@ -35,6 +35,7 @@ export async function getMyProjectAction() {
       include: {
         milestones: { orderBy: { createdAt: "asc" } },
         staff: { select: { id: true, name: true, phone: true, role: true } },
+        documents: { orderBy: { createdAt: "desc" } },
       },
     });
 
@@ -54,6 +55,10 @@ export async function getMyProjectAction() {
           completedDate: m.completedDate?.toISOString() ?? null,
           createdAt: m.createdAt.toISOString(),
         })),
+        documents: project.documents?.map((d: any) => ({
+          ...d,
+          createdAt: d.createdAt.toISOString(),
+        })) || [],
       },
     };
   } catch {

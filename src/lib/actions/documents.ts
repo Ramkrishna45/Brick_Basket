@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
 import { z } from "zod";
+import { revalidatePath } from "next/cache";
 
 // ── Get Documents ───────────────────────────────────────────────────
 
@@ -74,8 +75,60 @@ export async function uploadDocumentAction(
       },
     });
 
+    revalidatePath("/admin-documents");
+    revalidatePath("/documents");
+    revalidatePath(`/projects/${parsed.data.projectId}`);
+
     return { success: true, data: { id: doc.id } };
   } catch {
     return { error: "Failed to upload document." };
+  }
+}
+// -- Admin: Get All Documents ------------------------------------------
+
+export async function getAllDocumentsAction() {
+  try {
+    const session = await auth();
+    if (!session) return { error: "Unauthorized" };
+    if ((session.user as { role?: string }).role !== "admin")
+      return { error: "Forbidden" };
+
+    const documents = await prisma.document.findMany({
+      include: {
+        project: { select: { name: true, customer: { select: { name: true } } } }
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const data = documents.map((d) => ({
+      ...d,
+      createdAt: d.createdAt.toISOString(),
+    }));
+
+    return { success: true, data };
+  } catch {
+    return { error: "Failed to fetch documents." };
+  }
+}
+
+// -- Admin: Delete Document --------------------------------------------
+
+export async function deleteDocumentAction(id: string) {
+  try {
+    const session = await auth();
+    if (!session) return { error: "Unauthorized" };
+    if ((session.user as { role?: string }).role !== "admin")
+      return { error: "Forbidden" };
+
+    await prisma.document.delete({
+      where: { id },
+    });
+
+    revalidatePath("/admin-documents");
+    revalidatePath("/documents");
+
+    return { success: true };
+  } catch {
+    return { error: "Failed to delete document." };
   }
 }
