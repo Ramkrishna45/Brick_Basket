@@ -87,3 +87,47 @@ export async function createStaffAction(data: { name: string; email: string; pho
     return { error: "Failed to create staff member." };
   }
 }
+// -- Admin: Update Staff ------------------------------------------
+
+export async function updateStaffAction(id: string, data: { name: string; phone: string; role: string }) {
+  try {
+    const session = await auth();
+    if (!session || (session.user as any).role !== "admin") {
+      return { error: "Forbidden" };
+    }
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        name: data.name,
+        phone: data.phone,
+        role: data.role,
+      },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update staff:", error);
+    return { error: "Failed to update staff member." };
+  }
+}
+
+// -- Admin: Delete Staff ------------------------------------------
+
+export async function deleteStaffAction(id: string) {
+  try {
+    const session = await auth();
+    if (!session || (session.user as any).role !== "admin") {
+      return { error: "Forbidden" };
+    }
+
+    await prisma.user.delete({
+      where: { id },
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete staff:", error);
+    return { error: "Failed to delete staff member." };
+  }
+}

@@ -12,13 +12,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { getAllStaffAction, createStaffAction } from "@/lib/actions/staff";
+import { getAllStaffAction, createStaffAction, updateStaffAction, deleteStaffAction } from "@/lib/actions/staff";
 
 export default function StaffPage() {
   const [loading, setLoading] = useState(true);
   const [staff, setStaff] = useState<any[]>([]);
   const [search, setSearch] = useState("");
   const [open, setOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // New staff form state
@@ -27,6 +28,14 @@ export default function StaffPage() {
     email: "",
     phone: "",
     role: "engineer"
+  });
+
+  // Edit staff form state
+  const [editData, setEditData] = useState({
+    id: "",
+    name: "",
+    phone: "",
+    role: ""
   });
 
   async function load() {
@@ -58,6 +67,50 @@ export default function StaffPage() {
       toast.error(res.error || "Failed to create staff");
     }
     setIsSubmitting(false);
+  }
+
+  function openEdit(s: any) {
+    setEditData({
+      id: s.id,
+      name: s.name,
+      phone: s.phone || "",
+      role: s.role,
+    });
+    setEditOpen(true);
+  }
+
+  async function handleUpdateStaff() {
+    if (!editData.name) {
+      toast.error("Name is required");
+      return;
+    }
+    setIsSubmitting(true);
+    const res = await updateStaffAction(editData.id, {
+      name: editData.name,
+      phone: editData.phone,
+      role: editData.role,
+    });
+    
+    if (res.success) {
+      toast.success("Staff member updated!");
+      setEditOpen(false);
+      load();
+    } else {
+      toast.error(res.error || "Failed to update staff");
+    }
+    setIsSubmitting(false);
+  }
+
+  async function handleDelete(id: string) {
+    if (!confirm("Are you sure you want to delete this staff member?")) return;
+    
+    const res = await deleteStaffAction(id);
+    if (res.success) {
+      toast.success("Staff member deleted");
+      load();
+    } else {
+      toast.error(res.error || "Failed to delete staff");
+    }
   }
 
   const filtered = staff.filter(
@@ -155,6 +208,61 @@ export default function StaffPage() {
         </Dialog>
       </div>
 
+      {/* Edit Staff Dialog */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Staff Member</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Full Name</Label>
+              <Input
+                placeholder="e.g. Rahul Sharma"
+                value={editData.name}
+                onChange={(e) => setEditData({ ...editData, name: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Phone Number</Label>
+              <Input
+                placeholder="e.g. +91 9876543210"
+                value={editData.phone}
+                onChange={(e) => setEditData({ ...editData, phone: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Role</Label>
+              <Select
+                value={editData.role}
+                onValueChange={(val) => setEditData({ ...editData, role: val || "" })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="engineer">Engineer</SelectItem>
+                  <SelectItem value="contractor">Contractor</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-3 pt-4">
+              <Button variant="outline" onClick={() => setEditOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                className="bg-amber-600 hover:bg-amber-700 text-white"
+                onClick={handleUpdateStaff}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
         <Input
@@ -183,10 +291,10 @@ export default function StaffPage() {
                     </Badge>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-amber-600">
+                    <Button onClick={() => openEdit(s)} variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-amber-600">
                       <Edit className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-600">
+                    <Button onClick={() => handleDelete(s.id)} variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-red-600">
                       <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
