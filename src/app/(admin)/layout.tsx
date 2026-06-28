@@ -68,7 +68,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <SidebarProvider>
       <Sidebar className="border-r border-slate-200">
         <SidebarHeader className="p-4 border-b border-slate-200">
-          <Link href="/" className="flex items-center gap-2.5">
+          <Link href="/admin" className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600 flex-shrink-0">
               <HardHat className="h-4 w-4 text-white" />
             </div>

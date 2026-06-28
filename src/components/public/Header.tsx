@@ -9,11 +9,20 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { PUBLIC_NAV, BRAND } from "@/lib/constants";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { useAuth } from "@/context/AuthContext";
 
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { isAuthenticated, user } = useAuth();
+
+  const getDashboardLink = () => {
+    if (!user) return "/dashboard";
+    if (user.role === "admin") return "/admin";
+    if (user.role === "engineer" || user.role === "contractor") return "/staff/dashboard";
+    return "/dashboard";
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -70,13 +79,13 @@ export function Header() {
           <div className="hidden md:flex items-center gap-3">
             <ThemeToggle />
             <Link
-              href="/login"
+              href={isAuthenticated ? getDashboardLink() : "/login"}
               className={cn(
                 "text-sm font-medium transition-colors",
                 scrolled ? "text-slate-700 hover:text-amber-600" : "text-white/80 hover:text-white"
               )}
             >
-              Sign In
+              {isAuthenticated ? "Dashboard" : "Sign In"}
             </Link>
             <Link href="/enquiry"
               className="inline-flex items-center justify-center gap-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium px-4 py-2 transition-colors"
@@ -135,11 +144,11 @@ export function Header() {
                   >
                     Get Free Consultation
                   </Link>
-                  <Link href="/login"
+                  <Link href={isAuthenticated ? getDashboardLink() : "/login"}
                     onClick={() => setMobileOpen(false)}
                     className="w-full inline-flex items-center justify-center rounded-lg border border-slate-300 hover:border-amber-400 text-slate-700 hover:text-amber-700 text-sm font-medium px-4 py-2 transition-colors"
                   >
-                    Sign In
+                    {isAuthenticated ? "Go to Dashboard" : "Sign In"}
                   </Link>
                 </div>
               </div>
