@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
+import Link from "next/link";
 import { Plus, Search, User, MapPin, Calendar, Users as UsersIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -178,6 +179,9 @@ export default function ProjectsPage() {
                 <div className="flex gap-2">
                   <Button variant="outline" size="sm" className="h-7 text-xs hover:border-amber-400 hover:text-amber-700" onClick={() => openAssignStaff(project)}>
                     Assign Staff
+                  </Button>
+                  <Button variant="default" size="sm" className="h-7 text-xs bg-slate-900 text-white" render={<Link href={`/admin/projects/${project.id}`} />}>
+                      View Details
                   </Button>
                 </div>
               </div>

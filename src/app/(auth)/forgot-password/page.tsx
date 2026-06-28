@@ -52,7 +52,7 @@ export default function ForgotPasswordPage() {
     if (res.error) {
       toast.error(res.error);
       setOtp(["", "", "", "", "", ""]);
-      document.getElementById("otp-1")?.focus();
+      document.getElementById("otp-0")?.focus();
       return;
     }
 

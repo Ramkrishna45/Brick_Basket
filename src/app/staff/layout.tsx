@@ -123,9 +123,9 @@ export default function StaffLayout({ children }: { children: React.ReactNode })
             <div className="flex items-center gap-3">
               <ThemeToggle />
               <DropdownMenu>
-                <DropdownMenuTrigger className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto cursor-pointer">
+                <DropdownMenuTrigger asChild><div className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto cursor-pointer">
                   <Bell className="h-5 w-5 text-slate-600" />
-                </DropdownMenuTrigger>
+                </div></DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-72">
                   <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                   <DropdownMenuSeparator />

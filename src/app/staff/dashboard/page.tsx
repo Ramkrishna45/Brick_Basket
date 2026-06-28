@@ -110,15 +110,18 @@ export default function StaffDashboardPage() {
                     <Progress value={project.completionPercentage} className="h-2 rounded-full" />
                   </div>
 
-                  <div className="border-t border-slate-100 pt-4 flex items-center justify-between">
+                  <div className="border-t border-slate-100 pt-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <div className="text-sm text-slate-500">
                       Customer: <span className="font-medium text-slate-900">{project.customer?.name}</span>
                     </div>
-                    <Link href={`/staff/progress?project=${project.id}`}>
-                      <Button className="bg-amber-600 hover:bg-amber-700 text-white">
-                        Upload Progress
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <Button variant="outline" className="flex-1 sm:flex-none border-amber-200 text-amber-700 hover:bg-amber-50 hover:text-amber-800" render={<Link href={`/staff/progress?project=${project.id}`} />}>
+                          Upload Progress
                       </Button>
-                    </Link>
+                      <Button className="flex-1 sm:flex-none bg-slate-900 hover:bg-slate-800 text-white" render={<Link href={`/staff/projects/${project.id}`} />}>
+                          View Details
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>

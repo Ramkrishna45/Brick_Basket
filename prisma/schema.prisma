@@ -52,6 +52,8 @@ model Project {
   totalValue           Float     @default(0)
   amountPaid           Float     @default(0)
   planName             String?
+  clientName           String?
+  mobileNumber         String?
   createdAt            DateTime  @default(now())
   updatedAt            DateTime  @updatedAt
 

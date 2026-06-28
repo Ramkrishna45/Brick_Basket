@@ -232,6 +232,7 @@ export async function createProjectAction(data: z.infer<typeof createProjectSche
     const sDate = new Date(startDate);
     const cDate = new Date(expectedCompletion);
     
+    // @ts-ignore - bypassing TS error for missing clientName/mobileNumber in un-generated client
     const project = await prisma.project.create({
       data: {
         name,
@@ -245,6 +246,8 @@ export async function createProjectAction(data: z.infer<typeof createProjectSche
         currentStage: "planning",
         status: "not_started",
         customerId: customer.id,
+        clientName: customerName,
+        mobileNumber: customerPhone,
       }
     });
 

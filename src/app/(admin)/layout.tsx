@@ -108,7 +108,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         <SidebarFooter className="p-3 border-t border-slate-200">
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-3 w-full p-2.5 rounded-lg hover:bg-slate-100 transition-colors text-left border border-transparent hover:border-slate-200 cursor-pointer">
+            <DropdownMenuTrigger asChild><div className="flex items-center gap-3 w-full p-2.5 rounded-lg hover:bg-slate-100 transition-colors text-left border border-transparent hover:border-slate-200 cursor-pointer">
               <Avatar className="h-8 w-8 flex-shrink-0 pointer-events-none">
                   <AvatarFallback className="bg-amber-100 text-amber-700 text-xs font-bold">{initials}</AvatarFallback>
                 </Avatar>
@@ -117,7 +117,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <div className="text-xs text-amber-600 font-medium truncate capitalize">{user?.role}</div>
                 </div>
               <ChevronDown className="h-4 w-4 text-slate-400 flex-shrink-0 pointer-events-none" />
-            </DropdownMenuTrigger>
+            </div></DropdownMenuTrigger>
             <DropdownMenuContent align="start" side="top" className="w-56">
               <DropdownMenuLabel>Admin Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
@@ -149,10 +149,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <ThemeToggle />
             
             <DropdownMenu>
-              <DropdownMenuTrigger className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto cursor-pointer">
+              <DropdownMenuTrigger asChild><div className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto cursor-pointer">
                 <Bell className="h-5 w-5 text-slate-600" />
                 <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-amber-500 rounded-full" />
-              </DropdownMenuTrigger>
+              </div></DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-72">
                 <DropdownMenuLabel>Notifications</DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -161,11 +161,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </DropdownMenu>
 
             <DropdownMenu>
-              <DropdownMenuTrigger className="focus:outline-none rounded-full ring-2 ring-transparent hover:ring-amber-500 transition-all cursor-pointer">
+              <DropdownMenuTrigger asChild><div className="focus:outline-none rounded-full ring-2 ring-transparent hover:ring-amber-500 transition-all cursor-pointer">
                 <Avatar className="h-8 w-8 border border-slate-200">
                     <AvatarFallback className="bg-amber-100 text-amber-700 font-bold text-xs">{initials}</AvatarFallback>
                 </Avatar>
-              </DropdownMenuTrigger>
+              </div></DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
