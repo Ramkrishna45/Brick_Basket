@@ -152,12 +152,12 @@ export default function AdminDocumentsPage() {
         </div>
         
         <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-          <DialogTrigger asChild>
+          <DialogTrigger render={
             <Button className="bg-amber-600 hover:bg-amber-700 text-white gap-2">
               <Upload className="h-4 w-4" />
               Upload Document
             </Button>
-          </DialogTrigger>
+          } />
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
               <DialogTitle>Upload New Document</DialogTitle>
@@ -165,7 +165,7 @@ export default function AdminDocumentsPage() {
             <div className="space-y-4 py-4">
               <div className="space-y-2">
                 <Label>Select Project <span className="text-red-500">*</span></Label>
-                <Select value={projectId} onValueChange={setProjectId}>
+                <Select value={projectId} onValueChange={(val) => setProjectId(val || "")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Choose a project" />
                   </SelectTrigger>
@@ -184,7 +184,7 @@ export default function AdminDocumentsPage() {
 
               <div className="space-y-2">
                 <Label>Category <span className="text-red-500">*</span></Label>
-                <Select value={category} onValueChange={setCategory}>
+                <Select value={category} onValueChange={(val) => setCategory(val || "")}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
@@ -252,7 +252,7 @@ export default function AdminDocumentsPage() {
             </div>
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-slate-400" />
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+              <Select value={categoryFilter} onValueChange={(val) => setCategoryFilter(val || "")}>
                 <SelectTrigger className="w-[160px] h-9">
                   <SelectValue placeholder="All Categories" />
                 </SelectTrigger>
