@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { toast } from "sonner";
 import { getStaffAssignedProjectsAction, createProgressUpdateAction } from "@/lib/actions/staff-projects";
+import { uploadFileAction } from "@/lib/actions/upload";
 import { CONSTRUCTION_STAGES } from "@/lib/constants";
 
 export default function StaffProgressUploadPage() {
@@ -61,13 +62,20 @@ export default function StaffProgressUploadPage() {
     
     setIsSubmitting(true);
     
-    
-    // Convert image file to data URL for mockup upload (in a real app, upload to S3/Supabase Storage)
     let imageUrl = "https://images.unsplash.com/photo-1541888081622-19e0789d970a?q=80&w=600";
     if (imageFile) {
-      imageUrl = URL.createObjectURL(imageFile);
+      const formData = new FormData();
+      formData.append("file", imageFile);
+      const uploadRes = await uploadFileAction(formData);
+      if (uploadRes.error) {
+        toast.error(uploadRes.error);
+        setIsSubmitting(false);
+        return;
+      }
+      if (uploadRes.url) {
+        imageUrl = uploadRes.url;
+      }
     }
-    
     const res = await createProgressUpdateAction({
       projectId,
       title,
