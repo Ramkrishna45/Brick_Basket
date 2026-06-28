@@ -196,8 +196,10 @@ export async function createProjectAction(data: z.infer<typeof createProjectSche
       startDate, expectedCompletion, customerName, customerEmail, customerPhone
     } = parsed.data;
 
+    const email = customerEmail.toLowerCase();
+    
     // 1. Get or Create Customer
-    let customer = await prisma.user.findUnique({ where: { email: customerEmail } });
+    let customer = await prisma.user.findUnique({ where: { email } });
     if (!customer) {
       // Generate a random password for new customer
       const randomPassword = Math.random().toString(36).slice(-8);
@@ -209,7 +211,7 @@ export async function createProjectAction(data: z.infer<typeof createProjectSche
       customer = await prisma.user.create({
         data: {
           name: customerName,
-          email: customerEmail,
+          email,
           phone: customerPhone,
           passwordHash,
           role: "customer"

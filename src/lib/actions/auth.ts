@@ -19,8 +19,10 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
     const parsed = signUpSchema.safeParse(data);
     if (!parsed.success) return { error: "Invalid data" };
 
+    const email = parsed.data.email.toLowerCase();
+
     const existing = await prisma.user.findUnique({
-      where: { email: parsed.data.email },
+      where: { email },
     });
     if (existing) return { error: "Email already registered" };
 
@@ -28,7 +30,7 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
     const user = await prisma.user.create({
       data: {
         name: parsed.data.name,
-        email: parsed.data.email,
+        email,
         phone: parsed.data.phone,
         passwordHash,
         role: "customer",
@@ -45,8 +47,9 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
 // OTP & Password Reset
 // ============================================
 
-export async function sendOtpAction(email: string): Promise<{ success?: boolean; error?: string }> {
+export async function sendOtpAction(emailRaw: string): Promise<{ success?: boolean; error?: string }> {
   try {
+    const email = emailRaw.toLowerCase();
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user) {
       // Don't reveal if user exists or not for security, just pretend success
@@ -85,8 +88,9 @@ export async function sendOtpAction(email: string): Promise<{ success?: boolean;
   }
 }
 
-export async function verifyOtpAction(email: string, otp: string): Promise<{ success?: boolean; error?: string }> {
+export async function verifyOtpAction(emailRaw: string, otp: string): Promise<{ success?: boolean; error?: string }> {
   try {
+    const email = emailRaw.toLowerCase();
     const user = await prisma.user.findUnique({ where: { email } });
     
     if (!user || !user.otpCode || !user.otpExpiry) {
@@ -111,8 +115,9 @@ export async function verifyOtpAction(email: string, otp: string): Promise<{ suc
   }
 }
 
-export async function resetPasswordAction(email: string, otp: string, newPassword: string): Promise<{ success?: boolean; error?: string }> {
+export async function resetPasswordAction(emailRaw: string, otp: string, newPassword: string): Promise<{ success?: boolean; error?: string }> {
   try {
+    const email = emailRaw.toLowerCase();
     // Verify OTP again just to be secure before changing password
     const verify = await verifyOtpAction(email, otp);
     if (verify.error) return verify;

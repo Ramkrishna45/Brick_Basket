@@ -30,10 +30,12 @@ export async function submitEnquiryAction(
     const parsed = enquirySchema.safeParse(formData);
     if (!parsed.success) return { error: "Invalid data. Please check your inputs." };
 
+    const email = parsed.data.email.toLowerCase();
+
     const lead = await prisma.lead.create({
       data: {
         name: parsed.data.name,
-        email: parsed.data.email,
+        email,
         phone: parsed.data.phone,
         city: parsed.data.city,
         plotSize: parsed.data.plotSize ?? null,
@@ -143,8 +145,9 @@ export async function updateLeadStatusAction(id: string, status: string) {
 
     // If converted, create user and project
     if (status === "converted") {
+      const email = lead.email.toLowerCase();
       // Check if user exists
-      const existingUser = await prisma.user.findUnique({ where: { email: lead.email } });
+      const existingUser = await prisma.user.findUnique({ where: { email } });
       
       let customerId = existingUser?.id;
 
@@ -156,7 +159,7 @@ export async function updateLeadStatusAction(id: string, status: string) {
         const newUser = await prisma.user.create({
           data: {
             name: lead.name,
-            email: lead.email,
+            email,
             phone: lead.phone,
             role: "customer",
             passwordHash,

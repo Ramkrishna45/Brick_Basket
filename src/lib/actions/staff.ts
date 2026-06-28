@@ -47,7 +47,9 @@ export async function createStaffAction(data: { name: string; email: string; pho
       return { error: "Forbidden" };
     }
 
-    const existingUser = await prisma.user.findUnique({ where: { email: data.email } });
+    const email = data.email.toLowerCase();
+
+    const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
       return { error: "A user with this email already exists." };
     }
@@ -58,7 +60,7 @@ export async function createStaffAction(data: { name: string; email: string; pho
     const newUser = await prisma.user.create({
       data: {
         name: data.name,
-        email: data.email,
+        email,
         phone: data.phone,
         role: data.role,
         passwordHash,
