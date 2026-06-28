@@ -13,6 +13,11 @@ export async function getPaymentMilestonesAction(projectId: string) {
     const milestones = await prisma.paymentMilestone.findMany({
       where: { projectId },
       orderBy: { createdAt: "asc" },
+      include: {
+        markedPaidBy: {
+          select: { id: true, name: true, role: true }
+        }
+      }
     });
 
     const data = milestones.map((m) => ({
@@ -23,6 +28,34 @@ export async function getPaymentMilestonesAction(projectId: string) {
     return { success: true, data };
   } catch {
     return { error: "Failed to fetch payment milestones." };
+  }
+}
+
+// ── Get Payment Transactions ────────────────────────────────────────
+
+export async function getPaymentTransactionsAction(projectId: string) {
+  try {
+    const session = await auth();
+    if (!session) return { error: "Unauthorized" };
+
+    const transactions = await prisma.paymentTransaction.findMany({
+      where: { projectId },
+      orderBy: { date: "desc" },
+      include: {
+        recordedBy: {
+          select: { id: true, name: true, role: true }
+        }
+      }
+    });
+
+    const data = transactions.map((t) => ({
+      ...t,
+      date: t.date.toISOString(),
+    }));
+
+    return { success: true, data };
+  } catch {
+    return { error: "Failed to fetch payment transactions." };
   }
 }
 
@@ -39,14 +72,12 @@ export async function getPaymentSummaryAction(projectId: string) {
     });
 
     const totalAmount = milestones.reduce((sum, m) => sum + m.amount, 0);
-    const paidAmount = milestones
-      .filter((m) => m.status === "paid")
-      .reduce((sum, m) => sum + m.amount, 0);
+    const paidAmount = milestones.reduce((sum, m) => sum + m.paidAmount, 0);
     const dueAmount = totalAmount - paidAmount;
 
-    // Find the next pending/overdue milestone
+    // Find the next pending/partial/overdue milestone
     const nextDue = milestones.find(
-      (m) => m.status === "pending" || m.status === "overdue"
+      (m) => m.status === "pending" || m.status === "partial" || m.status === "overdue"
     );
 
     return {
@@ -72,44 +103,94 @@ export async function getPaymentSummaryAction(projectId: string) {
   }
 }
 
-// ── Admin: Record Payment ───────────────────────────────────────────
+// ── Admin/Staff: Record Project Payment (Waterfall) ──────────────────────
 
-export async function recordPaymentAction(milestoneId: string) {
+export async function recordProjectPaymentAction(data: {
+  projectId: string;
+  amount: number;
+  method: string;
+  transactionId?: string;
+  notes?: string;
+}) {
   try {
     const session = await auth();
     if (!session) return { error: "Unauthorized" };
-    if ((session.user as { role?: string }).role !== "admin")
+    
+    const userRole = (session.user as any).role;
+    if (userRole !== "admin" && userRole !== "engineer" && userRole !== "contractor") {
       return { error: "Forbidden" };
+    }
 
+    const userId = (session.user as any).id;
     const now = new Date();
-    const paidDate = now.toISOString().split("T")[0];
+    const paidDateStr = now.toISOString().split("T")[0];
 
-    const milestone = await prisma.paymentMilestone.update({
-      where: { id: milestoneId },
-      data: {
-        status: "paid",
-        paidDate,
-      },
-    });
+    // Use a transaction to ensure all updates happen together
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Create the PaymentTransaction record
+      const transaction = await tx.paymentTransaction.create({
+        data: {
+          amount: data.amount,
+          method: data.method,
+          transactionId: data.transactionId || null,
+          notes: data.notes || null,
+          projectId: data.projectId,
+          recordedById: userId,
+        },
+      });
 
-    // Also update the project's amountPaid
-    const allMilestones = await prisma.paymentMilestone.findMany({
-      where: { projectId: milestone.projectId },
-    });
-    const totalPaid = allMilestones
-      .filter((m) => m.status === "paid")
-      .reduce((sum, m) => sum + m.amount, 0);
+      // 2. Fetch all milestones ordered by createdAt to distribute the payment
+      const milestones = await tx.paymentMilestone.findMany({
+        where: { projectId: data.projectId },
+        orderBy: { createdAt: "asc" },
+      });
 
-    await prisma.project.update({
-      where: { id: milestone.projectId },
-      data: { amountPaid: totalPaid },
+      let remainingAmount = data.amount;
+
+      // 3. Waterfall distribution
+      for (const m of milestones) {
+        if (remainingAmount <= 0) break;
+
+        const unpaidOnMilestone = m.amount - m.paidAmount;
+        if (unpaidOnMilestone <= 0) continue; // Already fully paid
+
+        const amountToApply = Math.min(unpaidOnMilestone, remainingAmount);
+        const newPaidAmount = m.paidAmount + amountToApply;
+        const newStatus = newPaidAmount >= m.amount ? "paid" : "partial";
+        
+        await tx.paymentMilestone.update({
+          where: { id: m.id },
+          data: {
+            paidAmount: newPaidAmount,
+            status: newStatus,
+            paidDate: newStatus === "paid" ? paidDateStr : m.paidDate,
+            markedPaidById: userId,
+          }
+        });
+
+        remainingAmount -= amountToApply;
+      }
+
+      // 4. Update the project's amountPaid cache
+      const updatedMilestones = await tx.paymentMilestone.findMany({
+        where: { projectId: data.projectId },
+      });
+      const totalPaid = updatedMilestones.reduce((sum, m) => sum + m.paidAmount, 0);
+
+      await tx.project.update({
+        where: { id: data.projectId },
+        data: { amountPaid: totalPaid },
+      });
+
+      return transaction;
     });
 
     return {
       success: true,
-      data: { id: milestone.id, status: milestone.status, paidDate },
+      data: result,
     };
-  } catch {
+  } catch (error) {
+    console.error("Failed to record project payment:", error);
     return { error: "Failed to record payment." };
   }
 }

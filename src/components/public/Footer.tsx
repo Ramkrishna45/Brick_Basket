@@ -104,12 +104,12 @@ export function Footer() {
       {/* Bottom bar */}
       <div className="border-t border-slate-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             © {new Date().getFullYear()} {BRAND.name}. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             {["Privacy Policy", "Terms of Service", "Cookie Policy"].map((link) => (
-              <Link key={link} href="#" className="text-xs text-slate-500 hover:text-amber-400 transition-colors">
+              <Link key={link} href="#" className="text-xs text-slate-500 dark:text-slate-400 hover:text-amber-400 transition-colors">
                 {link}
               </Link>
             ))}

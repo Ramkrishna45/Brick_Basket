@@ -64,23 +64,23 @@ export default function PaymentsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Payments</h1>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Payments</h1>
 
       {/* Summary cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: "Total Value", value: formatINR(totalAmount), icon: IndianRupee, color: "text-slate-600", bg: "bg-slate-50" },
+          { label: "Total Value", value: formatINR(totalAmount), icon: IndianRupee, color: "text-slate-600 dark:text-slate-400", bg: "bg-slate-50 dark:bg-slate-900" },
           { label: "Amount Paid", value: formatINR(paidAmount), icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-50" },
-          { label: "Amount Due", value: formatINR(dueAmount), icon: CreditCard, color: "text-amber-600", bg: "bg-amber-50" },
+          { label: "Amount Due", value: formatINR(dueAmount), icon: CreditCard, color: "text-amber-600 dark:text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/40" },
           { label: "Next Due", value: nextDueAmount > 0 ? formatINR(nextDueAmount) : "All paid", icon: Calendar, color: "text-red-500", bg: "bg-red-50", sub: nextDueAmount > 0 ? nextDueDate : "No upcoming payments" },
         ].map((item, i) => (
           <motion.div key={item.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.08 }}>
-            <Card className="border-slate-200">
+            <Card className="border-slate-200 dark:border-slate-800">
               <CardContent className="p-4">
                 <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${item.bg} mb-3`}>
                   <item.icon className={`h-4 w-4 ${item.color}`} />
                 </div>
-                <div className="text-xs text-slate-500 mb-0.5">{item.label}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 mb-0.5">{item.label}</div>
                 <div className={`font-bold text-sm sm:text-base ${item.color}`}>{item.value}</div>
                 {item.sub && <div className="text-xs text-slate-400 mt-0.5">{item.sub}</div>}
               </CardContent>
@@ -91,10 +91,10 @@ export default function PaymentsPage() {
 
       {/* Payment progress */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-        <Card className="border-slate-200">
+        <Card className="border-slate-200 dark:border-slate-800">
           <CardContent className="p-5">
             <div className="flex justify-between text-sm mb-2">
-              <span className="font-medium text-slate-700">Payment Progress</span>
+              <span className="font-medium text-slate-700 dark:text-slate-300">Payment Progress</span>
               <span className="font-bold text-emerald-600">{paidPct}% paid</span>
             </div>
             <Progress value={paidPct} className="h-3" />
@@ -108,7 +108,7 @@ export default function PaymentsPage() {
 
       {/* Milestones Table (desktop) / Cards (mobile) */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-        <Card className="border-slate-200">
+        <Card className="border-slate-200 dark:border-slate-800">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold">Milestone Payments</CardTitle>
           </CardHeader>
@@ -117,34 +117,36 @@ export default function PaymentsPage() {
             <div className="hidden md:block overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-slate-50">
-                    <TableHead className="font-semibold text-slate-700">Milestone</TableHead>
-                    <TableHead className="font-semibold text-slate-700">Amount</TableHead>
-                    <TableHead className="font-semibold text-slate-700">Due Date</TableHead>
-                    <TableHead className="font-semibold text-slate-700">Status</TableHead>
-                    <TableHead className="font-semibold text-slate-700 text-right">Action</TableHead>
+                  <TableRow className="bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                    <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Milestone</TableHead>
+                    <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Target Amount</TableHead>
+                    <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Paid Amount</TableHead>
+                    <TableHead className="text-center font-semibold text-slate-700 dark:text-slate-300">Status</TableHead>
+                    <TableHead className="font-semibold text-slate-700 dark:text-slate-300">Paid On</TableHead>
+                    <TableHead className="text-right font-semibold text-slate-700 dark:text-slate-300">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {milestones.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center text-slate-500 py-6">No milestones found.</TableCell>
+                      <TableCell colSpan={6} className="text-center text-slate-500 dark:text-slate-400 py-6">No milestones found.</TableCell>
                     </TableRow>
                   )}
                   {milestones.map((m) => (
-                    <TableRow key={m.id} className="hover:bg-slate-50">
+                    <TableRow key={m.id} className="hover:bg-slate-50 dark:bg-slate-900">
                       <TableCell>
-                        <div className="font-medium text-slate-900 text-sm">{m.name}</div>
+                        <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">{m.name}</div>
                         <div className="text-xs text-slate-400 mt-0.5">{m.description}</div>
                       </TableCell>
-                      <TableCell className="font-semibold text-slate-900">{formatINR(m.amount)}</TableCell>
-                      <TableCell className="text-sm text-slate-600">
-                        {m.paidDate ? `Paid: ${new Date(m.paidDate).toLocaleDateString()}` : new Date(m.dueDate).toLocaleDateString()}
+                      <TableCell className="font-semibold text-slate-900 dark:text-slate-100 text-right">{formatINR(m.amount)}</TableCell>
+                      <TableCell className="font-semibold text-emerald-600 text-right">{formatINR(m.paidAmount || 0)}</TableCell>
+                      <TableCell className="text-center"><StatusBadge status={m.status} /></TableCell>
+                      <TableCell className="text-sm text-slate-600 dark:text-slate-400">
+                        {m.paidDate ? new Date(m.paidDate).toLocaleDateString() : "-"}
                       </TableCell>
-                      <TableCell><StatusBadge status={m.status} /></TableCell>
                       <TableCell className="text-right">
                         {m.status === "paid" && m.receiptUrl && (
-                          <Button render={<a href={m.receiptUrl} download />} variant="ghost" size="sm" className="h-7 text-xs gap-1 hover:text-amber-600">
+                          <Button render={<a href={m.receiptUrl} download />} variant="ghost" size="sm" className="h-7 text-xs gap-1 hover:text-amber-600 dark:text-amber-500">
                             <><Download className="h-3 w-3" /> Receipt</>
                           </Button>
                         )}
@@ -170,20 +172,29 @@ export default function PaymentsPage() {
             {/* Mobile cards */}
             <div className="md:hidden divide-y divide-slate-100">
               {milestones.length === 0 && (
-                <div className="text-center text-slate-500 py-6">No milestones found.</div>
+                <div className="text-center text-slate-500 dark:text-slate-400 py-6">No milestones found.</div>
               )}
               {milestones.map((m) => (
                 <div key={m.id} className="p-4 space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="font-medium text-slate-900 text-sm">{m.name}</div>
+                      <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">{m.name}</div>
                       <div className="text-xs text-slate-400 mt-0.5">{m.description}</div>
                     </div>
                     <StatusBadge status={m.status} />
                   </div>
                   <div className="flex items-center justify-between">
-                    <div className="font-bold text-slate-900">{formatINR(m.amount)}</div>
-                    <div className="text-xs text-slate-500">{m.paidDate ? `Paid: ${new Date(m.paidDate).toLocaleDateString()}` : `Due: ${new Date(m.dueDate).toLocaleDateString()}`}</div>
+                    <div className="font-bold text-slate-900 dark:text-slate-100">{formatINR(m.amount)}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400 text-right">
+                      {m.paidDate ? (
+                        <>
+                          <div>Paid: {new Date(m.paidDate).toLocaleDateString()}</div>
+                          {m.markedPaidBy && <div className="text-emerald-600">by {m.markedPaidBy.name}</div>}
+                        </>
+                      ) : (
+                        `Due: ${new Date(m.dueDate).toLocaleDateString()}`
+                      )}
+                    </div>
                   </div>
                   {m.status === "pending" && (
                     <Button size="sm" onClick={() => toast.info("Payment gateway coming soon!")}
@@ -192,7 +203,7 @@ export default function PaymentsPage() {
                     </Button>
                   )}
                   {m.status === "paid" && m.receiptUrl && (
-                    <Button render={<a href={m.receiptUrl} download />} variant="ghost" size="sm" className="w-full h-8 text-xs gap-1 hover:text-amber-600">
+                    <Button render={<a href={m.receiptUrl} download />} variant="ghost" size="sm" className="w-full h-8 text-xs gap-1 hover:text-amber-600 dark:text-amber-500">
                       <><Download className="h-3 w-3" /> Download Receipt</>
                     </Button>
                   )}

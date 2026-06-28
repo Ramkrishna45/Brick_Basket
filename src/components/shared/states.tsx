@@ -22,11 +22,11 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
       transition={{ duration: 0.4 }}
       className="flex flex-col items-center justify-center py-16 px-4 text-center"
     >
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 mb-4">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-900 mb-4">
         {icon || <FileX className="h-8 w-8 text-slate-400" />}
       </div>
-      <h3 className="text-lg font-semibold text-slate-900 mb-2">{title}</h3>
-      <p className="text-sm text-slate-500 max-w-sm mb-6">{description}</p>
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">{title}</h3>
+      <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-6">{description}</p>
       {action && (
         <Button onClick={action.onClick} variant="outline">
           {action.label}
@@ -48,8 +48,8 @@ interface LoadingStateProps {
 export function LoadingState({ variant = "page", count = 3 }: LoadingStateProps) {
   if (variant === "inline") {
     return (
-      <div className="flex items-center gap-2 text-slate-500">
-        <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-amber-600" />
+      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+        <div className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 dark:border-slate-700 border-t-amber-600" />
         <span className="text-sm">Loading...</span>
       </div>
     );
@@ -61,12 +61,12 @@ export function LoadingState({ variant = "page", count = 3 }: LoadingStateProps)
         {Array.from({ length: count }).map((_, i) => (
           <div
             key={i}
-            className="rounded-xl border border-slate-200 bg-white p-6 animate-pulse"
+            className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 p-6 animate-pulse"
           >
-            <div className="h-4 w-3/4 bg-slate-200 rounded mb-4" />
-            <div className="h-3 w-full bg-slate-100 rounded mb-2" />
-            <div className="h-3 w-2/3 bg-slate-100 rounded mb-4" />
-            <div className="h-8 w-24 bg-slate-200 rounded" />
+            <div className="h-4 w-3/4 bg-slate-200 dark:bg-slate-800 rounded mb-4" />
+            <div className="h-3 w-full bg-slate-100 dark:bg-slate-900 rounded mb-2" />
+            <div className="h-3 w-2/3 bg-slate-100 dark:bg-slate-900 rounded mb-4" />
+            <div className="h-8 w-24 bg-slate-200 dark:bg-slate-800 rounded" />
           </div>
         ))}
       </div>
@@ -75,14 +75,14 @@ export function LoadingState({ variant = "page", count = 3 }: LoadingStateProps)
 
   if (variant === "table") {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden animate-pulse">
-        <div className="h-12 bg-slate-50 border-b border-slate-200" />
+      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 overflow-hidden animate-pulse">
+        <div className="h-12 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800" />
         {Array.from({ length: count }).map((_, i) => (
-          <div key={i} className="flex items-center gap-4 p-4 border-b border-slate-100">
-            <div className="h-4 w-1/4 bg-slate-200 rounded" />
-            <div className="h-4 w-1/4 bg-slate-100 rounded" />
-            <div className="h-4 w-1/6 bg-slate-100 rounded" />
-            <div className="h-4 w-1/6 bg-slate-200 rounded" />
+          <div key={i} className="flex items-center gap-4 p-4 border-b border-slate-100 dark:border-slate-800">
+            <div className="h-4 w-1/4 bg-slate-200 dark:bg-slate-800 rounded" />
+            <div className="h-4 w-1/4 bg-slate-100 dark:bg-slate-900 rounded" />
+            <div className="h-4 w-1/6 bg-slate-100 dark:bg-slate-900 rounded" />
+            <div className="h-4 w-1/6 bg-slate-200 dark:bg-slate-800 rounded" />
           </div>
         ))}
       </div>
@@ -92,8 +92,8 @@ export function LoadingState({ variant = "page", count = 3 }: LoadingStateProps)
   // Page variant
   return (
     <div className="flex flex-col items-center justify-center py-24 px-4">
-      <div className="h-10 w-10 animate-spin rounded-full border-3 border-slate-200 border-t-amber-600 mb-4" />
-      <p className="text-sm text-slate-500">Loading...</p>
+      <div className="h-10 w-10 animate-spin rounded-full border-3 border-slate-200 dark:border-slate-800 border-t-amber-600 mb-4" />
+      <p className="text-sm text-slate-500 dark:text-slate-400">Loading...</p>
     </div>
   );
 }
@@ -123,8 +123,8 @@ export function ErrorState({
       <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 mb-4">
         <AlertCircle className="h-8 w-8 text-red-500" />
       </div>
-      <h3 className="text-lg font-semibold text-slate-900 mb-2">{title}</h3>
-      <p className="text-sm text-slate-500 max-w-sm mb-6">{description}</p>
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">{title}</h3>
+      <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-6">{description}</p>
       {onRetry && (
         <Button onClick={onRetry} variant="outline" className="gap-2">
           <RefreshCw className="h-4 w-4" />
@@ -151,10 +151,10 @@ export function PermissionDenied({ onGoBack }: PermissionDeniedProps) {
       transition={{ duration: 0.4 }}
       className="flex flex-col items-center justify-center py-16 px-4 text-center"
     >
-      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 mb-4">
+      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950/40 mb-4">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-8 w-8 text-amber-600"
+          className="h-8 w-8 text-amber-600 dark:text-amber-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -167,8 +167,8 @@ export function PermissionDenied({ onGoBack }: PermissionDeniedProps) {
           />
         </svg>
       </div>
-      <h3 className="text-lg font-semibold text-slate-900 mb-2">Access Denied</h3>
-      <p className="text-sm text-slate-500 max-w-sm mb-6">
+      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-2">Access Denied</h3>
+      <p className="text-sm text-slate-500 dark:text-slate-400 max-w-sm mb-6">
         You don&apos;t have permission to view this page. Please contact your administrator if you
         believe this is an error.
       </p>
@@ -193,15 +193,15 @@ interface StatusBadgeProps {
 const statusStyles: Record<string, string> = {
   // Payment
   paid: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  pending: "bg-amber-50 text-amber-700 border-amber-200",
+  pending: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200",
   overdue: "bg-red-50 text-red-700 border-red-200",
   // Project
   completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
   in_progress: "bg-blue-50 text-blue-700 border-blue-200",
-  not_started: "bg-slate-50 text-slate-600 border-slate-200",
-  on_hold: "bg-amber-50 text-amber-700 border-amber-200",
+  not_started: "bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800",
+  on_hold: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200",
   cancelled: "bg-red-50 text-red-700 border-red-200",
-  upcoming: "bg-slate-50 text-slate-600 border-slate-200",
+  upcoming: "bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800",
   // Lead
   new: "bg-blue-50 text-blue-700 border-blue-200",
   contacted: "bg-purple-50 text-purple-700 border-purple-200",
@@ -210,7 +210,7 @@ const statusStyles: Record<string, string> = {
   rejected: "bg-red-50 text-red-700 border-red-200",
   // Stage
   planning: "bg-violet-50 text-violet-700 border-violet-200",
-  foundation: "bg-amber-50 text-amber-700 border-amber-200",
+  foundation: "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200",
   columns: "bg-orange-50 text-orange-700 border-orange-200",
   walls: "bg-blue-50 text-blue-700 border-blue-200",
   slab: "bg-cyan-50 text-cyan-700 border-cyan-200",
@@ -238,13 +238,13 @@ const dotColors: Record<string, string> = {
 };
 
 export function StatusBadge({ status, variant = "default" }: StatusBadgeProps) {
-  const style = statusStyles[status] || "bg-slate-50 text-slate-600 border-slate-200";
+  const style = statusStyles[status] || "bg-slate-50 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800";
   const formatted = status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
   if (variant === "dot") {
     const dotColor = dotColors[status] || "bg-slate-400";
     return (
-      <span className="inline-flex items-center gap-1.5 text-sm text-slate-700">
+      <span className="inline-flex items-center gap-1.5 text-sm text-slate-700 dark:text-slate-300">
         <span className={`h-2 w-2 rounded-full ${dotColor}`} />
         {formatted}
       </span>
@@ -279,8 +279,8 @@ export function FileTypeIcon({ type, className = "h-10 w-10" }: FileTypeIconProp
   };
 
   const { bg, text, label } = colors[type] || {
-    bg: "bg-slate-100",
-    text: "text-slate-600",
+    bg: "bg-slate-100 dark:bg-slate-900",
+    text: "text-slate-600 dark:text-slate-400",
     label: "FILE",
   };
 

@@ -72,14 +72,14 @@ export default function StaffMessagesPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Customer Communication</h1>
-        <p className="text-slate-500 mt-1">Send updates, questions, or notices directly to your assigned customers.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Customer Communication</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Send updates, questions, or notices directly to your assigned customers.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left side: Form */}
         <motion.div initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} className="lg:col-span-2">
-          <Card className="border-slate-200">
+          <Card className="border-slate-200 dark:border-slate-800">
             <CardContent className="p-6 space-y-5">
               
               <div className="space-y-2">
@@ -122,8 +122,8 @@ export default function StaffMessagesPage() {
                 />
               </div>
 
-              <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                   <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                   Email will be sent instantly
                 </div>
@@ -143,10 +143,10 @@ export default function StaffMessagesPage() {
 
         {/* Right side: Customer Info Context */}
         <motion.div initial={{ opacity: 0, x: 15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
-          <Card className="bg-slate-50 border-slate-100">
+          <Card className="bg-slate-50 dark:bg-slate-900 border-slate-100 dark:border-slate-800">
             <CardContent className="p-5">
-              <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-                <User className="h-4 w-4 text-amber-600" />
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
+                <User className="h-4 w-4 text-amber-600 dark:text-amber-500" />
                 Recipient Details
               </h3>
               
@@ -154,26 +154,26 @@ export default function StaffMessagesPage() {
                 <div className="space-y-4">
                   <div>
                     <div className="text-xs text-slate-400 mb-1">Customer Name</div>
-                    <div className="font-medium text-slate-900">{selectedProject.customer?.name || "Unknown"}</div>
+                    <div className="font-medium text-slate-900 dark:text-slate-100">{selectedProject.customer?.name || "Unknown"}</div>
                   </div>
                   <div>
                     <div className="text-xs text-slate-400 mb-1">Project</div>
-                    <div className="font-medium text-slate-900 flex items-center gap-1.5">
+                    <div className="font-medium text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
                       <Building2 className="h-3 w-3 text-slate-400" />
                       {selectedProject.name}
                     </div>
                   </div>
                   <div>
                     <div className="text-xs text-slate-400 mb-1">Location</div>
-                    <div className="text-sm text-slate-700">{selectedProject.siteAddress}, {selectedProject.city}</div>
+                    <div className="text-sm text-slate-700 dark:text-slate-300">{selectedProject.siteAddress}, {selectedProject.city}</div>
                   </div>
                   <div>
                     <div className="text-xs text-slate-400 mb-1">Phone Number</div>
-                    <div className="text-sm text-slate-700">{selectedProject.customer?.phone || "Not provided"}</div>
+                    <div className="text-sm text-slate-700 dark:text-slate-300">{selectedProject.customer?.phone || "Not provided"}</div>
                   </div>
                 </div>
               ) : (
-                <div className="text-sm text-slate-500 text-center py-8">
+                <div className="text-sm text-slate-500 dark:text-slate-400 text-center py-8">
                   Select a project to view customer details.
                 </div>
               )}

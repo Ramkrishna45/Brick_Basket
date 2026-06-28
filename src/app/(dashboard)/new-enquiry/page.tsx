@@ -99,14 +99,14 @@ export default function DashboardEnquiryPage() {
           <div className="flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 mx-auto mb-6">
             <CheckCircle2 className="h-10 w-10 text-emerald-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-3">Enquiry Submitted!</h1>
-          <p className="text-slate-500 mb-2">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">Enquiry Submitted!</h1>
+          <p className="text-slate-500 dark:text-slate-400 mb-2">
             Thank you, <strong>{step1Data?.name}</strong>! We&apos;ve received your enquiry for a new project.
           </p>
-          <p className="text-slate-500 mb-6">
+          <p className="text-slate-500 dark:text-slate-400 mb-6">
             Our team will contact you on <strong>{step1Data?.phone}</strong> within 24 hours.
           </p>
-          <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-sm py-1.5 px-4 mb-6">
+          <Badge className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 text-sm py-1.5 px-4 mb-6">
             Reference ID: BRK-{Date.now().toString().slice(-6)}
           </Badge>
           <div className="mt-6">
@@ -125,9 +125,9 @@ export default function DashboardEnquiryPage() {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="h-5 w-5 text-amber-500" />
-          <h1 className="text-2xl font-bold text-slate-900">Start a New Project</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Start a New Project</h1>
         </div>
-        <p className="text-slate-500">
+        <p className="text-slate-500 dark:text-slate-400">
           Tell us about your dream home. Your personal details have been pre-filled from your account.
         </p>
       </div>
@@ -141,17 +141,17 @@ export default function DashboardEnquiryPage() {
                 "h-9 w-9 rounded-full flex items-center justify-center text-sm font-bold border-2 transition-all",
                 i + 1 < step ? "bg-emerald-500 border-emerald-500 text-white"
                   : i + 1 === step ? "bg-amber-600 border-amber-600 text-white"
-                  : "bg-white border-slate-300 text-slate-400"
+                  : "bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-400"
               )}>
                 {i + 1 < step ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
               </div>
               <span className={cn("text-xs mt-1.5 font-medium hidden sm:block",
-                i + 1 === step ? "text-amber-700" : i + 1 < step ? "text-emerald-600" : "text-slate-400"
+                i + 1 === step ? "text-amber-700 dark:text-amber-400" : i + 1 < step ? "text-emerald-600" : "text-slate-400"
               )}>{s}</span>
             </div>
             {i < steps.length - 1 && (
               <div className={cn("flex-1 h-0.5 mx-2 transition-colors",
-                i + 1 < step ? "bg-emerald-400" : "bg-slate-200"
+                i + 1 < step ? "bg-emerald-400" : "bg-slate-200 dark:bg-slate-800"
               )} />
             )}
           </div>
@@ -165,16 +165,16 @@ export default function DashboardEnquiryPage() {
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: -30, opacity: 0 }}
         transition={{ duration: 0.25 }}
-        className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm"
+        className="bg-white dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm"
       >
         {/* STEP 1 — Pre-filled */}
         {step === 1 && (
           <form onSubmit={form1.handleSubmit(handleStep1)} className="space-y-5">
             <div className="flex items-center justify-between mb-2">
-              <h2 className="text-xl font-semibold text-slate-900">Personal Details</h2>
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Personal Details</h2>
               <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">Auto-filled</Badge>
             </div>
-            <p className="text-sm text-slate-500 -mt-3 mb-4">Your details are pre-filled from your account. Feel free to edit if needed.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 -mt-3 mb-4">Your details are pre-filled from your account. Feel free to edit if needed.</p>
             <div>
               <Label htmlFor="name">Full Name *</Label>
               <Input id="name" {...form1.register("name", { required: "Name is required" })}
@@ -184,7 +184,7 @@ export default function DashboardEnquiryPage() {
             <div>
               <Label htmlFor="phone">Phone Number *</Label>
               <div className="flex mt-1.5">
-                <span className="flex items-center px-3 bg-slate-100 border border-r-0 border-slate-300 rounded-l-md text-sm text-slate-600">+91</span>
+                <span className="flex items-center px-3 bg-slate-100 dark:bg-slate-900 border border-r-0 border-slate-300 dark:border-slate-700 rounded-l-md text-sm text-slate-600 dark:text-slate-400">+91</span>
                 <Input id="phone" {...form1.register("phone", { required: "Phone is required", pattern: { value: /^[6-9]\d{9}$/, message: "Enter valid 10-digit number" } })}
                   placeholder="98765 43210" className="rounded-l-none" />
               </div>
@@ -211,7 +211,7 @@ export default function DashboardEnquiryPage() {
         {/* STEP 2 */}
         {step === 2 && (
           <form onSubmit={form2.handleSubmit(handleStep2)} className="space-y-5">
-            <h2 className="text-xl font-semibold text-slate-900 mb-6">Home Requirements</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-6">Home Requirements</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label htmlFor="plotSize">Plot Size</Label>
@@ -269,21 +269,21 @@ export default function DashboardEnquiryPage() {
         {/* STEP 3 */}
         {step === 3 && (
           <div className="space-y-5">
-            <h2 className="text-xl font-semibold text-slate-900 mb-6">Preferences</h2>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-6">Preferences</h2>
             <div>
               <Label className="mb-3 block">Services Needed</Label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {SERVICES_LIST.map((s) => (
                   <label key={s.id} className={cn(
                     "flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors text-sm",
-                    selected.includes(s.id) ? "border-amber-400 bg-amber-50" : "border-slate-200 hover:border-amber-300"
+                    selected.includes(s.id) ? "border-amber-400 bg-amber-50 dark:bg-amber-950/40" : "border-slate-200 dark:border-slate-800 hover:border-amber-300"
                   )}>
                     <Checkbox
                       checked={selected.includes(s.id)}
                       onCheckedChange={(c) => setSelected(c ? [...selected, s.id] : selected.filter((i) => i !== s.id))}
                       className="data-[state=checked]:bg-amber-600 data-[state=checked]:border-amber-600"
                     />
-                    <span className="text-slate-700">{s.title}</span>
+                    <span className="text-slate-700 dark:text-slate-300">{s.title}</span>
                   </label>
                 ))}
               </div>
@@ -298,7 +298,7 @@ export default function DashboardEnquiryPage() {
                 ].map(({ value, icon: Icon, label }) => (
                   <button key={value} type="button" onClick={() => setContact(value)}
                     className={cn("flex-1 flex flex-col items-center gap-1.5 p-3 rounded-xl border text-xs font-medium transition-all",
-                      contact === value ? "border-amber-500 bg-amber-50 text-amber-700" : "border-slate-200 text-slate-600 hover:border-amber-300"
+                      contact === value ? "border-amber-500 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400" : "border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-400 hover:border-amber-300"
                     )}>
                     <Icon className="h-4 w-4" />
                     {label}

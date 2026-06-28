@@ -79,13 +79,13 @@ export default function ForgotPasswordPage() {
     <div>
       {step < 4 && (
         <>
-          <Link href="/login" className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-amber-600 mb-6 transition-colors">
+          <Link href="/login" className="flex items-center gap-1.5 text-sm text-slate-500 dark:text-slate-400 hover:text-amber-600 dark:text-amber-500 mb-6 transition-colors">
             <ArrowLeft className="h-4 w-4" /> Back to Login
           </Link>
           {/* Step dots */}
           <div className="flex items-center gap-2 mb-8">
             {[1, 2, 3].map((s) => (
-              <div key={s} className={cn("h-2 rounded-full transition-all", s === step ? "w-8 bg-amber-600" : s < step ? "w-2 bg-amber-400" : "w-2 bg-slate-200")} />
+              <div key={s} className={cn("h-2 rounded-full transition-all", s === step ? "w-8 bg-amber-600" : s < step ? "w-2 bg-amber-400" : "w-2 bg-slate-200 dark:bg-slate-800")} />
             ))}
           </div>
         </>
@@ -93,8 +93,8 @@ export default function ForgotPasswordPage() {
 
       {step === 1 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">Forgot Password?</h1>
-          <p className="text-slate-500 mb-8">Enter your email and we&apos;ll send you an OTP</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">Forgot Password?</h1>
+          <p className="text-slate-500 dark:text-slate-400 mb-8">Enter your email and we&apos;ll send you an OTP</p>
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div>
               <Label htmlFor="fp-email">Email Address</Label>
@@ -110,8 +110,8 @@ export default function ForgotPasswordPage() {
 
       {step === 2 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">Enter OTP</h1>
-          <p className="text-slate-500 mb-8">We sent a 6-digit code to <strong>{email}</strong></p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">Enter OTP</h1>
+          <p className="text-slate-500 dark:text-slate-400 mb-8">We sent a 6-digit code to <strong>{email}</strong></p>
           <form onSubmit={handleOtpSubmit} className="space-y-6">
             <div className="flex gap-3 justify-center">
               {otp.map((digit, i) => (
@@ -123,9 +123,9 @@ export default function ForgotPasswordPage() {
             <Button type="submit" disabled={loading} className="w-full bg-amber-600 hover:bg-amber-700 gap-2 h-11">
               {loading ? <span className="h-4 w-4 rounded-full border-2 border-white/40 border-t-white animate-spin" /> : <>Verify OTP <ArrowRight className="h-4 w-4" /></>}
             </Button>
-            <p className="text-center text-sm text-slate-500">
+            <p className="text-center text-sm text-slate-500 dark:text-slate-400">
               Didn&apos;t receive it?{" "}
-              <button type="button" className="text-amber-600 font-medium hover:underline" onClick={() => toast.info("OTP resent!")}>Resend OTP</button>
+              <button type="button" className="text-amber-600 dark:text-amber-500 font-medium hover:underline" onClick={() => toast.info("OTP resent!")}>Resend OTP</button>
             </p>
           </form>
         </motion.div>
@@ -133,8 +133,8 @@ export default function ForgotPasswordPage() {
 
       {step === 3 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">New Password</h1>
-          <p className="text-slate-500 mb-8">Create a strong new password</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">New Password</h1>
+          <p className="text-slate-500 dark:text-slate-400 mb-8">Create a strong new password</p>
           <form onSubmit={handlePasswordReset} className="space-y-4">
             <div>
               <Label htmlFor="new-password">New Password</Label>
@@ -157,8 +157,8 @@ export default function ForgotPasswordPage() {
           <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 mx-auto mb-4">
             <CheckCircle2 className="h-8 w-8 text-emerald-600" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Password Reset!</h1>
-          <p className="text-slate-500 mb-6">Your password has been reset successfully.</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">Password Reset!</h1>
+          <p className="text-slate-500 dark:text-slate-400 mb-6">Your password has been reset successfully.</p>
           <Button render={<Link href="/login" />} className="bg-amber-600 hover:bg-amber-700 gap-2">
             Back to Login <ArrowRight className="h-4 w-4" />
           </Button>

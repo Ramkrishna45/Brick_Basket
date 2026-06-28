@@ -421,6 +421,10 @@ export async function getProjectByIdAction(id: string) {
         },
         documents: { orderBy: { createdAt: "desc" } },
         payments: { orderBy: { createdAt: "asc" } },
+        paymentTransactions: { 
+          orderBy: { date: "desc" },
+          include: { recordedBy: { select: { name: true } } }
+        },
       },
     });
 
@@ -452,6 +456,10 @@ export async function getProjectByIdAction(id: string) {
         payments: project.payments.map((p) => ({
           ...p,
           createdAt: p.createdAt.toISOString(),
+        })),
+        paymentTransactions: project.paymentTransactions.map((t) => ({
+          ...t,
+          date: t.date.toISOString(),
         })),
       },
     };

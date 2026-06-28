@@ -77,15 +77,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <SidebarProvider>
-      <Sidebar className="border-r border-slate-200">
-        <SidebarHeader className="p-4 border-b border-slate-200">
+      <Sidebar className="border-r border-slate-200 dark:border-slate-800">
+        <SidebarHeader className="p-4 border-b border-slate-200 dark:border-slate-800">
           <Link href="/dashboard" className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600 flex-shrink-0">
               <HardHat className="h-4 w-4 text-white" />
             </div>
             <div>
-              <div className="font-bold text-slate-900 text-sm leading-tight">{BRAND.name}</div>
-              <div className="text-xs text-slate-500">Customer Portal</div>
+              <div className="font-bold text-slate-900 dark:text-slate-100 text-sm leading-tight">{BRAND.name}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">Customer Portal</div>
             </div>
           </Link>
         </SidebarHeader>
@@ -101,8 +101,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                       render={<Link href={item.href} />}
                       className={cn("rounded-lg h-10 gap-3",
                         pathname === item.href
-                          ? "bg-amber-50 text-amber-700 font-medium hover:bg-amber-100"
-                          : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                          ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 font-medium hover:bg-amber-100"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:text-slate-100 hover:bg-slate-100 dark:bg-slate-900"
                       )}>
                       {item.icon && <item.icon className="h-4 w-4 flex-shrink-0" />}
                       <span>{item.title}</span>
@@ -114,15 +114,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="p-3 border-t border-slate-200">
+        <SidebarFooter className="p-3 border-t border-slate-200 dark:border-slate-800">
           <DropdownMenu>
-            <DropdownMenuTrigger asChild><div className="flex items-center gap-3 w-full p-2.5 rounded-lg hover:bg-slate-100 transition-colors text-left border border-transparent hover:border-slate-200 cursor-pointer">
+            <DropdownMenuTrigger asChild><div className="flex items-center gap-3 w-full p-2.5 rounded-lg hover:bg-slate-100 dark:bg-slate-900 transition-colors text-left border border-transparent hover:border-slate-200 dark:border-slate-800 cursor-pointer">
               <Avatar className="h-8 w-8 flex-shrink-0 pointer-events-none">
-                <AvatarFallback className="bg-amber-100 text-amber-700 text-xs font-bold">{initials}</AvatarFallback>
+                <AvatarFallback className="bg-amber-100 text-amber-700 dark:text-amber-400 text-xs font-bold">{initials}</AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0 pointer-events-none">
-                <div className="text-sm font-medium text-slate-900 truncate">{user?.name}</div>
-                <div className="text-xs text-slate-500 truncate">{user?.email}</div>
+                <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{user?.name}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 truncate">{user?.email}</div>
               </div>
               <ChevronUp className="h-4 w-4 text-slate-400 flex-shrink-0 pointer-events-none ml-auto" />
             </div></DropdownMenuTrigger>
@@ -154,8 +154,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </Breadcrumb>
           <div className="ml-auto flex items-center gap-2">
             <DropdownMenu>
-              <DropdownMenuTrigger asChild><div className="relative p-2 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none pointer-events-auto cursor-pointer">
-                <Bell className="h-5 w-5 text-slate-600" />
+              <DropdownMenuTrigger asChild><div className="relative p-2 rounded-lg hover:bg-slate-100 dark:bg-slate-900 transition-colors focus:outline-none pointer-events-auto cursor-pointer">
+                <Bell className="h-5 w-5 text-slate-600 dark:text-slate-400" />
                 {unreadCount > 0 && (
                   <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-amber-500 rounded-full" />
                 )}
@@ -164,21 +164,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                 <DropdownMenuLabel>Notifications ({unreadCount})</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 {notifications.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-slate-500">No new notifications</div>
+                  <div className="p-4 text-center text-sm text-slate-500 dark:text-slate-400">No new notifications</div>
                 ) : (
                   notifications.map((n) => (
                     <div 
                       key={n.id} 
-                      className={cn("flex flex-col items-start py-2.5 px-4 cursor-pointer hover:bg-slate-50", !n.read && "bg-slate-50")}
+                      className={cn("flex flex-col items-start py-2.5 px-4 cursor-pointer hover:bg-slate-50 dark:bg-slate-900", !n.read && "bg-slate-50 dark:bg-slate-900")}
                       onClick={() => handleNotificationClick(n.id)}
                     >
                       <div className="flex items-center justify-between w-full">
-                        <span className={cn("text-xs font-semibold text-slate-900", !n.read && "text-amber-700")}>{n.title}</span>
+                        <span className={cn("text-xs font-semibold text-slate-900 dark:text-slate-100", !n.read && "text-amber-700 dark:text-amber-400")}>{n.title}</span>
                         <span className="text-xs text-slate-400">
                           {new Date(n.createdAt).toLocaleDateString()}
                         </span>
                       </div>
-                      <span className="text-xs text-slate-500 mt-0.5">{n.message}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{n.message}</span>
                     </div>
                   ))
                 )}
@@ -187,15 +187,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild><div className="focus:outline-none rounded-full ring-2 ring-transparent hover:ring-amber-500 transition-all cursor-pointer">
-                <Avatar className="h-8 w-8 border border-slate-200">
-                  <AvatarFallback className="bg-amber-100 text-amber-700 font-bold text-xs">{initials}</AvatarFallback>
+                <Avatar className="h-8 w-8 border border-slate-200 dark:border-slate-800">
+                  <AvatarFallback className="bg-amber-100 text-amber-700 dark:text-amber-400 font-bold text-xs">{initials}</AvatarFallback>
                 </Avatar>
               </div></DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 mt-1">
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none text-slate-900">{user?.name}</p>
-                    <p className="text-xs leading-none text-slate-500">{user?.email}</p>
+                    <p className="text-sm font-medium leading-none text-slate-900 dark:text-slate-100">{user?.name}</p>
+                    <p className="text-xs leading-none text-slate-500 dark:text-slate-400">{user?.email}</p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />

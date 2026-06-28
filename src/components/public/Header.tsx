@@ -38,7 +38,7 @@ export function Header() {
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
         scrolled
-          ? "bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-200"
+          ? "bg-white dark:bg-slate-950/95 backdrop-blur-md shadow-sm border-b border-slate-200 dark:border-slate-800"
           : "bg-transparent"
       )}
     >
@@ -51,7 +51,7 @@ export function Header() {
             </div>
             <span className={cn(
               "text-lg font-bold transition-colors",
-              scrolled ? "text-slate-900" : "text-white"
+              scrolled ? "text-slate-900 dark:text-slate-100" : "text-white"
             )}>
               {BRAND.name}
             </span>
@@ -66,8 +66,8 @@ export function Header() {
                 className={cn(
                   "px-4 py-2 rounded-lg text-sm font-medium transition-colors",
                   pathname === item.href
-                    ? scrolled ? "text-amber-600 bg-amber-50" : "text-amber-300"
-                    : scrolled ? "text-slate-700 hover:text-amber-600 hover:bg-amber-50" : "text-white/80 hover:text-white"
+                    ? scrolled ? "text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-950/40" : "text-amber-300"
+                    : scrolled ? "text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:text-amber-500 hover:bg-amber-50 dark:bg-amber-950/40" : "text-white/80 hover:text-white"
                 )}
               >
                 {item.title}
@@ -82,7 +82,7 @@ export function Header() {
               href={isAuthenticated ? getDashboardLink() : "/login"}
               className={cn(
                 "text-sm font-medium transition-colors",
-                scrolled ? "text-slate-700 hover:text-amber-600" : "text-white/80 hover:text-white"
+                scrolled ? "text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:text-amber-500" : "text-white/80 hover:text-white"
               )}
             >
               {isAuthenticated ? "Dashboard" : "Sign In"}
@@ -101,7 +101,7 @@ export function Header() {
               <SheetTrigger
                 className={cn(
                   "p-2 rounded-lg transition-colors",
-                  scrolled ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/10"
+                  scrolled ? "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:bg-slate-900" : "text-white hover:bg-white dark:bg-slate-950/10"
                 )}
               >
                 <Menu className="h-5 w-5" />
@@ -113,7 +113,7 @@ export function Header() {
                     <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600">
                       <HardHat className="h-4 w-4 text-white" />
                     </div>
-                    <span className="font-bold text-slate-900">{BRAND.name}</span>
+                    <span className="font-bold text-slate-900 dark:text-slate-100">{BRAND.name}</span>
                   </Link>
                 </div>
                 <nav className="flex-1 p-4 space-y-1">
@@ -125,8 +125,8 @@ export function Header() {
                       className={cn(
                         "block px-4 py-3 rounded-lg text-sm font-medium transition-colors",
                         pathname === item.href
-                          ? "text-amber-600 bg-amber-50"
-                          : "text-slate-700 hover:text-amber-600 hover:bg-amber-50"
+                          ? "text-amber-600 dark:text-amber-500 bg-amber-50 dark:bg-amber-950/40"
+                          : "text-slate-700 dark:text-slate-300 hover:text-amber-600 dark:text-amber-500 hover:bg-amber-50 dark:bg-amber-950/40"
                       )}
                     >
                       {item.title}
@@ -134,8 +134,8 @@ export function Header() {
                   ))}
                 </nav>
                 <div className="p-4 border-t space-y-3">
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <Phone className="h-4 w-4 text-amber-600" />
+                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                    <Phone className="h-4 w-4 text-amber-600 dark:text-amber-500" />
                     {BRAND.phone}
                   </div>
                   <Link href="/enquiry"
@@ -146,7 +146,7 @@ export function Header() {
                   </Link>
                   <Link href={isAuthenticated ? getDashboardLink() : "/login"}
                     onClick={() => setMobileOpen(false)}
-                    className="w-full inline-flex items-center justify-center rounded-lg border border-slate-300 hover:border-amber-400 text-slate-700 hover:text-amber-700 text-sm font-medium px-4 py-2 transition-colors"
+                    className="w-full inline-flex items-center justify-center rounded-lg border border-slate-300 dark:border-slate-700 hover:border-amber-400 text-slate-700 dark:text-slate-300 hover:text-amber-700 dark:text-amber-400 text-sm font-medium px-4 py-2 transition-colors"
                   >
                     {isAuthenticated ? "Go to Dashboard" : "Sign In"}
                   </Link>

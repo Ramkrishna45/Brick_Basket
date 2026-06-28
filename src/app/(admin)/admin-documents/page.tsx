@@ -147,8 +147,8 @@ export default function AdminDocumentsPage() {
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Document Management</h1>
-          <p className="text-sm text-slate-500 mt-1">Manage all project documents and files</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Document Management</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Manage all project documents and files</p>
         </div>
         
         <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
@@ -199,7 +199,7 @@ export default function AdminDocumentsPage() {
               <div className="space-y-2">
                 <Label>File <span className="text-red-500">*</span></Label>
                 <div 
-                  className="border-2 border-dashed border-slate-300 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer"
+                  className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-6 flex flex-col items-center justify-center text-center hover:bg-slate-50 dark:bg-slate-900 transition-colors cursor-pointer"
                   onClick={() => document.getElementById('doc-upload')?.click()}
                 >
                   <input 
@@ -215,14 +215,14 @@ export default function AdminDocumentsPage() {
                     <div className="flex flex-col items-center">
                       <CheckCircle2 className="h-8 w-8 text-emerald-500 mb-2" />
                       <span className="font-medium text-emerald-700">{file.name}</span>
-                      <span className="text-xs text-slate-500 mt-1">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400 mt-1">{(file.size / (1024 * 1024)).toFixed(2)} MB</span>
                     </div>
                   ) : (
                     <>
                       <div className="bg-amber-100 p-3 rounded-full mb-3">
-                        <Upload className="h-6 w-6 text-amber-600" />
+                        <Upload className="h-6 w-6 text-amber-600 dark:text-amber-500" />
                       </div>
-                      <h3 className="font-medium text-slate-900 text-sm">Click to select file</h3>
+                      <h3 className="font-medium text-slate-900 dark:text-slate-100 text-sm">Click to select file</h3>
                     </>
                   )}
                 </div>
@@ -238,8 +238,8 @@ export default function AdminDocumentsPage() {
         </Dialog>
       </div>
 
-      <Card className="border-slate-200">
-        <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-4">
+      <Card className="border-slate-200 dark:border-slate-800">
+        <CardHeader className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 p-4">
           <div className="flex flex-col sm:flex-row justify-between gap-4">
             <div className="relative max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -269,7 +269,7 @@ export default function AdminDocumentsPage() {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead className="text-xs text-slate-500 uppercase bg-slate-50/50 border-b border-slate-200">
+              <thead className="text-xs text-slate-500 dark:text-slate-400 uppercase bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-800">
                 <tr>
                   <th className="px-6 py-4 font-medium">Document</th>
                   <th className="px-6 py-4 font-medium">Project</th>
@@ -281,7 +281,7 @@ export default function AdminDocumentsPage() {
               <tbody>
                 {filteredDocs.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-6 py-12 text-center text-slate-500">
+                    <td colSpan={5} className="px-6 py-12 text-center text-slate-500 dark:text-slate-400">
                       <FileText className="h-10 w-10 mx-auto text-slate-300 mb-3" />
                       <p>No documents found matching your criteria.</p>
                     </td>
@@ -290,36 +290,36 @@ export default function AdminDocumentsPage() {
                   filteredDocs.map((doc, i) => (
                     <motion.tr 
                       initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.05 }}
-                      key={doc.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                      key={doc.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:bg-slate-900 transition-colors"
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
-                          <div className="h-10 w-10 rounded-lg bg-amber-50 flex items-center justify-center flex-shrink-0">
-                            <FileText className="h-5 w-5 text-amber-600" />
+                          <div className="h-10 w-10 rounded-lg bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center flex-shrink-0">
+                            <FileText className="h-5 w-5 text-amber-600 dark:text-amber-500" />
                           </div>
                           <div>
-                            <p className="font-medium text-slate-900">{doc.name}</p>
-                            <p className="text-xs text-slate-500 uppercase">{doc.fileType}</p>
+                            <p className="font-medium text-slate-900 dark:text-slate-100">{doc.name}</p>
+                            <p className="text-xs text-slate-500 dark:text-slate-400 uppercase">{doc.fileType}</p>
                           </div>
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="font-medium text-slate-900">{doc.project?.name}</p>
-                        <p className="text-xs text-slate-500">{doc.project?.customer?.name}</p>
+                        <p className="font-medium text-slate-900 dark:text-slate-100">{doc.project?.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{doc.project?.customer?.name}</p>
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant="outline" className="bg-white capitalize">{doc.category}</Badge>
+                        <Badge variant="outline" className="bg-white dark:bg-slate-950 capitalize">{doc.category}</Badge>
                       </td>
                       <td className="px-6 py-4">
-                        <p className="text-sm text-slate-900">{new Date(doc.createdAt).toLocaleDateString()}</p>
-                        <p className="text-xs text-slate-500">{doc.fileSize} • by {doc.uploadedBy}</p>
+                        <p className="text-sm text-slate-900 dark:text-slate-100">{new Date(doc.createdAt).toLocaleDateString()}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">{doc.fileSize} • by {doc.uploadedBy}</p>
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2">
-                          <Button render={<a href={doc.url} target="_blank" rel="noopener noreferrer" />} variant="ghost" size="icon" className="h-8 w-8 hover:text-amber-600" title="Preview">
+                          <Button render={<a href={doc.url} target="_blank" rel="noopener noreferrer" />} variant="ghost" size="icon" className="h-8 w-8 hover:text-amber-600 dark:text-amber-500" title="Preview">
                             <Eye className="h-4 w-4" />
                           </Button>
-                          <Button render={<a href={doc.url} download />} variant="ghost" size="icon" className="h-8 w-8 hover:text-amber-600" title="Download">
+                          <Button render={<a href={doc.url} download />} variant="ghost" size="icon" className="h-8 w-8 hover:text-amber-600 dark:text-amber-500" title="Download">
                             <Download className="h-4 w-4" />
                           </Button>
                           <Button onClick={() => handleDelete(doc.id)} variant="ghost" size="icon" className="h-8 w-8 hover:text-red-600 hover:bg-red-50" title="Delete">

@@ -93,12 +93,12 @@ export default function UploadsPage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Upload Progress</h1>
-        <p className="text-slate-500 text-sm mt-1">Update your project with today&apos;s progress photos and notes</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Upload Progress</h1>
+        <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Update your project with today&apos;s progress photos and notes</p>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}>
-        <Card className="border-slate-200">
+        <Card className="border-slate-200 dark:border-slate-800">
           <CardHeader className="pb-4">
             <CardTitle className="text-base font-semibold">New Progress Update</CardTitle>
           </CardHeader>
@@ -158,12 +158,12 @@ export default function UploadsPage() {
                   onDragLeave={() => setDragOver(false)}
                   className={cn(
                     "border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer",
-                    dragOver ? "border-amber-500 bg-amber-50" : "border-slate-300 hover:border-amber-400 bg-slate-50"
+                    dragOver ? "border-amber-500 bg-amber-50 dark:bg-amber-950/40" : "border-slate-300 dark:border-slate-700 hover:border-amber-400 bg-slate-50 dark:bg-slate-900"
                   )}
                   onClick={() => document.getElementById("photo-input")?.click()}
                 >
                   <Upload className={cn("h-8 w-8 mx-auto mb-3", dragOver ? "text-amber-500" : "text-slate-400")} />
-                  <p className="text-sm font-medium text-slate-700 mb-1">
+                  <p className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
                     {dragOver ? "Drop photos here" : "Click to upload or drag & drop"}
                   </p>
                   <p className="text-xs text-slate-400">Max 10 photos · JPG, PNG, HEIC · Max 5MB each</p>
@@ -174,7 +174,7 @@ export default function UploadsPage() {
                   {photoFiles.length > 0 && (
                     <div className="grid grid-cols-5 gap-2 mt-4">
                       {photoFiles.map((f, i) => (
-                        <div key={i} className="relative aspect-square rounded-md overflow-hidden bg-slate-200 group">
+                        <div key={i} className="relative aspect-square rounded-md overflow-hidden bg-slate-200 dark:bg-slate-800 group">
                           {/* eslint-disable-next-line @next/next/no-img-element */}
                           <img src={URL.createObjectURL(f)} alt="preview" className="object-cover w-full h-full" />
                           <button
@@ -205,24 +205,24 @@ export default function UploadsPage() {
 
       {/* Recent uploads */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
-        <Card className="border-slate-200">
+        <Card className="border-slate-200 dark:border-slate-800">
           <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold text-slate-700">Recent Uploads</CardTitle>
+            <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">Recent Uploads</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {recentUpdates.length === 0 ? (
-              <div className="text-sm text-slate-500 py-2">No recent updates.</div>
+              <div className="text-sm text-slate-500 dark:text-slate-400 py-2">No recent updates.</div>
             ) : (
               recentUpdates.map((u) => (
-                <div key={u.id} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50">
+                <div key={u.id} className="flex items-start gap-3 p-3 rounded-lg bg-slate-50 dark:bg-slate-900">
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-100 flex-shrink-0">
                     <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-slate-900 truncate">{u.title}</div>
+                    <div className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{u.title}</div>
                     <div className="text-xs text-slate-400 mt-0.5">{u.date} · {u.photos.length} photos</div>
                   </div>
-                  <Badge className="bg-slate-100 text-slate-600 border-slate-200 text-xs capitalize">{u.stage}</Badge>
+                  <Badge className="bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 text-xs capitalize">{u.stage}</Badge>
                 </div>
               ))
             )}

@@ -112,13 +112,13 @@ export default function StaffProgressUploadPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Upload Progress</h1>
-        <p className="text-slate-500 mt-1">Submit daily site updates, photos, and progress notes.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Upload Progress</h1>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Submit daily site updates, photos, and progress notes.</p>
       </div>
 
       <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-        <Card className="border-slate-200">
-          <CardHeader className="border-b border-slate-100 bg-slate-50/50">
+        <Card className="border-slate-200 dark:border-slate-800">
+          <CardHeader className="border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
             <CardTitle className="text-lg">New Progress Report</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-6">
@@ -158,7 +158,7 @@ export default function StaffProgressUploadPage() {
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <Label>Overall Completion</Label>
-                  <span className="text-sm font-bold text-amber-600">{completionPercentage[0]}%</span>
+                  <span className="text-sm font-bold text-amber-600 dark:text-amber-500">{completionPercentage[0]}%</span>
                 </div>
                 <div className="pt-2">
                   <input 
@@ -168,7 +168,7 @@ export default function StaffProgressUploadPage() {
                     step="1"
                     value={completionPercentage[0]}
                     onChange={(e) => setCompletionPercentage([parseInt(e.target.value)])}
-                    className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                    className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-600"
                   />
                 </div>
               </div>
@@ -199,7 +199,7 @@ export default function StaffProgressUploadPage() {
               <div className="space-y-2">
               <Label>Photos & Videos</Label>
               <div 
-                className="border-2 border-dashed border-slate-300 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 transition-colors cursor-pointer group relative overflow-hidden"
+                className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-lg p-8 flex flex-col items-center justify-center text-center hover:bg-slate-50 dark:bg-slate-900 transition-colors cursor-pointer group relative overflow-hidden"
                 onClick={() => document.getElementById('photo-upload')?.click()}
               >
                 <input 
@@ -217,15 +217,15 @@ export default function StaffProgressUploadPage() {
                   <div className="flex flex-col items-center">
                     <CheckCircle2 className="h-8 w-8 text-emerald-500 mb-2" />
                     <span className="font-medium text-emerald-700">{imageFile.name}</span>
-                    <span className="text-xs text-slate-500 mt-1">Click to replace</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 mt-1">Click to replace</span>
                   </div>
                 ) : (
                   <>
                     <div className="bg-amber-100 p-3 rounded-full mb-3 group-hover:scale-110 transition-transform">
-                      <Upload className="h-6 w-6 text-amber-600" />
+                      <Upload className="h-6 w-6 text-amber-600 dark:text-amber-500" />
                     </div>
-                    <h3 className="font-semibold text-slate-900 mb-1">Click to upload photos</h3>
-                    <p className="text-xs text-slate-500 mb-4">PNG, JPG, HEIC up to 10MB each</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">Click to upload photos</h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">PNG, JPG, HEIC up to 10MB each</p>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" type="button" className="text-xs pointer-events-none">
                         <ImageIcon className="h-3 w-3 mr-2" /> Browse Files
@@ -237,8 +237,8 @@ export default function StaffProgressUploadPage() {
             </div>
             </div>
 
-            <div className="pt-4 flex items-center justify-between border-t border-slate-100">
-              <div className="flex items-center gap-2 text-xs text-slate-500">
+            <div className="pt-4 flex items-center justify-between border-t border-slate-100 dark:border-slate-800">
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                 Customer will be notified automatically
               </div>

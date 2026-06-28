@@ -15,8 +15,8 @@ export default function AdminSettingsPage() {
   return (
     <div className="p-6 max-w-5xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Admin Settings</h1>
-        <p className="text-slate-500">Manage your platform preferences and security.</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Admin Settings</h1>
+        <p className="text-slate-500 dark:text-slate-400">Manage your platform preferences and security.</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -24,21 +24,21 @@ export default function AdminSettingsPage() {
         <div className="space-y-1">
           <button 
             onClick={() => setActiveTab("profile")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "profile" ? "bg-amber-100 text-amber-900" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "profile" ? "bg-amber-100 text-amber-900 dark:text-amber-200" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-900 hover:text-slate-900 dark:text-slate-100"}`}
           >
             <User className="h-4 w-4" />
             Profile Information
           </button>
           <button 
             onClick={() => setActiveTab("notifications")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "notifications" ? "bg-amber-100 text-amber-900" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "notifications" ? "bg-amber-100 text-amber-900 dark:text-amber-200" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-900 hover:text-slate-900 dark:text-slate-100"}`}
           >
             <Bell className="h-4 w-4" />
             Notifications
           </button>
           <button 
             onClick={() => setActiveTab("security")}
-            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "security" ? "bg-amber-100 text-amber-900" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"}`}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === "security" ? "bg-amber-100 text-amber-900 dark:text-amber-200" : "text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:bg-slate-900 hover:text-slate-900 dark:text-slate-100"}`}
           >
             <Shield className="h-4 w-4" />
             Security
@@ -63,7 +63,7 @@ export default function AdminSettingsPage() {
                   <div className="space-y-2">
                     <Label>Email Address</Label>
                     <Input defaultValue="admin@brickbasket.com" disabled />
-                    <p className="text-xs text-slate-500">Email cannot be changed.</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Email cannot be changed.</p>
                   </div>
                   <div className="space-y-2">
                     <Label>Phone Number</Label>
@@ -93,19 +93,19 @@ export default function AdminSettingsPage() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-base font-medium">Email Alerts</Label>
-                    <p className="text-sm text-slate-500">Receive emails about new projects and updates.</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Receive emails about new projects and updates.</p>
                   </div>
                   <div className="relative inline-flex h-6 w-11 items-center rounded-full bg-amber-600 transition-colors cursor-pointer">
-                    <span className="inline-block h-4 w-4 translate-x-6 rounded-full bg-white transition-transform" />
+                    <span className="inline-block h-4 w-4 translate-x-6 rounded-full bg-white dark:bg-slate-950 transition-transform" />
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label className="text-base font-medium">SMS Notifications</Label>
-                    <p className="text-sm text-slate-500">Get text messages for critical alerts.</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">Get text messages for critical alerts.</p>
                   </div>
-                  <div className="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-200 transition-colors cursor-pointer">
-                    <span className="inline-block h-4 w-4 translate-x-1 rounded-full bg-white transition-transform" />
+                  <div className="relative inline-flex h-6 w-11 items-center rounded-full bg-slate-200 dark:bg-slate-800 transition-colors cursor-pointer">
+                    <span className="inline-block h-4 w-4 translate-x-1 rounded-full bg-white dark:bg-slate-950 transition-transform" />
                   </div>
                 </div>
               </CardContent>
@@ -121,25 +121,25 @@ export default function AdminSettingsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   
-                  <div className="border border-slate-200 rounded-lg overflow-hidden">
+                  <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-hidden">
                     <button 
                       onClick={() => setShowPasswordChange(!showPasswordChange)}
-                      className="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 transition-colors focus:outline-none"
+                      className="w-full flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 hover:bg-slate-100 dark:bg-slate-900 transition-colors focus:outline-none"
                     >
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white rounded-md shadow-sm">
-                          <Key className="h-4 w-4 text-slate-600" />
+                        <div className="p-2 bg-white dark:bg-slate-950 rounded-md shadow-sm">
+                          <Key className="h-4 w-4 text-slate-600 dark:text-slate-400" />
                         </div>
                         <div className="text-left">
-                          <h4 className="font-medium text-slate-900">Change Password</h4>
-                          <p className="text-xs text-slate-500">Update your current password</p>
+                          <h4 className="font-medium text-slate-900 dark:text-slate-100">Change Password</h4>
+                          <p className="text-xs text-slate-500 dark:text-slate-400">Update your current password</p>
                         </div>
                       </div>
                       {showPasswordChange ? <ChevronUp className="h-5 w-5 text-slate-400" /> : <ChevronDown className="h-5 w-5 text-slate-400" />}
                     </button>
                     
                     {showPasswordChange && (
-                      <div className="p-4 border-t border-slate-200 bg-white">
+                      <div className="p-4 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950">
                         <ChangePasswordForm />
                       </div>
                     )}

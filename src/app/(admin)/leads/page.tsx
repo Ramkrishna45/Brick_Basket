@@ -68,20 +68,20 @@ export default function LeadsPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Leads & Enquiries</h1>
-          <p className="text-slate-500 text-sm mt-1">{leads.filter(l => l.status === "new").length} new leads requiring action</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Leads & Enquiries</h1>
+          <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">{leads.filter(l => l.status === "new").length} new leads requiring action</p>
         </div>
-        <Badge className="bg-amber-50 text-amber-700 border-amber-200">{filtered.length} leads</Badge>
+        <Badge className="bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200">{filtered.length} leads</Badge>
       </div>
 
       {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-          <Input className="pl-9 bg-white" placeholder="Search by name, city, phone..." value={search} onChange={(e) => setSearch(e.target.value)} />
+          <Input className="pl-9 bg-white dark:bg-slate-950" placeholder="Search by name, city, phone..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Select value={status} onValueChange={(v) => setStatus((v as string) ?? "all")}>
-          <SelectTrigger className="w-full sm:w-44 bg-white">
+          <SelectTrigger className="w-full sm:w-44 bg-white dark:bg-slate-950">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -95,12 +95,12 @@ export default function LeadsPage() {
       ) : (
         <>
           {/* Desktop table */}
-          <div className="hidden md:block bg-white rounded-xl border border-slate-200 overflow-hidden">
+          <div className="hidden md:block bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-slate-50">
+                <TableRow className="bg-slate-50 dark:bg-slate-900">
                   {["Name", "Phone", "City", "Budget", "Type", "Status", "Date", "Actions"].map((h) => (
-                    <TableHead key={h} className="font-semibold text-slate-700 text-xs">{h}</TableHead>
+                    <TableHead key={h} className="font-semibold text-slate-700 dark:text-slate-300 text-xs">{h}</TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
@@ -111,21 +111,21 @@ export default function LeadsPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: i * 0.04 }}
-                    className="border-b border-slate-100 hover:bg-amber-50/50 transition-colors"
+                    className="border-b border-slate-100 dark:border-slate-800 hover:bg-amber-50 dark:bg-amber-950/40/50 transition-colors"
                   >
                     <TableCell>
-                      <div className="font-medium text-slate-900 text-sm">{lead.name}</div>
+                      <div className="font-medium text-slate-900 dark:text-slate-100 text-sm">{lead.name}</div>
                       <div className="text-xs text-slate-400">{lead.email}</div>
                     </TableCell>
-                    <TableCell className="text-sm text-slate-600">{lead.phone}</TableCell>
-                    <TableCell className="text-sm text-slate-600">{lead.city}</TableCell>
-                    <TableCell className="text-xs text-slate-600">{lead.budgetRange}</TableCell>
-                    <TableCell className="text-xs text-slate-600 capitalize">{(lead.homeType || "N/A").replace(/_/g, " ")}</TableCell>
+                    <TableCell className="text-sm text-slate-600 dark:text-slate-400">{lead.phone}</TableCell>
+                    <TableCell className="text-sm text-slate-600 dark:text-slate-400">{lead.city}</TableCell>
+                    <TableCell className="text-xs text-slate-600 dark:text-slate-400">{lead.budgetRange}</TableCell>
+                    <TableCell className="text-xs text-slate-600 dark:text-slate-400 capitalize">{(lead.homeType || "N/A").replace(/_/g, " ")}</TableCell>
                     <TableCell><StatusBadge status={lead.status} /></TableCell>
                     <TableCell className="text-xs text-slate-400">{lead.createdAt ? format(new Date(lead.createdAt), "MMM d, yyyy") : "N/A"}</TableCell>
                     <TableCell>
                       <DropdownMenu>
-                      <DropdownMenuTrigger className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 hover:bg-slate-100">
+                      <DropdownMenuTrigger className="flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:bg-slate-900">
                         <MoreVertical className="h-3.5 w-3.5" />
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
@@ -161,16 +161,16 @@ export default function LeadsPage() {
           <div className="md:hidden space-y-3">
             {filtered.map((lead, i) => (
               <motion.div key={lead.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }}
-                className="bg-white rounded-xl border border-slate-200 p-4 space-y-3"
+                className="bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 p-4 space-y-3"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div>
-                    <div className="font-semibold text-slate-900">{lead.name}</div>
+                    <div className="font-semibold text-slate-900 dark:text-slate-100">{lead.name}</div>
                     <div className="text-xs text-slate-400 mt-0.5">{lead.city} · {lead.budgetRange}</div>
                   </div>
                   <StatusBadge status={lead.status} />
                 </div>
-                <div className="flex gap-2 text-xs text-slate-600">
+                <div className="flex gap-2 text-xs text-slate-600 dark:text-slate-400">
                   <span>{lead.phone}</span> · <span className="capitalize">{(lead.homeType || "N/A").replace(/_/g, " ")}</span>
                 </div>
                 <div className="flex gap-2">

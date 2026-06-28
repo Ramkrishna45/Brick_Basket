@@ -59,7 +59,7 @@ export default function AdminDashboardPage() {
     { label: "Total Users", value: stats.users.total, icon: Users, iconBg: "bg-blue-50", iconColor: "text-blue-600", badge: null },
     { label: "Active Projects", value: stats.projects.active, icon: Building2, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", badge: null },
     { label: "New Enquiries", value: stats.leads.new, icon: FileText, iconBg: "bg-violet-50", iconColor: "text-violet-600", badge: { label: "New", cls: "bg-blue-50 text-blue-600 border-blue-200" } },
-    { label: "Pending Payments", value: formatINR(stats.financials.pendingPayments), icon: CreditCard, iconBg: "bg-amber-50", iconColor: "text-amber-600", badge: { label: "Action Needed", cls: "bg-amber-50 text-amber-600 border-amber-200" } },
+    { label: "Pending Payments", value: formatINR(stats.financials.pendingPayments), icon: CreditCard, iconBg: "bg-amber-50 dark:bg-amber-950/40", iconColor: "text-amber-600 dark:text-amber-500", badge: { label: "Action Needed", cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-500 border-amber-200" } },
     { label: "Total Revenue", value: formatINR(stats.financials.totalRevenue), icon: TrendingUp, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", badge: null },
     { label: "Today's Updates", value: stats.todayUpdates, icon: Upload, iconBg: "bg-teal-50", iconColor: "text-teal-600", badge: { label: "Today", cls: "bg-teal-50 text-teal-600 border-teal-200" } },
   ];
@@ -84,17 +84,17 @@ export default function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
-        <h1 className="text-2xl font-bold text-slate-900">
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
           {greeting}, {user?.name?.split(" ")[0]} 👋
         </h1>
-        <p className="text-slate-500 mt-1">Here&apos;s what&apos;s happening on the platform today</p>
+        <p className="text-slate-500 dark:text-slate-400 mt-1">Here&apos;s what&apos;s happening on the platform today</p>
       </motion.div>
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
         {overviewStats.map((stat, i) => (
           <motion.div key={stat.label} custom={i + 1} variants={fadeUp} initial="hidden" animate="visible">
-            <Card className="border-slate-200 hover:shadow-md transition-shadow">
+            <Card className="border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-3">
                   <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${stat.iconBg}`}>
@@ -102,8 +102,8 @@ export default function AdminDashboardPage() {
                   </div>
                   {stat.badge && <Badge className={`text-xs py-0 ${stat.badge.cls}`}>{stat.badge.label}</Badge>}
                 </div>
-                <div className="text-xs text-slate-500 mb-1">{stat.label}</div>
-                <div className="text-2xl font-bold text-slate-900">{stat.value}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400 mb-1">{stat.label}</div>
+                <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{stat.value}</div>
               </CardContent>
             </Card>
           </motion.div>
@@ -114,9 +114,9 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Enquiries chart */}
         <motion.div custom={7} variants={fadeUp} initial="hidden" animate="visible">
-          <Card className="border-slate-200">
+          <Card className="border-slate-200 dark:border-slate-800">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-slate-700">Monthly Enquiries</CardTitle>
+              <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">Monthly Enquiries</CardTitle>
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={200}>
@@ -134,10 +134,10 @@ export default function AdminDashboardPage() {
 
         {/* Revenue chart */}
         <motion.div custom={8} variants={fadeUp} initial="hidden" animate="visible">
-          <Card className="border-slate-200">
+          <Card className="border-slate-200 dark:border-slate-800">
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm font-semibold text-slate-700">Monthly Revenue</CardTitle>
+                <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">Monthly Revenue</CardTitle>
                 <div className="flex items-center gap-1 text-xs text-emerald-600 font-medium">
                   <TrendingUp className="h-3 w-3" /> +8% vs last month
                 </div>
@@ -168,9 +168,9 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {/* Project status pie */}
         <motion.div custom={9} variants={fadeUp} initial="hidden" animate="visible">
-          <Card className="border-slate-200">
+          <Card className="border-slate-200 dark:border-slate-800">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-slate-700">Project Status Breakdown</CardTitle>
+              <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">Project Status Breakdown</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-center gap-4">
@@ -189,9 +189,9 @@ export default function AdminDashboardPage() {
                     <div key={item.status} className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: PIE_COLORS[i % PIE_COLORS.length] }} />
-                        <span className="text-xs text-slate-600">{item.status}</span>
+                        <span className="text-xs text-slate-600 dark:text-slate-400">{item.status}</span>
                       </div>
-                      <span className="text-xs font-bold text-slate-900">{item.count}</span>
+                      <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{item.count}</span>
                     </div>
                   ))}
                 </div>
@@ -202,9 +202,9 @@ export default function AdminDashboardPage() {
 
         {/* Recent activity */}
         <motion.div custom={10} variants={fadeUp} initial="hidden" animate="visible">
-          <Card className="border-slate-200">
+          <Card className="border-slate-200 dark:border-slate-800">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-semibold text-slate-700">Recent Activity</CardTitle>
+              <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">Recent Activity</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {[
@@ -217,7 +217,7 @@ export default function AdminDashboardPage() {
                 <div key={i} className="flex items-start gap-3">
                   <div className={`h-2 w-2 rounded-full ${item.color} mt-1.5 flex-shrink-0`} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium text-slate-900">{item.action}</div>
+                    <div className="text-xs font-medium text-slate-900 dark:text-slate-100">{item.action}</div>
                     <div className="text-xs text-slate-400 truncate">{item.project}</div>
                   </div>
                   <span className="text-xs text-slate-400 flex-shrink-0">{item.time}</span>

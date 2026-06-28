@@ -42,14 +42,14 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <div className="bg-white p-6 rounded-xl border shadow-sm max-w-md">
+    <div className="bg-white dark:bg-slate-950 p-6 rounded-xl border shadow-sm max-w-md">
       <div className="flex items-center gap-3 mb-6">
-        <div className="bg-amber-100 p-2 rounded-lg text-amber-700">
+        <div className="bg-amber-100 p-2 rounded-lg text-amber-700 dark:text-amber-400">
           <KeyRound className="h-5 w-5" />
         </div>
         <div>
-          <h3 className="font-semibold text-slate-900">Change Password</h3>
-          <p className="text-sm text-slate-500">Update your account password</p>
+          <h3 className="font-semibold text-slate-900 dark:text-slate-100">Change Password</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Update your account password</p>
         </div>
       </div>
 
@@ -64,7 +64,7 @@ export function ChangePasswordForm() {
               onChange={(e) => setOldPassword(e.target.value)}
               required
             />
-            <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <button type="button" onClick={() => setShowOld(!showOld)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400">
               {showOld ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
@@ -80,7 +80,7 @@ export function ChangePasswordForm() {
               onChange={(e) => setNewPassword(e.target.value)}
               required
             />
-            <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+            <button type="button" onClick={() => setShowNew(!showNew)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400">
               {showNew ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>

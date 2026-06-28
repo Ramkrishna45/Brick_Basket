@@ -59,7 +59,7 @@ export default function AdminNotificationsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Send Notifications</h1>
-          <p className="text-slate-500">Broadcast offers, updates, or alerts to your customers.</p>
+          <p className="text-slate-500 dark:text-slate-400">Broadcast offers, updates, or alerts to your customers.</p>
         </div>
         <BellRing className="h-8 w-8 text-slate-300" />
       </div>
@@ -83,7 +83,7 @@ export default function AdminNotificationsPage() {
                   <SelectItem value="all">All Customers</SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-[0.8rem] text-slate-500">Select who should receive this notification.</p>
+              <p className="text-[0.8rem] text-slate-500 dark:text-slate-400">Select who should receive this notification.</p>
             </div>
 
             <div className="space-y-2">

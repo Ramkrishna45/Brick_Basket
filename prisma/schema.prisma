@@ -31,6 +31,8 @@ model User {
   progressUpdates  ProgressUpdate[]
   notifications    Notification[]
   assignedLeads    Lead[]           @relation("AssignedLeads")
+  markedPayments   PaymentMilestone[] @relation("MarkedPayments")
+  recordedTransactions PaymentTransaction[] @relation("RecordedTransactions")
 }
 
 // ============================================
@@ -62,10 +64,11 @@ model Project {
   customer   User   @relation("CustomerProjects", fields: [customerId], references: [id])
   staff      User[] @relation("ProjectStaff")
 
-  milestones      ProjectMilestone[]
-  progressUpdates ProgressUpdate[]
-  documents       Document[]
-  payments        PaymentMilestone[]
+  milestones          ProjectMilestone[]
+  progressUpdates     ProgressUpdate[]
+  documents           Document[]
+  paymentTransactions PaymentTransaction[]
+  payments            PaymentMilestone[]
 }
 
 // ============================================
@@ -130,6 +133,25 @@ model Document {
 }
 
 // ============================================
+// Payment Transactions
+// ============================================
+
+model PaymentTransaction {
+  id            String   @id @default(cuid())
+  amount        Float
+  method        String   // upi|card|bank_transfer|cash|check
+  transactionId String?
+  notes         String?
+  date          DateTime @default(now())
+
+  projectId     String
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  recordedById  String?
+  recordedBy    User?    @relation("RecordedTransactions", fields: [recordedById], references: [id])
+}
+
+// ============================================
 // Payment Milestone
 // ============================================
 
@@ -137,15 +159,18 @@ model PaymentMilestone {
   id          String   @id @default(cuid())
   name        String
   amount      Float
+  paidAmount  Float    @default(0)
   dueDate     String
   paidDate    String?
-  status      String   @default("pending") // paid|pending|overdue
+  status      String   @default("pending") // paid|partial|pending|overdue
   receiptUrl  String?
   description String
   createdAt   DateTime @default(now())
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  markedPaidById String?
+  markedPaidBy   User?   @relation("MarkedPayments", fields: [markedPaidById], references: [id])
 }
 
 // ============================================

@@ -59,10 +59,10 @@ export default function DocumentsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-slate-900">Documents</h1>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Documents</h1>
 
       <Tabs value={tab} onValueChange={setTab}>
-        <TabsList className="bg-white border border-slate-200 h-auto flex-wrap gap-1 p-1.5">
+        <TabsList className="bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 h-auto flex-wrap gap-1 p-1.5">
           {CATEGORIES.map((cat) => {
             const count = cat.value === "all" ? documents.length : documents.filter((d) => d.category === cat.value).length;
             return (
@@ -90,11 +90,11 @@ export default function DocumentsPage() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.06, duration: 0.3 }}
-                    className="flex items-center gap-4 p-4 bg-white rounded-xl border border-slate-200 hover:border-amber-300 hover:shadow-sm transition-all group"
+                    className="flex items-center gap-4 p-4 bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 hover:border-amber-300 hover:shadow-sm transition-all group"
                   >
                     <FileTypeIcon type={doc.fileType} className="h-11 w-11" />
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-slate-900 text-sm truncate">{doc.name}</div>
+                      <div className="font-medium text-slate-900 dark:text-slate-100 text-sm truncate">{doc.name}</div>
                       <div className="flex items-center gap-3 mt-1 text-xs text-slate-400 flex-wrap">
                         <span>{new Date(doc.uploadDate || doc.createdAt).toLocaleDateString()}</span>
                         <span>{doc.fileSize}</span>
@@ -103,10 +103,10 @@ export default function DocumentsPage() {
                     </div>
                     <StatusBadge status={doc.category} />
                     <div className="flex gap-2 flex-shrink-0">
-                      <Button render={<a href={doc.url} target="_blank" rel="noopener noreferrer" />} variant="ghost" size="icon" className="h-8 w-8 hover:text-amber-600 hover:bg-amber-50" title="Preview">
+                      <Button render={<a href={doc.url} target="_blank" rel="noopener noreferrer" />} variant="ghost" size="icon" className="h-8 w-8 hover:text-amber-600 dark:text-amber-500 hover:bg-amber-50 dark:bg-amber-950/40" title="Preview">
                         <Eye className="h-4 w-4" />
                       </Button>
-                      <Button render={<a href={doc.url} download />} variant="ghost" size="icon" className="h-8 w-8 hover:text-amber-600 hover:bg-amber-50" title="Download">
+                      <Button render={<a href={doc.url} download />} variant="ghost" size="icon" className="h-8 w-8 hover:text-amber-600 dark:text-amber-500 hover:bg-amber-50 dark:bg-amber-950/40" title="Download">
                         <Download className="h-4 w-4" />
                       </Button>
                     </div>

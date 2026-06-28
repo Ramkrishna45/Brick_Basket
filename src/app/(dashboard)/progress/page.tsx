@@ -53,11 +53,11 @@ export default function ProgressPage() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-slate-900">Daily Progress</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Daily Progress</h1>
         <div className="flex items-center gap-2">
-          <Filter className="h-4 w-4 text-slate-500" />
+          <Filter className="h-4 w-4 text-slate-500 dark:text-slate-400" />
           <Select value={stageFilter} onValueChange={(v) => setStageFilter((v as string) ?? "all")}>
-            <SelectTrigger className="w-48 bg-white">
+            <SelectTrigger className="w-48 bg-white dark:bg-slate-950">
               <SelectValue placeholder="Filter by stage" />
             </SelectTrigger>
             <SelectContent>
@@ -91,19 +91,19 @@ export default function ProgressPage() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.07, duration: 0.35 }}
-              className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md transition-shadow"
+              className="bg-white dark:bg-slate-950 rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden hover:shadow-md transition-shadow"
             >
               {/* Header */}
-              <div className="p-4 sm:p-5 border-b border-slate-100">
+              <div className="p-4 sm:p-5 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold text-slate-900 mb-1">{update.title}</h3>
-                    <p className="text-sm text-slate-500 leading-relaxed">{update.description}</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">{update.title}</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{update.description}</p>
                   </div>
                   <StatusBadge status={update.stage} />
                 </div>
                 <div className="flex items-center gap-4 mt-3 text-xs text-slate-400">
-                  <span className="font-medium text-slate-600">{update.date}</span>
+                  <span className="font-medium text-slate-600 dark:text-slate-400">{update.date}</span>
                   <span>{update.time}</span>
                   <span className="flex items-center gap-1">
                     <User className="h-3 w-3" />{update.uploadedBy?.name || "Engineer"}
@@ -113,16 +113,16 @@ export default function ProgressPage() {
 
               {/* Photos */}
               {update.photos && update.photos.length > 0 && (
-                <div className="p-4 bg-slate-50">
+                <div className="p-4 bg-slate-50 dark:bg-slate-900">
                   <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
                     {update.photos.map((url: string, j: number) => (
-                      <div key={j} className="aspect-square rounded-lg overflow-hidden bg-slate-200 relative group cursor-pointer">
+                      <div key={j} className="aspect-square rounded-lg overflow-hidden bg-slate-200 dark:bg-slate-800 relative group cursor-pointer">
                         {url.startsWith("http") ? (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img src={url} alt="Progress" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-slate-300 to-slate-400 flex items-center justify-center group-hover:from-amber-100 group-hover:to-amber-200 transition-all">
-                            <ImageIcon className="h-5 w-5 text-slate-500 group-hover:text-amber-600 transition-colors" />
+                            <ImageIcon className="h-5 w-5 text-slate-500 dark:text-slate-400 group-hover:text-amber-600 dark:text-amber-500 transition-colors" />
                           </div>
                         )}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors rounded-lg" />
@@ -137,10 +137,10 @@ export default function ProgressPage() {
               )}
 
               {/* Progress bar */}
-              <div className="px-4 sm:px-5 py-3 border-t border-slate-100">
-                <div className="flex items-center justify-between text-xs text-slate-500 mb-1.5">
+              <div className="px-4 sm:px-5 py-3 border-t border-slate-100 dark:border-slate-800">
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
                   <span>Project completion at this update</span>
-                  <span className="font-semibold text-amber-600">{update.completionPercentage || 0}%</span>
+                  <span className="font-semibold text-amber-600 dark:text-amber-500">{update.completionPercentage || 0}%</span>
                 </div>
                 <Progress value={update.completionPercentage || 0} className="h-1.5" />
               </div>

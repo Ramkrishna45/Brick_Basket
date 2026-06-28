@@ -85,8 +85,8 @@ export default function LoginPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Welcome back</h1>
-      <p className="text-slate-500 mb-8">Sign in to track your construction project</p>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">Welcome back</h1>
+      <p className="text-slate-500 dark:text-slate-400 mb-8">Sign in to track your construction project</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
@@ -99,14 +99,14 @@ export default function LoginPage() {
         <div>
           <div className="flex items-center justify-between mb-1.5">
             <Label htmlFor="password">Password</Label>
-            <Link href="/forgot-password" className="text-xs text-amber-600 hover:text-amber-700">Forgot password?</Link>
+            <Link href="/forgot-password" className="text-xs text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:text-amber-400">Forgot password?</Link>
           </div>
           <div className="relative">
             <Input id="password" type={showPassword ? "text" : "password"}
               {...register("password", { required: "Password is required", minLength: { value: 6, message: "Min 6 characters" } })}
               placeholder="Enter your password" />
             <button type="button" onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400">
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
@@ -125,27 +125,27 @@ export default function LoginPage() {
         </div>
         <div className="grid grid-cols-2 gap-3 mt-4">
           <Button variant="outline" onClick={() => quickLogin("customer@example.com")} disabled={loading}
-            className="text-sm border-slate-300 hover:border-amber-400 hover:text-amber-700">
+            className="text-sm border-slate-300 dark:border-slate-700 hover:border-amber-400 hover:text-amber-700 dark:text-amber-400">
             👤 Customer Demo
           </Button>
           <Button variant="outline" onClick={() => quickLogin("admin@brickbasket.in")} disabled={loading}
-            className="text-sm border-slate-300 hover:border-amber-400 hover:text-amber-700">
+            className="text-sm border-slate-300 dark:border-slate-700 hover:border-amber-400 hover:text-amber-700 dark:text-amber-400">
             🛡️ Admin Demo
           </Button>
           <Button variant="outline" onClick={() => quickLogin("arjun@brickbasket.in")} disabled={loading}
-            className="text-sm border-slate-300 hover:border-amber-400 hover:text-amber-700">
+            className="text-sm border-slate-300 dark:border-slate-700 hover:border-amber-400 hover:text-amber-700 dark:text-amber-400">
             📐 Engineer Demo
           </Button>
           <Button variant="outline" onClick={() => quickLogin("ravi@brickbasket.in")} disabled={loading}
-            className="text-sm border-slate-300 hover:border-amber-400 hover:text-amber-700">
+            className="text-sm border-slate-300 dark:border-slate-700 hover:border-amber-400 hover:text-amber-700 dark:text-amber-400">
             👷 Contractor Demo
           </Button>
         </div>
       </div>
 
-      <p className="text-center text-sm text-slate-500 mt-6">
+      <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
         Don&apos;t have an account?{" "}
-        <Link href="/signup" className="text-amber-600 font-medium hover:text-amber-700">Create one free</Link>
+        <Link href="/signup" className="text-amber-600 dark:text-amber-500 font-medium hover:text-amber-700 dark:text-amber-400">Create one free</Link>
       </p>
     </div>
   );

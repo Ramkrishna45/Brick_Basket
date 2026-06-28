@@ -29,7 +29,7 @@ export default function PlansPage() {
       </div>
 
       {/* Plans */}
-      <section className="py-16 px-4 sm:px-6 bg-slate-50">
+      <section className="py-16 px-4 sm:px-6 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start mb-16">
             {PLANS.map((plan, i) => (
@@ -37,10 +37,10 @@ export default function PlansPage() {
                 key={plan.id}
                 custom={i} variants={fadeUp} initial="hidden" animate="visible"
                 className={cn(
-                  "relative bg-white rounded-2xl border p-7",
+                  "relative bg-white dark:bg-slate-950 rounded-2xl border p-7",
                   plan.isPopular
                     ? "border-amber-500 shadow-xl shadow-amber-100 md:scale-105 md:-mt-2"
-                    : "border-slate-200 hover:border-amber-300 hover:shadow-md transition-all"
+                    : "border-slate-200 dark:border-slate-800 hover:border-amber-300 hover:shadow-md transition-all"
                 )}
               >
                 {plan.isPopular && (
@@ -50,41 +50,41 @@ export default function PlansPage() {
                 )}
 
                 <div className={cn("inline-block px-3 py-1 rounded-full text-xs font-bold mb-4 uppercase tracking-wide",
-                  plan.isPopular ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"
+                  plan.isPopular ? "bg-amber-100 text-amber-700 dark:text-amber-400" : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400"
                 )}>
                   {plan.name}
                 </div>
 
                 <div className="mb-2">
-                  <span className="text-4xl font-bold text-slate-900">{plan.price}</span>
+                  <span className="text-4xl font-bold text-slate-900 dark:text-slate-100">{plan.price}</span>
                   <span className="text-slate-400 text-sm ml-1">{plan.priceUnit}</span>
                 </div>
-                <div className="text-sm text-slate-500 mb-1">📐 {plan.sqftRange}</div>
-                <div className="text-sm text-slate-500 mb-5">⏱ Duration: {plan.duration}</div>
-                <p className="text-sm text-slate-600 leading-relaxed mb-6 pb-6 border-b border-slate-100">
+                <div className="text-sm text-slate-500 dark:text-slate-400 mb-1">📐 {plan.sqftRange}</div>
+                <div className="text-sm text-slate-500 dark:text-slate-400 mb-5">⏱ Duration: {plan.duration}</div>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-6 pb-6 border-b border-slate-100 dark:border-slate-800">
                   {plan.description}
                 </p>
 
-                <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3">What&apos;s Included</div>
+                <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-3">What&apos;s Included</div>
                 <ul className="space-y-2.5 mb-6">
                   {plan.features.map((f) => (
                     <li key={f.name} className="flex items-center gap-2.5 text-sm">
                       {f.included
                         ? <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                         : <XCircle className="h-4 w-4 text-slate-200 flex-shrink-0" />}
-                      <span className={f.included ? "text-slate-700" : "text-slate-400 line-through decoration-slate-200"}>
+                      <span className={f.included ? "text-slate-700 dark:text-slate-300" : "text-slate-400 line-through decoration-slate-200"}>
                         {f.name}
                       </span>
                     </li>
                   ))}
                 </ul>
 
-                <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg mb-6">
-                  <span className="font-medium text-slate-700">Ideal for: </span>{plan.idealFor}
+                <div className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 p-3 rounded-lg mb-6">
+                  <span className="font-medium text-slate-700 dark:text-slate-300">Ideal for: </span>{plan.idealFor}
                 </div>
 
                 <Button render={<Link href="/enquiry" />} className={cn("w-full gap-2",
-                  plan.isPopular ? "bg-amber-600 hover:bg-amber-700 text-white" : "border-slate-300 hover:border-amber-400 hover:text-amber-700"
+                  plan.isPopular ? "bg-amber-600 hover:bg-amber-700 text-white" : "border-slate-300 dark:border-slate-700 hover:border-amber-400 hover:text-amber-700 dark:text-amber-400"
                 )} variant={plan.isPopular ? "default" : "outline"}>
                     Choose {plan.name} <ArrowRight className="h-4 w-4" />
                 </Button>
@@ -95,10 +95,10 @@ export default function PlansPage() {
           {/* Comparison note */}
           <motion.div
             variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-            className="bg-amber-50 border border-amber-200 rounded-2xl p-6 text-center"
+            className="bg-amber-50 dark:bg-amber-950/40 border border-amber-200 rounded-2xl p-6 text-center"
           >
-            <h3 className="font-semibold text-slate-900 mb-2">Not sure which plan is right for you?</h3>
-            <p className="text-slate-600 text-sm mb-4">
+            <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">Not sure which plan is right for you?</h3>
+            <p className="text-slate-600 dark:text-slate-400 text-sm mb-4">
               Our team will help you choose the best plan based on your requirements, budget, and timeline.
               The consultation is completely free.
             </p>
@@ -110,13 +110,13 @@ export default function PlansPage() {
       </section>
 
       {/* Payment milestone info */}
-      <section className="py-16 px-4 sm:px-6 bg-white">
+      <section className="py-16 px-4 sm:px-6 bg-white dark:bg-slate-950">
         <div className="max-w-4xl mx-auto">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="text-center mb-10"
           >
-            <h2 className="text-2xl font-bold text-slate-900 mb-3">How Milestone Payments Work</h2>
-            <p className="text-slate-500">You pay as work progresses — not all at once.</p>
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">How Milestone Payments Work</h2>
+            <p className="text-slate-500 dark:text-slate-400">You pay as work progresses — not all at once.</p>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {[
@@ -128,11 +128,11 @@ export default function PlansPage() {
               <motion.div
                 key={m.stage}
                 custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                className="text-center p-5 rounded-xl bg-slate-50 border border-slate-200"
+                className="text-center p-5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800"
               >
-                <div className="text-2xl font-bold text-amber-600 mb-1">{m.pct}</div>
-                <div className="font-semibold text-slate-900 text-sm mb-1">{m.stage}</div>
-                <div className="text-xs text-slate-500">{m.desc}</div>
+                <div className="text-2xl font-bold text-amber-600 dark:text-amber-500 mb-1">{m.pct}</div>
+                <div className="font-semibold text-slate-900 dark:text-slate-100 text-sm mb-1">{m.stage}</div>
+                <div className="text-xs text-slate-500 dark:text-slate-400">{m.desc}</div>
               </motion.div>
             ))}
           </div>

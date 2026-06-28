@@ -71,8 +71,8 @@ export default function SignupPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-1">Create Account</h1>
-      <p className="text-slate-500 mb-8">Start tracking your home construction</p>
+      <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">Create Account</h1>
+      <p className="text-slate-500 dark:text-slate-400 mb-8">Start tracking your home construction</p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         <div>
@@ -106,7 +106,7 @@ export default function SignupPage() {
               {...register("password", { required: "Password is required", minLength: { value: 6, message: "Min 6 characters" } })}
               placeholder="Min 6 characters" />
             <button type="button" onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:text-slate-400">
               {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </button>
           </div>
@@ -126,10 +126,10 @@ export default function SignupPage() {
 
         <div className="flex items-start gap-2 pt-1">
           <Check className="h-4 w-4 text-emerald-500 mt-0.5 flex-shrink-0" />
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             By creating an account, you agree to our{" "}
-            <Link href="#" className="text-amber-600 hover:underline">Terms</Link> and{" "}
-            <Link href="#" className="text-amber-600 hover:underline">Privacy Policy</Link>.
+            <Link href="#" className="text-amber-600 dark:text-amber-500 hover:underline">Terms</Link> and{" "}
+            <Link href="#" className="text-amber-600 dark:text-amber-500 hover:underline">Privacy Policy</Link>.
           </p>
         </div>
 
@@ -138,9 +138,9 @@ export default function SignupPage() {
         </Button>
       </form>
 
-      <p className="text-center text-sm text-slate-500 mt-6">
+      <p className="text-center text-sm text-slate-500 dark:text-slate-400 mt-6">
         Already have an account?{" "}
-        <Link href="/login" className="text-amber-600 font-medium hover:text-amber-700">Sign in</Link>
+        <Link href="/login" className="text-amber-600 dark:text-amber-500 font-medium hover:text-amber-700 dark:text-amber-400">Sign in</Link>
       </p>
     </div>
   );

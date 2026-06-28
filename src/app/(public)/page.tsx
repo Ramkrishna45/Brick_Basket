@@ -67,7 +67,7 @@ export default function HomePage() {
             <Button render={<Link href="/enquiry" />} size="lg" className="bg-amber-600 hover:bg-amber-700 text-white gap-2 text-base h-12 px-8">
               Get Free Consultation <ArrowRight className="h-4 w-4" />
             </Button>
-            <Button render={<Link href="/plans" />} size="lg" variant="outline" className="border-white/30 text-white hover:bg-white/10 h-12 px-8 text-base">
+            <Button render={<Link href="/plans" />} size="lg" variant="outline" className="border-white/30 text-white hover:bg-white dark:bg-slate-950/10 h-12 px-8 text-base">
               Explore Plans
             </Button>
           </motion.div>
@@ -96,14 +96,14 @@ export default function HomePage() {
       </section>
 
       {/* ─── HOW IT WORKS ─── */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <Badge className="mb-3 bg-amber-50 text-amber-700 border-amber-200">Simple Process</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">How It Works</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
+            <Badge className="mb-3 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200">Simple Process</Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">How It Works</h2>
+            <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
               From enquiry to handover — a transparent, tracked, and trusted journey.
             </p>
           </motion.div>
@@ -121,16 +121,16 @@ export default function HomePage() {
               <motion.div
                 key={item.step}
                 custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                className="relative flex flex-col items-center text-center bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-shadow z-10"
+                className="relative flex flex-col items-center text-center bg-white dark:bg-slate-950 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-800 hover:shadow-md transition-shadow z-10"
               >
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="bg-amber-600 text-white text-xs font-bold px-2.5 py-1 rounded-full">{item.step}</span>
                 </div>
-                <div className="mt-4 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50">
-                  <item.icon className="h-6 w-6 text-amber-600" />
+                <div className="mt-4 flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/40">
+                  <item.icon className="h-6 w-6 text-amber-600 dark:text-amber-500" />
                 </div>
-                <h3 className="mt-4 font-semibold text-slate-900">{item.title}</h3>
-                <p className="mt-2 text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+                <h3 className="mt-4 font-semibold text-slate-900 dark:text-slate-100">{item.title}</h3>
+                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{item.desc}</p>
               </motion.div>
             ))}
           </div>
@@ -138,14 +138,14 @@ export default function HomePage() {
       </section>
 
       {/* ─── SERVICES ─── */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-slate-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <Badge className="mb-3 bg-amber-50 text-amber-700 border-amber-200">Our Services</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Everything You Need to Build</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
+            <Badge className="mb-3 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200">Our Services</Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">Everything You Need to Build</h2>
+            <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
               End-to-end construction management so you can focus on your dream, not the details.
             </p>
           </motion.div>
@@ -155,14 +155,14 @@ export default function HomePage() {
               <motion.div
                 key={service.id}
                 custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                className="group p-6 rounded-2xl border border-slate-200 bg-white hover:border-amber-300 hover:shadow-md transition-all duration-300 cursor-default"
+                className="group p-6 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 hover:border-amber-300 hover:shadow-md transition-all duration-300 cursor-default"
               >
-                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 group-hover:bg-amber-100 transition-colors mb-4">
-                  <service.lucideIcon className="h-5 w-5 text-amber-600" />
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 dark:bg-amber-950/40 group-hover:bg-amber-100 transition-colors mb-4">
+                  <service.lucideIcon className="h-5 w-5 text-amber-600 dark:text-amber-500" />
                 </div>
-                <h3 className="font-semibold text-slate-900 mb-2">{service.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed mb-4">{service.description}</p>
-                <Link href="/services" className="text-sm text-amber-600 font-medium hover:text-amber-700 flex items-center gap-1 group/link">
+                <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-2">{service.title}</h3>
+                <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed mb-4">{service.description}</p>
+                <Link href="/services" className="text-sm text-amber-600 dark:text-amber-500 font-medium hover:text-amber-700 dark:text-amber-400 flex items-center gap-1 group/link">
                   Learn more <ArrowRight className="h-3 w-3 group-hover/link:translate-x-1 transition-transform" />
                 </Link>
               </motion.div>
@@ -170,7 +170,7 @@ export default function HomePage() {
           </div>
 
           <div className="text-center mt-10">
-            <Button render={<Link href="/services" />} variant="outline" className="border-amber-300 text-amber-700 hover:bg-amber-50">
+            <Button render={<Link href="/services" />} variant="outline" className="border-amber-300 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:bg-amber-950/40">
               View All Services
             </Button>
           </div>
@@ -178,14 +178,14 @@ export default function HomePage() {
       </section>
 
       {/* ─── FEATURED PLANS ─── */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <Badge className="mb-3 bg-amber-50 text-amber-700 border-amber-200">Pricing</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Choose Your Plan</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">Transparent pricing with milestone-based payments. No hidden costs.</p>
+            <Badge className="mb-3 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200">Pricing</Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">Choose Your Plan</h2>
+            <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">Transparent pricing with milestone-based payments. No hidden costs.</p>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
@@ -194,10 +194,10 @@ export default function HomePage() {
                 key={plan.id}
                 custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
                 className={cn(
-                  "relative bg-white rounded-2xl border p-6 transition-all duration-300",
+                  "relative bg-white dark:bg-slate-950 rounded-2xl border p-6 transition-all duration-300",
                   plan.isPopular
                     ? "border-amber-500 shadow-xl shadow-amber-100 scale-[1.02] md:scale-105"
-                    : "border-slate-200 hover:border-amber-300 hover:shadow-md"
+                    : "border-slate-200 dark:border-slate-800 hover:border-amber-300 hover:shadow-md"
                 )}
               >
                 {plan.isPopular && (
@@ -206,31 +206,31 @@ export default function HomePage() {
                   </div>
                 )}
                 <div className={cn("inline-block px-2.5 py-1 rounded-lg text-xs font-semibold mb-3",
-                  plan.isPopular ? "bg-amber-50 text-amber-700" : "bg-slate-100 text-slate-600"
+                  plan.isPopular ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400" : "bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400"
                 )}>
                   {plan.name}
                 </div>
                 <div className="mb-1">
-                  <span className="text-3xl font-bold text-slate-900">{plan.price}</span>
-                  <span className="text-slate-500 text-sm"> {plan.priceUnit}</span>
+                  <span className="text-3xl font-bold text-slate-900 dark:text-slate-100">{plan.price}</span>
+                  <span className="text-slate-500 dark:text-slate-400 text-sm"> {plan.priceUnit}</span>
                 </div>
-                <p className="text-xs text-slate-500 mb-1">{plan.sqftRange}</p>
-                <p className="text-xs text-slate-500 mb-5">Duration: {plan.duration}</p>
-                <p className="text-sm text-slate-600 mb-5 leading-relaxed">{plan.description}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">{plan.sqftRange}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mb-5">Duration: {plan.duration}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed">{plan.description}</p>
                 <ul className="space-y-2.5 mb-6">
                   {plan.features.slice(0, 7).map((f) => (
                     <li key={f.name} className="flex items-center gap-2 text-sm">
                       {f.included
                         ? <CheckCircle2 className="h-4 w-4 text-emerald-500 flex-shrink-0" />
                         : <XCircle className="h-4 w-4 text-slate-300 flex-shrink-0" />}
-                      <span className={f.included ? "text-slate-700" : "text-slate-400"}>{f.name}</span>
+                      <span className={f.included ? "text-slate-700 dark:text-slate-300" : "text-slate-400"}>{f.name}</span>
                     </li>
                   ))}
                 </ul>
                 <Button render={<Link href="/enquiry" />} className={cn("w-full",
                   plan.isPopular
                     ? "bg-amber-600 hover:bg-amber-700 text-white"
-                    : "border-slate-300 text-slate-700 hover:border-amber-400 hover:text-amber-700"
+                    : "border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300 hover:border-amber-400 hover:text-amber-700 dark:text-amber-400"
                 )} variant={plan.isPopular ? "default" : "outline"}>
                   Choose {plan.name}
                 </Button>
@@ -239,7 +239,7 @@ export default function HomePage() {
           </div>
 
           <div className="text-center mt-10">
-            <Button render={<Link href="/plans" />} variant="ghost" className="text-amber-600 hover:text-amber-700 gap-1">
+            <Button render={<Link href="/plans" />} variant="ghost" className="text-amber-600 dark:text-amber-500 hover:text-amber-700 dark:text-amber-400 gap-1">
               Compare all plans in detail <ArrowRight className="h-4 w-4" />
             </Button>
           </div>
@@ -247,14 +247,14 @@ export default function HomePage() {
       </section>
 
       {/* ─── WHY CHOOSE US ─── */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-slate-950">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <Badge className="mb-3 bg-amber-50 text-amber-700 border-amber-200">Why Brick Basket</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Built for Peace of Mind</h2>
-            <p className="text-slate-500 max-w-xl mx-auto">
+            <Badge className="mb-3 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200">Why Brick Basket</Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">Built for Peace of Mind</h2>
+            <p className="text-slate-500 dark:text-slate-400 max-w-xl mx-auto">
               We solve the biggest pain points of home construction — lack of transparency, poor communication, and no accountability.
             </p>
           </motion.div>
@@ -270,14 +270,14 @@ export default function HomePage() {
               <motion.div
                 key={item.title}
                 custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                className="flex gap-4 p-5 rounded-xl bg-slate-50 hover:bg-amber-50 transition-colors group"
+                className="flex gap-4 p-5 rounded-xl bg-slate-50 dark:bg-slate-900 hover:bg-amber-50 dark:bg-amber-950/40 transition-colors group"
               >
                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-100 group-hover:bg-amber-200 transition-colors flex-shrink-0">
-                  <item.icon className="h-5 w-5 text-amber-700" />
+                  <item.icon className="h-5 w-5 text-amber-700 dark:text-amber-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-900 mb-1">{item.title}</h3>
-                  <p className="text-sm text-slate-500 leading-relaxed">{item.desc}</p>
+                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1">{item.title}</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -286,30 +286,30 @@ export default function HomePage() {
       </section>
 
       {/* ─── TESTIMONIALS ─── */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-20 bg-slate-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="text-center mb-14"
           >
-            <Badge className="mb-3 bg-amber-50 text-amber-700 border-amber-200">Testimonials</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Happy Homeowners</h2>
+            <Badge className="mb-3 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200">Testimonials</Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">Happy Homeowners</h2>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {TESTIMONIALS.map((t, i) => (
               <motion.div
                 key={t.id}
                 custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                className="bg-white rounded-2xl p-6 border border-slate-200 border-l-4 border-l-amber-500 hover:shadow-md transition-shadow"
+                className="bg-white dark:bg-slate-950 rounded-2xl p-6 border border-slate-200 dark:border-slate-800 border-l-4 border-l-amber-500 hover:shadow-md transition-shadow"
               >
                 <div className="flex gap-0.5 mb-4">
                   {Array.from({ length: t.rating }).map((_, j) => (
                     <Star key={j} className="h-4 w-4 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <p className="text-slate-700 text-sm leading-relaxed mb-5 italic">&ldquo;{t.review}&rdquo;</p>
+                <p className="text-slate-700 dark:text-slate-300 text-sm leading-relaxed mb-5 italic">&ldquo;{t.review}&rdquo;</p>
                 <div>
-                  <div className="font-semibold text-slate-900 text-sm">{t.name}</div>
-                  <div className="text-xs text-slate-500 mt-0.5">{t.projectType} · {t.location}</div>
+                  <div className="font-semibold text-slate-900 dark:text-slate-100 text-sm">{t.name}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t.projectType} · {t.location}</div>
                 </div>
               </motion.div>
             ))}
@@ -318,28 +318,28 @@ export default function HomePage() {
       </section>
 
       {/* ─── FAQ ─── */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-white dark:bg-slate-950">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
             className="text-center mb-12"
           >
-            <Badge className="mb-3 bg-amber-50 text-amber-700 border-amber-200">FAQ</Badge>
-            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">Common Questions</h2>
+            <Badge className="mb-3 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200">FAQ</Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100 mb-4">Common Questions</h2>
           </motion.div>
           <div className="space-y-3">
             {FAQS.map((faq, i) => (
               <motion.div
                 key={faq.id}
                 custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
-                className="border border-slate-200 rounded-xl overflow-hidden"
+                className="border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === faq.id ? null : faq.id)}
-                  className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 transition-colors"
+                  className="w-full flex items-center justify-between p-5 text-left hover:bg-slate-50 dark:bg-slate-900 transition-colors"
                 >
-                  <span className="font-medium text-slate-900 pr-4">{faq.question}</span>
+                  <span className="font-medium text-slate-900 dark:text-slate-100 pr-4">{faq.question}</span>
                   {openFaq === faq.id
-                    ? <ChevronUp className="h-4 w-4 text-amber-600 flex-shrink-0" />
+                    ? <ChevronUp className="h-4 w-4 text-amber-600 dark:text-amber-500 flex-shrink-0" />
                     : <ChevronDown className="h-4 w-4 text-slate-400 flex-shrink-0" />}
                 </button>
                 {openFaq === faq.id && (
@@ -350,7 +350,7 @@ export default function HomePage() {
                     transition={{ duration: 0.2 }}
                     className="px-5 pb-5"
                   >
-                    <p className="text-sm text-slate-600 leading-relaxed">{faq.answer}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{faq.answer}</p>
                   </motion.div>
                 )}
               </motion.div>
@@ -374,10 +374,10 @@ export default function HomePage() {
               Get a free consultation from our experts. No obligation. Just clarity on your home construction journey.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button render={<Link href="/enquiry" />} size="lg" className="bg-white text-amber-700 hover:bg-amber-50 gap-2 h-12 px-8 text-base font-semibold">
+              <Button render={<Link href="/enquiry" />} size="lg" className="bg-white dark:bg-slate-950 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:bg-amber-950/40 gap-2 h-12 px-8 text-base font-semibold">
                 Get Free Consultation <ArrowRight className="h-4 w-4" />
               </Button>
-              <Button render={<a href={`tel:+919876543210`} />} size="lg" variant="outline" className="border-white/40 text-white hover:bg-white/10 h-12 px-8 text-base gap-2">
+              <Button render={<a href={`tel:+919876543210`} />} size="lg" variant="outline" className="border-white/40 text-white hover:bg-white dark:bg-slate-950/10 h-12 px-8 text-base gap-2">
                 <Phone className="h-4 w-4" /> Call Us Now
               </Button>
             </div>

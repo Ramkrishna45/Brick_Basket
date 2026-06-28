@@ -68,7 +68,7 @@ export function CreateProjectForm({ onSuccess, onCancel }: CreateProjectFormProp
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="md:col-span-2 text-sm font-semibold text-slate-900 border-b pb-2">
+        <div className="md:col-span-2 text-sm font-semibold text-slate-900 dark:text-slate-100 border-b pb-2">
           Project Details
         </div>
         
@@ -108,7 +108,7 @@ export function CreateProjectForm({ onSuccess, onCancel }: CreateProjectFormProp
           {errors.totalValue && <p className="text-xs text-red-500">{errors.totalValue.message}</p>}
         </div>
 
-        <div className="md:col-span-2 text-sm font-semibold text-slate-900 border-b pb-2 mt-4">
+        <div className="md:col-span-2 text-sm font-semibold text-slate-900 dark:text-slate-100 border-b pb-2 mt-4">
           Timeline
         </div>
 
@@ -124,7 +124,7 @@ export function CreateProjectForm({ onSuccess, onCancel }: CreateProjectFormProp
           {errors.expectedCompletion && <p className="text-xs text-red-500">{errors.expectedCompletion.message}</p>}
         </div>
 
-        <div className="md:col-span-2 text-sm font-semibold text-slate-900 border-b pb-2 mt-4">
+        <div className="md:col-span-2 text-sm font-semibold text-slate-900 dark:text-slate-100 border-b pb-2 mt-4">
           Customer Details
         </div>
 

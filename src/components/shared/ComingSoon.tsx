@@ -26,11 +26,11 @@ export function ComingSoon({
         transition={{ duration: 0.5 }}
         className="text-center max-w-md"
       >
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 mx-auto mb-6">
-          <Construction className="h-8 w-8 text-amber-600" />
+        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-50 dark:bg-amber-950/40 mx-auto mb-6">
+          <Construction className="h-8 w-8 text-amber-600 dark:text-amber-500" />
         </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-3">{title}</h1>
-        <p className="text-slate-500 mb-8">{description}</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-3">{title}</h1>
+        <p className="text-slate-500 dark:text-slate-400 mb-8">{description}</p>
         <Button render={<Link href={backHref} />} variant="outline" className="gap-2">
             <ArrowLeft className="h-4 w-4" />
             {backLabel}

@@ -12,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-600">
               <HardHat className="h-4 w-4 text-white" />
             </div>
-            <span className="font-bold text-slate-900">{BRAND.name}</span>
+            <span className="font-bold text-slate-900 dark:text-slate-100">{BRAND.name}</span>
           </Link>
           {children}
         </div>
@@ -24,7 +24,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='5' cy='5' r='3'/%3E%3C/g%3E%3C/svg%3E\")",
         }} />
         <div className="relative z-10">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/20 mb-6">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white dark:bg-slate-950/20 mb-6">
             <HardHat className="h-7 w-7 text-white" />
           </div>
           <h2 className="text-3xl font-bold text-white mb-3">{BRAND.tagline}</h2>
