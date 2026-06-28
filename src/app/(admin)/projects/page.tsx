@@ -180,7 +180,7 @@ export default function ProjectsPage() {
                   <Button variant="outline" size="sm" className="h-7 text-xs hover:border-amber-400 hover:text-amber-700" onClick={() => openAssignStaff(project)}>
                     Assign Staff
                   </Button>
-                  <Button variant="default" size="sm" className="h-7 text-xs bg-slate-900 text-white" render={<Link href={`/admin/projects/${project.id}`} />}>
+                  <Button variant="default" size="sm" className="h-7 text-xs bg-slate-900 text-white" render={<Link href={`/projects/${project.id}`} />}>
                       View Details
                   </Button>
                 </div>
