@@ -62,42 +62,58 @@ export default function StaffProgressUploadPage() {
     
     setIsSubmitting(true);
     
-    let imageUrl = "https://images.unsplash.com/photo-1541888081622-19e0789d970a?q=80&w=600";
-    if (imageFile) {
-      const formData = new FormData();
-      formData.append("file", imageFile);
-      const uploadRes = await uploadFileAction(formData);
-      if (uploadRes.error) {
-        toast.error(uploadRes.error);
+    try {
+      let imageUrl = "https://images.unsplash.com/photo-1541888081622-19e0789d970a?q=80&w=600";
+      
+      if (imageFile) {
+        // Validate file size (Vercel has 4.5MB limit for server actions)
+        if (imageFile.size > 4.5 * 1024 * 1024) {
+          toast.error("File is too large. Please upload an image under 4.5MB.");
+          setIsSubmitting(false);
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        const uploadRes = await uploadFileAction(formData);
+        
+        if (uploadRes.error) {
+          toast.error(uploadRes.error);
+          setIsSubmitting(false);
+          return;
+        }
+        if (uploadRes.url) {
+          imageUrl = uploadRes.url;
+        }
+      }
+
+      const res = await createProgressUpdateAction({
+        projectId,
+        title,
+        description,
+        stage,
+        completionPercentage: completionPercentage[0],
+        images: [imageUrl],
+      });
+      
+      if (res.error) {
+        toast.error(res.error);
         setIsSubmitting(false);
         return;
       }
-      if (uploadRes.url) {
-        imageUrl = uploadRes.url;
-      }
-    }
-    const res = await createProgressUpdateAction({
-      projectId,
-      title,
-      description,
-      stage,
-      completionPercentage: completionPercentage[0],
-      images: [imageUrl],
-    });
-    
-    if (res.error) {
-      toast.error(res.error);
+      
+      toast.success("Progress update published successfully!");
+      
+      // Reset form partially
+      setTitle("");
+      setDescription("");
+      setImageFile(null);
+    } catch (error) {
+      console.error("Submission failed:", error);
+      toast.error("Failed to publish update. Ensure your image is under 4.5MB.");
+    } finally {
       setIsSubmitting(false);
-      return;
     }
-    
-    toast.success("Progress update published successfully!");
-    
-    // Reset form partially
-    setTitle("");
-    setDescription("");
-    setImageFile(null);
-    setIsSubmitting(false);
   };
 
   if (loading) {

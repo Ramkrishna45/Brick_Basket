@@ -41,35 +41,45 @@ export default function UploadsPage() {
   async function onSubmit(data: FormData) {
     setLoading(true);
 
-    const uploadedUrls: string[] = [];
-    for (const file of photoFiles) {
-      const formData = new FormData();
-      formData.append("file", file);
-      const uploadRes = await uploadFileAction(formData);
-      if (uploadRes.success && uploadRes.url) {
-        uploadedUrls.push(uploadRes.url);
-      } else {
-        toast.error(`Failed to upload ${file.name}: ${uploadRes.error || 'Unknown error'}`);
+    try {
+      const uploadedUrls: string[] = [];
+      for (const file of photoFiles) {
+        if (file.size > 4.5 * 1024 * 1024) {
+          toast.error(`File ${file.name} is too large. Must be under 4.5MB.`);
+          continue;
+        }
+        const formData = new FormData();
+        formData.append("file", file);
+        const uploadRes = await uploadFileAction(formData);
+        if (uploadRes.success && uploadRes.url) {
+          uploadedUrls.push(uploadRes.url);
+        } else {
+          toast.error(`Failed to upload ${file.name}: ${uploadRes.error || 'Unknown error'}`);
+        }
       }
-    }
 
-    const res = await createProgressUpdateAction({
-      projectId: data.project,
-      title: data.title,
-      description: data.description,
-      stage: data.stage,
-      completionPercentage: 10, // Default or require from user? Hardcoding to 10 for now
-      photos: uploadedUrls,
-    });
-    
-    setLoading(false);
-    if (res.success) {
-      toast.success("Progress update uploaded successfully!");
-      setRecentUpdates((prev) => [{ id: res.data?.id, title: data.title, date: new Date().toLocaleDateString(), photos: uploadedUrls, stage: data.stage }, ...prev].slice(0, 3));
-      reset();
-      setPhotoFiles([]);
-    } else {
-      toast.error(res.error || "Failed to upload progress");
+      const res = await createProgressUpdateAction({
+        projectId: data.project,
+        title: data.title,
+        description: data.description,
+        stage: data.stage,
+        completionPercentage: 10, // Default or require from user? Hardcoding to 10 for now
+        photos: uploadedUrls,
+      });
+      
+      if (res.success) {
+        toast.success("Progress update uploaded successfully!");
+        setRecentUpdates((prev) => [{ id: res.data?.id, title: data.title, date: new Date().toLocaleDateString(), photos: uploadedUrls, stage: data.stage }, ...prev].slice(0, 3));
+        reset();
+        setPhotoFiles([]);
+      } else {
+        toast.error(res.error || "Failed to upload progress");
+      }
+    } catch (error) {
+      console.error("Submission failed:", error);
+      toast.error("An error occurred while uploading. Ensure your images are under 4.5MB.");
+    } finally {
+      setLoading(false);
     }
   }
 
