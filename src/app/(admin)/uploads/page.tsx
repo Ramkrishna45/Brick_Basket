@@ -111,11 +111,14 @@ export default function UploadsPage() {
                     <SelectValue placeholder="Choose project..." />
                   </SelectTrigger>
                   <SelectContent>
-                    {projects.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {`${p.name} — ${p.customer?.name || "Unassigned"}`}
-                      </SelectItem>
-                    ))}
+                    {projects.map((p) => {
+                      const text = `${p.name} — ${p.customer?.name || "Unassigned"}`;
+                      return (
+                        <SelectItem key={p.id} value={p.id} label={text}>
+                          {text}
+                        </SelectItem>
+                      );
+                    })}
                   </SelectContent>
                 </Select>
               </div>
