@@ -40,7 +40,8 @@ export async function uploadFileAction(formData: FormData) {
 
     if (error) {
       console.error("Supabase storage error:", error);
-      return { error: "Failed to upload file to cloud storage: " + error.message };
+      // Fallback: If it's a bucket not found error, it might be due to RLS or missing bucket in the exact project instance
+      return { error: `Supabase Storage Error: ${error.message}` };
     }
 
     const { data: { publicUrl } } = supabase.storage
@@ -50,6 +51,6 @@ export async function uploadFileAction(formData: FormData) {
     return { success: true, url: publicUrl };
   } catch (error) {
     console.error("Upload error:", error);
-    return { error: "Failed to upload file" };
+    return { error: "Failed to upload file to cloud storage" };
   }
 }
