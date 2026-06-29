@@ -27,6 +27,7 @@ export default function UploadsPage() {
   const [recentUpdates, setRecentUpdates] = useState<any[]>([]);
   const [dragOver, setDragOver] = useState(false);
   const [photoFiles, setPhotoFiles] = useState<File[]>([]);
+  const [completionPercentage, setCompletionPercentage] = useState([0]);
 
   useEffect(() => {
     async function load() {
@@ -63,7 +64,7 @@ export default function UploadsPage() {
         title: data.title,
         description: data.description,
         stage: data.stage,
-        completionPercentage: 10, // Default or require from user? Hardcoding to 10 for now
+        completionPercentage: completionPercentage[0],
         photos: uploadedUrls,
       });
       
@@ -116,7 +117,13 @@ export default function UploadsPage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
               <div>
                 <Label>Select Project *</Label>
-                <Select onValueChange={(v) => { if (v) setValue("project", v as string); }}>
+                <Select onValueChange={(v) => { 
+                  if (v) {
+                    setValue("project", v as string);
+                    const p = projects.find(proj => proj.id === v);
+                    if (p) setCompletionPercentage([p.completionPercentage || 0]);
+                  }
+                }}>
                   <SelectTrigger className="mt-1.5">
                     <SelectValue placeholder="Choose project...">
                       {(val: string | null) => {
@@ -166,6 +173,22 @@ export default function UploadsPage() {
                     ))}
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div>
+                <div className="flex justify-between items-center mb-1.5">
+                  <Label>Overall Completion</Label>
+                  <span className="text-sm font-bold text-amber-600 dark:text-amber-500">{completionPercentage[0]}%</span>
+                </div>
+                <input 
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={completionPercentage[0]}
+                  onChange={(e) => setCompletionPercentage([parseInt(e.target.value)])}
+                  className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                />
               </div>
 
               {/* Photo upload */}

@@ -270,7 +270,7 @@ export function ProjectDetailsView({ projectId, role }: { projectId: string; rol
                           </div>
                         </div>
                         <div className="text-sm font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
-                          +{update.completionPercentage}% Done
+                          {update.completionPercentage}% Completed
                         </div>
                       </div>
                       <p className="text-sm text-slate-600 dark:text-slate-400 mb-4">{update.description}</p>
