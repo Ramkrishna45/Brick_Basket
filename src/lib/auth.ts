@@ -47,4 +47,28 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  callbacks: {
+    ...authConfig.callbacks,
+    async jwt({ token, user, trigger, session, account }) {
+      // First run the base jwt from auth.config
+      let nextToken = token;
+      if (authConfig.callbacks?.jwt) {
+        nextToken = await (authConfig.callbacks.jwt as any)({ token, user, trigger, session, account });
+      }
+      
+      // If user just logged in via Google (account.provider === "google"), 
+      // fetch real role/phone from DB because Google provider only returns name/email/image
+      if (user && user.email) {
+        const dbUser = await prisma.user.findUnique({
+          where: { email: user.email },
+          select: { role: true, phone: true }
+        });
+        if (dbUser) {
+          nextToken.role = dbUser.role;
+          nextToken.phone = dbUser.phone ?? "";
+        }
+      }
+      return nextToken;
+    }
+  }
 });
