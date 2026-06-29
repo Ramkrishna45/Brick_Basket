@@ -167,7 +167,13 @@ export default function AdminDocumentsPage() {
                 <Label>Select Project <span className="text-red-500">*</span></Label>
                 <Select value={projectId} onValueChange={(val) => setProjectId(val || "")}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Choose a project" />
+                    <SelectValue placeholder="Choose a project">
+                      {(val: string | null) => {
+                        if (!val) return null;
+                        const p = projects.find((proj) => proj.id === val);
+                        return p ? `${p.name} (${p.customer?.name || 'Unassigned'})` : val;
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map(p => {

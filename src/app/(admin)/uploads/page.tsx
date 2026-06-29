@@ -108,7 +108,13 @@ export default function UploadsPage() {
                 <Label>Select Project *</Label>
                 <Select onValueChange={(v) => { if (v) setValue("project", v as string); }}>
                   <SelectTrigger className="mt-1.5">
-                    <SelectValue placeholder="Choose project..." />
+                    <SelectValue placeholder="Choose project...">
+                      {(val: string | null) => {
+                        if (!val) return null;
+                        const p = projects.find((proj) => proj.id === val);
+                        return p ? `${p.name} — ${p.customer?.name || "Unassigned"}` : val;
+                      }}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => {

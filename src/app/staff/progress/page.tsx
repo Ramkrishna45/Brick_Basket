@@ -127,7 +127,13 @@ export default function StaffProgressUploadPage() {
               <Label htmlFor="project">Select Project <span className="text-red-500">*</span></Label>
               <Select value={projectId} onValueChange={(val) => setProjectId(val || "")}>
                 <SelectTrigger id="project">
-                  <SelectValue placeholder="Select a project" />
+                  <SelectValue placeholder="Select a project">
+                    {(val: string | null) => {
+                      if (!val) return null;
+                      const p = projects.find((proj) => proj.id === val);
+                      return p ? `${p.name} (${p.customer?.name || "Unassigned"})` : val;
+                    }}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map(p => {
