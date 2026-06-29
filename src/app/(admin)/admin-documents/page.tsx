@@ -171,7 +171,7 @@ export default function AdminDocumentsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map(p => (
-                      <SelectItem key={p.id} value={p.id}>{p.name} ({p.customer?.name})</SelectItem>
+                      <SelectItem key={p.id} value={p.id}>{`${p.name} (${p.customer?.name || 'Unassigned'})`}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>

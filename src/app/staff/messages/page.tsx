@@ -89,10 +89,8 @@ export default function StaffMessagesPage() {
                     <SelectValue placeholder="Select a project" />
                   </SelectTrigger>
                   <SelectContent>
-                    {projects.map(p => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.customer?.name} - {p.name}
-                      </SelectItem>
+                    {projects.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>{`${p.name} — ${p.customer?.name || 'Unassigned'}`}</SelectItem>
                     ))}
                     {projects.length === 0 && (
                       <SelectItem value="none" disabled>No assigned customers</SelectItem>

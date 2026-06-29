@@ -131,7 +131,7 @@ export default function StaffProgressUploadPage() {
                 </SelectTrigger>
                 <SelectContent>
                   {projects.map(p => (
-                    <SelectItem key={p.id} value={p.id}>{p.name} ({p.customer?.name})</SelectItem>
+                    <SelectItem key={p.id} value={p.id}>{`${p.name} (${p.customer?.name || "Unassigned"})`}</SelectItem>
                   ))}
                   {projects.length === 0 && (
                     <SelectItem value="none" disabled>No assigned projects</SelectItem>

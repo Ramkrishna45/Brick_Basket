@@ -113,7 +113,7 @@ export default function UploadsPage() {
                   <SelectContent>
                     {projects.map((p) => (
                       <SelectItem key={p.id} value={p.id}>
-                        {p.name} — {p.customer?.name || "Unassigned"}
+                        {`${p.name} — ${p.customer?.name || "Unassigned"}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
