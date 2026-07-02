@@ -59,13 +59,20 @@ To eliminate manual bookkeeping errors, the platform features a custom **Waterfa
 3. It recursively applies the incoming payment amount to the oldest unpaid milestone.
 4. If a milestone is only partially satisfied, it is marked as `partial`. If satisfied, it is marked `paid`, and the remaining funds seamlessly cascade to the next upcoming milestone.
 
-### 3. Supabase Cloud Storage Pipeline
+### 3. Daily Progress Tracking & Transparency
+A major pain point in construction is the lack of transparency between clients and contractors. Brick Basket solves this uniquely:
+* **Interactive Timeline View:** Clients log in to see a beautifully animated vertical timeline outlining all 9 major construction stages (Foundation, Columns, Slab, etc.).
+* **Daily Photographic Updates:** Engineers on-site capture photos of the daily work. The system allows them to instantly upload these via their mobile devices directly from the construction site. 
+* **Absolute Overall Completion:** Instead of vague updates, the platform utilizes an interactive slider that binds directly to the project's overall percentage. Clients see exactly how close their dream home is to completion down to the exact percentage (e.g., "47% Completed").
+* **Trust & Accountability:** By forcing daily verifiable photo updates linked to exact timestamps and author IDs, the platform builds immense trust and guarantees that remote clients never feel disconnected from their investment.
+
+### 4. Supabase Cloud Storage Pipeline
 Construction demands heavy visual documentation. We engineered a robust media pipeline:
 * **Direct-to-Cloud Uploads:** Photos are uploaded securely to a Supabase bucket via Next.js Server Actions.
 * **Payload Limit Handling:** To respect strict serverless limits (e.g., Vercel's 4.5MB payload cap), the frontend performs rigorous client-side byte validation and MIME-type checking before initiating the network request, ensuring the app never hangs on oversized smartphone camera uploads.
 * **Dynamic Media Rendering:** Images are served back to the client securely with caching layers in place.
 
-### 4. Seamless NextAuth Identity Management
+### 5. Seamless NextAuth Identity Management
 We integrated a frictionless onboarding system:
 * Supports standard encrypted `bcryptjs` Email & Password authentication.
 * Fully integrated **Google OAuth** workflow.
