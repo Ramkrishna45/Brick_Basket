@@ -79,38 +79,107 @@ The database is built for complex project hierarchies. Below is a high-level rep
 
 ```mermaid
 erDiagram
-    USER ||--o{ PROJECT : "Is Customer"
-    USER ||--o{ PROJECT : "Is Assigned Staff"
-    USER ||--o{ PAYMENT_TRANSACTION : "Records"
-    
-    PROJECT ||--o{ MILESTONE : "Has"
-    PROJECT ||--o{ PROGRESS_UPDATE : "Tracks"
-    PROJECT ||--o{ DOCUMENT : "Stores"
+    %% Core Entities
+    USER {
+        string id PK
+        string name
+        string email UK
+        string phone
+        string role "customer | engineer | admin | contractor"
+        string avatar
+        datetime createdAt
+    }
     
     PROJECT {
         string id PK
         string name
-        string currentStage
+        string siteAddress
+        string city
+        string currentStage "planning|foundation|columns|walls|slab..."
+        string status "not_started|in_progress|on_hold|completed"
         int completionPercentage
         float totalValue
         float amountPaid
-        string status
+        datetime startDate
+        datetime expectedCompletion
     }
     
-    MILESTONE {
+    %% Relationships
+    USER ||--o{ PROJECT : "customerProjects (1:M)"
+    USER }|--o{ PROJECT : "assignedProjects (M:N Staff)"
+    
+    %% Features
+    PROJECT_MILESTONE {
         string id PK
+        string stage
         string title
-        float amount
-        float paidAmount
-        string status
+        string status "upcoming|in_progress|completed"
+        string description
+        datetime startDate
+        datetime completedDate
     }
     
     PROGRESS_UPDATE {
         string id PK
+        string title
         string description
-        string photos
+        string stage
         int completionPercentage
+        string photos "JSON array"
+        string date
+        string time
     }
+    
+    DOCUMENT {
+        string id PK
+        string name
+        string category
+        string fileType
+        string fileSize
+        string url
+        boolean isVisible
+    }
+    
+    PAYMENT_MILESTONE {
+        string id PK
+        string name
+        float amount
+        float paidAmount
+        string status "pending|partial|paid|overdue"
+        string dueDate
+        string receiptUrl
+    }
+    
+    PAYMENT_TRANSACTION {
+        string id PK
+        float amount
+        string method "upi|card|bank_transfer|cash|check"
+        string transactionId
+        string notes
+        datetime date
+    }
+    
+    LEAD {
+        string id PK
+        string name
+        string email
+        string phone
+        string status "new|contacted|qualified|converted|rejected"
+        string budgetRange
+        string timeline
+    }
+    
+    %% Entity Connections
+    PROJECT ||--o{ PROJECT_MILESTONE : "Has Milestones"
+    PROJECT ||--o{ PROGRESS_UPDATE : "Tracks Progress"
+    PROJECT ||--o{ DOCUMENT : "Stores Docs"
+    PROJECT ||--o{ PAYMENT_MILESTONE : "Expected Payments"
+    PROJECT ||--o{ PAYMENT_TRANSACTION : "Received Transactions"
+    
+    USER ||--o{ PROGRESS_UPDATE : "Uploaded By"
+    USER ||--o{ PAYMENT_TRANSACTION : "Recorded By"
+    USER ||--o{ PAYMENT_MILESTONE : "Marked Paid By"
+    USER ||--o{ LEAD : "Assigned To"
 ```
 
 ---
