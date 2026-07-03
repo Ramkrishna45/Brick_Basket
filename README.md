@@ -2,7 +2,13 @@
 
 **Brick Basket** is a highly scalable, production-ready B2C construction management SaaS platform designed to completely digitize and centralize project workflows, complex financial milestone tracking, and client communication into a unified, responsive interface.
 
-![Brick Basket Demo](https://images.unsplash.com/photo-1541888081622-19e0789d970a?q=80&w=1200)
+<p align="center">
+  <img src="screenshots/screenshot4.png" width="49%" alt="Landing Page" />
+  <img src="screenshots/screenshot1.png" width="49%" alt="Dashboard View" />
+  <br />
+  <img src="screenshots/screenshot2.png" width="49%" alt="Project Tracking" />
+  <img src="screenshots/screenshot3.png" width="49%" alt="Staff Portal" />
+</p>
 
 > *Built to handle the heavy lifting of construction management—from lead generation to final handover.*
 
