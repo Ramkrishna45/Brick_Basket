@@ -70,16 +70,9 @@ export default function AdminDashboardPage() {
     { status: "On Hold", count: stats.projects.onHold },
   ];
 
-  // Placeholder data for charts that don't have real data yet
-  const monthlyEnquiries = [
-    { month: "Jan", count: 12 }, { month: "Feb", count: 19 }, { month: "Mar", count: 15 },
-    { month: "Apr", count: 22 }, { month: "May", count: 28 }, { month: "Jun", count: 35 },
-  ];
-  
-  const revenueByMonth = [
-    { month: "Jan", amount: 450000 }, { month: "Feb", amount: 620000 }, { month: "Mar", amount: 550000 },
-    { month: "Apr", amount: 800000 }, { month: "May", amount: 1100000 }, { month: "Jun", amount: 1450000 },
-  ];
+  const monthlyEnquiries = stats.monthlyEnquiries || [];
+  const revenueByMonth = stats.revenueByMonth || [];
+  const recentActivity = stats.recentActivity || [];
 
   return (
     <div className="space-y-6">
@@ -207,22 +200,20 @@ export default function AdminDashboardPage() {
               <CardTitle className="text-sm font-semibold text-slate-700 dark:text-slate-300">Recent Activity</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {[
-                { action: "Progress update uploaded", project: "Patel Residence", time: "2m ago", color: "bg-amber-500" },
-                { action: "New enquiry received", project: "Suresh Menon, Bengaluru", time: "15m ago", color: "bg-blue-500" },
-                { action: "Payment received", project: "Sharma Villa — ₹5,04,000", time: "1h ago", color: "bg-emerald-500" },
-                { action: "Project stage updated", project: "Irfan Residence → Electrical", time: "2h ago", color: "bg-violet-500" },
-                { action: "Document uploaded", project: "Begum Palace — Agreement", time: "3h ago", color: "bg-orange-500" },
-              ].map((item, i) => (
-                <div key={i} className="flex items-start gap-3">
-                  <div className={`h-2 w-2 rounded-full ${item.color} mt-1.5 flex-shrink-0`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-medium text-slate-900 dark:text-slate-100">{item.action}</div>
-                    <div className="text-xs text-slate-400 truncate">{item.project}</div>
+              {recentActivity.length === 0 ? (
+                <div className="text-sm text-slate-500 py-4 text-center">No recent activity</div>
+              ) : (
+                recentActivity.map((item: any, i: number) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <div className={`h-2 w-2 rounded-full ${item.color} mt-1.5 flex-shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-medium text-slate-900 dark:text-slate-100">{item.action}</div>
+                      <div className="text-xs text-slate-400 truncate">{item.project}</div>
+                    </div>
+                    <span className="text-xs text-slate-400 flex-shrink-0">{item.time}</span>
                   </div>
-                  <span className="text-xs text-slate-400 flex-shrink-0">{item.time}</span>
-                </div>
-              ))}
+                ))
+              )}
             </CardContent>
           </Card>
         </motion.div>
