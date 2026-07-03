@@ -20,10 +20,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        otp: { label: "OTP", type: "text" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password || !credentials?.otp) return null;
+        if (!credentials?.email || !credentials?.password) return null;
 
         const email = (credentials.email as string).toLowerCase();
         const password = credentials.password as string;
@@ -36,17 +35,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) return null;
-
-        const otp = credentials.otp as string;
-        if (!user.otpCode || !user.otpExpiry || user.otpCode !== otp || new Date() > user.otpExpiry) {
-          throw new Error("Invalid or expired OTP");
-        }
-
-        // Clear OTP after successful verification
-        await prisma.user.update({
-          where: { email },
-          data: { otpCode: null, otpExpiry: null },
-        });
 
         return {
           id: user.id,

@@ -27,6 +27,11 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
     if (existing) return { error: "Email already registered" };
 
     const passwordHash = await bcrypt.hash(parsed.data.password, 10);
+
+    // Generate 6 digit OTP for new user verification
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
+
     const user = await prisma.user.create({
       data: {
         name: parsed.data.name,
@@ -34,67 +39,59 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
         phone: parsed.data.phone,
         passwordHash,
         role: "customer",
+        otpCode,
+        otpExpiry,
       },
     });
 
-    return { success: true, userId: user.id };
-  } catch {
+    // Send Welcome & OTP Email
+    const html = `
+      <h2>Welcome to Brick Basket, ${user.name}!</h2>
+      <p>Please verify your email address to complete your registration.</p>
+      <p>Your One-Time Password (OTP) is:</p>
+      <h1 style="font-size: 32px; letter-spacing: 5px; color: #d97706;">${otpCode}</h1>
+      <p>This code will expire in 10 minutes.</p>
+    `;
+
+    await sendEmail({
+      to: email,
+      subject: "Verify Your Email - Brick Basket",
+      html,
+    });
+
+    return { success: true, requireOtp: true };
+  } catch (err) {
+    console.error("Signup error:", err);
     return { error: "Something went wrong. Please try again." };
   }
 }
 
-// ============================================
-// Login OTP 
-// ============================================
-
-export async function verifyCredentialsAndSendOtpAction(emailRaw: string, password: string): Promise<{ success?: boolean; error?: string }> {
+export async function verifySignupOtpAction(emailRaw: string, otp: string) {
   try {
     const email = emailRaw.toLowerCase();
     const user = await prisma.user.findUnique({ where: { email } });
     
-    if (!user || !user.passwordHash) {
-      return { error: "Invalid credentials. Please try again." };
+    if (!user || !user.otpCode || !user.otpExpiry) {
+      return { error: "Invalid or expired OTP." };
     }
 
-    const isValid = await bcrypt.compare(password, user.passwordHash);
-    if (!isValid) {
-      return { error: "Invalid credentials. Please try again." };
+    if (user.otpCode !== otp) {
+      return { error: "Incorrect OTP." };
     }
 
-    // Generate 6 digit OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    // Expiry 10 minutes from now
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    if (new Date() > user.otpExpiry) {
+      return { error: "OTP has expired. Please request a new one." };
+    }
 
+    // OTP is valid. Clear it out.
     await prisma.user.update({
       where: { email },
-      data: { otpCode, otpExpiry },
+      data: { otpCode: null, otpExpiry: null },
     });
-
-    const html = `
-      <h2>Login Verification</h2>
-      <p>Hello ${user.name},</p>
-      <p>Your One-Time Password to securely log in is:</p>
-      <h1 style="font-size: 32px; letter-spacing: 5px; color: #d97706;">${otpCode}</h1>
-      <p>This code will expire in 10 minutes.</p>
-      <p>If you did not request this, please secure your account.</p>
-    `;
-
-    const res = await sendEmail({
-      to: email,
-      subject: "Your Login OTP - Brick Basket",
-      html,
-    });
-
-    if (res.error) {
-       console.error("Failed to send OTP email:", res.error);
-       return { error: "Failed to send OTP to your email." };
-    }
-
+    
     return { success: true };
   } catch (error) {
-    console.error("Error verifying credentials:", error);
-    return { error: "Failed to process request." };
+    return { error: "Failed to verify OTP." };
   }
 }
 

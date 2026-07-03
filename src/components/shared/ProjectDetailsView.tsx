@@ -18,6 +18,8 @@ import { getProjectByIdAction } from "@/lib/actions/projects";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { RecordPaymentModal } from "@/components/admin/RecordPaymentModal";
+import { EditProjectForm } from "@/components/admin/EditProjectForm";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 function formatINR(n: number) {
   return new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR", maximumFractionDigits: 0 }).format(n);
@@ -28,6 +30,7 @@ export function ProjectDetailsView({ projectId, role }: { projectId: string; rol
   const [project, setProject] = useState<any>(null);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -44,6 +47,25 @@ export function ProjectDetailsView({ projectId, role }: { projectId: string; rol
     }
     load();
   }, [projectId]);
+
+  async function load() {
+      try {
+        const res = await getProjectByIdAction(projectId);
+        if (res.success && res.data) {
+          setProject(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to load project", err);
+      } finally {
+        setLoading(false);
+      }
+  }
+
+  // Expose load function to refresh data after edit
+  const refreshData = () => {
+    setLoading(true);
+    load();
+  };
 
   // Payment handling is now done via RecordPaymentModal
 
@@ -75,9 +97,32 @@ export function ProjectDetailsView({ projectId, role }: { projectId: string; rol
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Project Details</h1>
         {role === "admin" && (
-          <Badge variant="outline" className="text-xs">Admin View</Badge>
+          <div className="flex gap-2 items-center">
+            <Button variant="outline" size="sm" onClick={() => setEditModalOpen(true)}>
+              Edit Project
+            </Button>
+            <Badge variant="outline" className="text-xs">Admin View</Badge>
+          </div>
         )}
       </div>
+
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Project Details</DialogTitle>
+          </DialogHeader>
+          <div className="py-2">
+            <EditProjectForm 
+              project={project} 
+              onSuccess={() => {
+                setEditModalOpen(false);
+                refreshData();
+              }}
+              onCancel={() => setEditModalOpen(false)}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Project header card */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
