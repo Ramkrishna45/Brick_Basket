@@ -6,7 +6,7 @@
   <img src="screenshots/screenshot4.png" width="49%" alt="Landing Page" />
   <img src="screenshots/screenshot1.png" width="49%" alt="Dashboard View" />
   <br />
-  <img src="screenshots/screenshot2.png" width="49%" alt="Project Tracking" />
+  <img src="screenshots/screenshot2.png" width="49%" alt="Admin Dashboard" />
   <img src="screenshots/screenshot3.png" width="49%" alt="Staff Portal" />
 </p>
 
