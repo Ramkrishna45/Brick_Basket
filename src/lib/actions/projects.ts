@@ -179,6 +179,7 @@ const createProjectSchema = z.object({
   customerName: z.string().min(1, "Customer name is required"),
   customerEmail: z.string().email("Valid email is required"),
   customerPhone: z.string().min(10, "Valid phone is required"),
+  leadId: z.string().optional(),
 });
 
 export async function createProjectAction(data: z.infer<typeof createProjectSchema>) {
@@ -193,7 +194,7 @@ export async function createProjectAction(data: z.infer<typeof createProjectSche
 
     const {
       name, siteAddress, city, plotSize, builtUpArea, totalValue,
-      startDate, expectedCompletion, customerName, customerEmail, customerPhone
+      startDate, expectedCompletion, customerName, customerEmail, customerPhone, leadId
     } = parsed.data;
 
     const email = customerEmail.toLowerCase();
@@ -295,6 +296,14 @@ export async function createProjectAction(data: z.infer<typeof createProjectSche
         };
       })
     });
+
+    if (leadId) {
+      await prisma.lead.update({
+        where: { id: leadId },
+        data: { status: "converted" }
+      });
+      revalidatePath("/admin/leads");
+    }
 
     revalidatePath("/admin/projects");
     return { success: true, data: { id: project.id } };

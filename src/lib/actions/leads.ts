@@ -143,64 +143,6 @@ export async function updateLeadStatusAction(id: string, status: string) {
       },
     });
 
-    // If converted, create user and project
-    if (status === "converted") {
-      const email = lead.email.toLowerCase();
-      // Check if user exists
-      const existingUser = await prisma.user.findUnique({ where: { email } });
-      
-      let customerId = existingUser?.id;
-
-      if (!existingUser) {
-        // Generate random password
-        const randomPassword = Math.random().toString(36).slice(-8) + "Aa1@";
-        const passwordHash = await bcrypt.hash(randomPassword, 10);
-
-        const newUser = await prisma.user.create({
-          data: {
-            name: lead.name,
-            email,
-            phone: lead.phone,
-            role: "customer",
-            passwordHash,
-          },
-        });
-        customerId = newUser.id;
-
-        // Email credentials to customer
-        await sendEmail({
-          to: lead.email,
-          subject: "Welcome to Brick Basket!",
-          html: `
-            <h2>Welcome to Brick Basket!</h2>
-            <p>Hi ${lead.name},</p>
-            <p>Your account has been successfully created. You can now log in to track your project progress, view documents, and more.</p>
-            <p><strong>Login URL:</strong> https://brick-basket.vercel.app/login</p>
-            <p><strong>Email:</strong> ${lead.email}</p>
-            <p><strong>Password:</strong> ${randomPassword}</p>
-            <p>We recommend changing your password after logging in.</p>
-            <p>Best regards,<br/>The Brick Basket Team</p>
-          `,
-        });
-      }
-
-      if (customerId) {
-        // Create an empty project for this lead
-        await prisma.project.create({
-          data: {
-            name: `${lead.name}'s Residence`,
-            customerId: customerId,
-            siteAddress: `TBD (${lead.city})`,
-            city: lead.city,
-            plotSize: lead.plotSize || "TBD",
-            builtUpArea: lead.builtUpArea || "TBD",
-            status: "not_started",
-            currentStage: "planning",
-          },
-        });
-      }
-    }
-
     return { success: true, data: { id: lead.id, status: lead.status } };
   } catch (err: any) {
     console.error("Update lead error:", err);

@@ -30,31 +30,34 @@ type FormValues = z.infer<typeof formSchema>;
 interface CreateProjectFormProps {
   onSuccess?: () => void;
   onCancel?: () => void;
+  defaultValues?: Partial<FormValues>;
+  leadId?: string;
 }
 
-export function CreateProjectForm({ onSuccess, onCancel }: CreateProjectFormProps) {
+export function CreateProjectForm({ onSuccess, onCancel, defaultValues, leadId }: CreateProjectFormProps) {
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      siteAddress: "",
-      city: "",
-      plotSize: "",
-      builtUpArea: "",
-      totalValue: 0,
-      startDate: "",
-      expectedCompletion: "",
-      customerName: "",
-      customerEmail: "",
-      customerPhone: "",
+      name: defaultValues?.name || "",
+      siteAddress: defaultValues?.siteAddress || "",
+      city: defaultValues?.city || "",
+      plotSize: defaultValues?.plotSize || "",
+      builtUpArea: defaultValues?.builtUpArea || "",
+      totalValue: defaultValues?.totalValue || 0,
+      startDate: defaultValues?.startDate || "",
+      expectedCompletion: defaultValues?.expectedCompletion || "",
+      customerName: defaultValues?.customerName || "",
+      customerEmail: defaultValues?.customerEmail || "",
+      customerPhone: defaultValues?.customerPhone || "",
     },
   });
 
   async function onSubmit(data: FormValues) {
     setLoading(true);
-    const res = await createProjectAction(data);
+    const payload = leadId ? { ...data, leadId } : data;
+    const res = await createProjectAction(payload);
     setLoading(false);
 
     if (res.error) {

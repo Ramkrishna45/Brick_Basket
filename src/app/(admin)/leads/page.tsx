@@ -9,10 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge, EmptyState } from "@/components/shared/states";
 import { toast } from "sonner";
 import { getLeadsAction, updateLeadStatusAction } from "@/lib/actions/leads";
+import { CreateProjectForm } from "@/components/admin/CreateProjectForm";
 import { format } from "date-fns";
 
 const STATUS_OPTIONS: { value: string; label: string }[] = [
@@ -29,15 +31,18 @@ export default function LeadsPage() {
   const [leads, setLeads] = useState<any[]>([]);
   const [status, setStatus] = useState("all");
   const [search, setSearch] = useState("");
+  const [convertLead, setConvertLead] = useState<any | null>(null);
+
+  async function load() {
+    setLoading(true);
+    const res = await getLeadsAction();
+    if (res.success && res.data) {
+      setLeads(res.data);
+    }
+    setLoading(false);
+  }
 
   useEffect(() => {
-    async function load() {
-      const res = await getLeadsAction();
-      if (res.success && res.data) {
-        setLeads(res.data);
-      }
-      setLoading(false);
-    }
     load();
   }, []);
 
@@ -142,7 +147,7 @@ export default function LeadsPage() {
                           <DropdownMenuItem onClick={() => updateStatus(lead.id, "qualified")}>
                             Mark as Qualified
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => updateStatus(lead.id, "converted")} className="text-emerald-600">
+                          <DropdownMenuItem onClick={() => setConvertLead(lead)} className="text-emerald-600">
                             <UserCheck className="h-3.5 w-3.5 mr-2" />Convert to Customer
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => updateStatus(lead.id, "rejected")} className="text-red-600">
@@ -189,6 +194,33 @@ export default function LeadsPage() {
           </div>
         </>
       )}
+
+      {/* Convert to Project Dialog */}
+      <Dialog open={!!convertLead} onOpenChange={(open) => !open && setConvertLead(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Convert Lead to Project</DialogTitle>
+          </DialogHeader>
+          {convertLead && (
+            <CreateProjectForm
+              leadId={convertLead.id}
+              defaultValues={{
+                customerName: convertLead.name,
+                customerEmail: convertLead.email,
+                customerPhone: convertLead.phone,
+                city: convertLead.city,
+                plotSize: convertLead.plotSize || "",
+                builtUpArea: convertLead.builtUpArea || "",
+              }}
+              onSuccess={() => {
+                setConvertLead(null);
+                load();
+              }}
+              onCancel={() => setConvertLead(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
