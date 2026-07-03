@@ -527,7 +527,7 @@ export async function getProjectByIdAction(id: string) {
           include: { uploadedBy: { select: { id: true, name: true } } },
         },
         documents: { orderBy: { createdAt: "desc" } },
-        payments: { orderBy: { createdAt: "asc" } },
+        payments: { orderBy: { dueDate: "asc" } },
         paymentTransactions: { 
           orderBy: { date: "desc" },
           include: { recordedBy: { select: { name: true } } }

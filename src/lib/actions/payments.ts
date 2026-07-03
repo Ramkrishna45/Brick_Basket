@@ -12,7 +12,7 @@ export async function getPaymentMilestonesAction(projectId: string) {
 
     const milestones = await prisma.paymentMilestone.findMany({
       where: { projectId },
-      orderBy: { createdAt: "asc" },
+      orderBy: { dueDate: "asc" },
       include: {
         markedPaidBy: {
           select: { id: true, name: true, role: true }
@@ -68,7 +68,7 @@ export async function getPaymentSummaryAction(projectId: string) {
 
     const milestones = await prisma.paymentMilestone.findMany({
       where: { projectId },
-      orderBy: { createdAt: "asc" },
+      orderBy: { dueDate: "asc" },
     });
 
     const totalAmount = milestones.reduce((sum, m) => sum + m.amount, 0);
@@ -139,10 +139,10 @@ export async function recordProjectPaymentAction(data: {
         },
       });
 
-      // 2. Fetch all milestones ordered by createdAt to distribute the payment
+      // 2. Fetch all milestones ordered by dueDate to distribute the payment sequentially
       const milestones = await tx.paymentMilestone.findMany({
         where: { projectId: data.projectId },
-        orderBy: { createdAt: "asc" },
+        orderBy: { dueDate: "asc" },
       });
 
       let remainingAmount = data.amount;
