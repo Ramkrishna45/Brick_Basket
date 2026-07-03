@@ -378,6 +378,59 @@ export async function updateProjectAction(
       include: { staff: true, customer: true }
     });
 
+    // --- RECALCULATE PAYMENT MILESTONES ---
+    if (parsed.data.totalValue !== undefined || parsed.data.startDate !== undefined || parsed.data.expectedCompletion !== undefined) {
+      const paymentStages = [
+        { name: "Advance / Booking", percent: 0.10, timeOffset: 0 },
+        { name: "Foundation & Plinth", percent: 0.20, timeOffset: 0.15 },
+        { name: "Columns & Brickwork", percent: 0.20, timeOffset: 0.35 },
+        { name: "Roof Slab Casting", percent: 0.20, timeOffset: 0.60 },
+        { name: "Plastering & Finishing", percent: 0.20, timeOffset: 0.85 },
+        { name: "Final Handover", percent: 0.10, timeOffset: 1.0 },
+      ];
+
+      const currentMilestones = await prisma.paymentMilestone.findMany({
+        where: { projectId: project.id }
+      });
+
+      if (currentMilestones.length > 0 && project.startDate && project.expectedCompletion) {
+        const lockedMilestones = currentMilestones.filter(m => m.status === "paid" || m.status === "partial");
+        const unlockedMilestones = currentMilestones.filter(m => m.status !== "paid" && m.status !== "partial");
+
+        const lockedAmount = lockedMilestones.reduce((sum, m) => sum + m.amount, 0);
+        let remainingValue = project.totalValue - lockedAmount;
+        if (remainingValue < 0) remainingValue = 0; // Prevent negative milestone amounts
+
+        const durationMs = project.expectedCompletion.getTime() - project.startDate.getTime();
+
+        let unlockedPercentSum = 0;
+        for (const um of unlockedMilestones) {
+          const stage = paymentStages.find(s => s.name === um.name);
+          if (stage) unlockedPercentSum += stage.percent;
+        }
+
+        for (const um of unlockedMilestones) {
+          const stage = paymentStages.find(s => s.name === um.name);
+          if (stage) {
+            let newAmount = 0;
+            if (unlockedPercentSum > 0) {
+              newAmount = remainingValue * (stage.percent / unlockedPercentSum);
+            }
+            const newDueDate = new Date(project.startDate.getTime() + durationMs * stage.timeOffset);
+
+            await prisma.paymentMilestone.update({
+              where: { id: um.id },
+              data: {
+                amount: newAmount,
+                dueDate: newDueDate.toISOString()
+              }
+            });
+          }
+        }
+      }
+    }
+    // --- END RECALCULATION ---
+
     // Send emails to newly added staff
     if (parsed.data.staffIds) {
       const newStaff = project.staff.filter(s => !existingStaffIds.includes(s.id));
