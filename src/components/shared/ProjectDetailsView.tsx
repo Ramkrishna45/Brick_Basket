@@ -373,6 +373,7 @@ export function ProjectDetailsView({ projectId, role }: { projectId: string; rol
                         <th className="px-4 py-3 text-right">Target Amount</th>
                         <th className="px-4 py-3 text-right">Paid Amount</th>
                         <th className="px-4 py-3 text-center">Status</th>
+                        <th className="px-4 py-3 text-center">Due Date</th>
                         <th className="px-4 py-3">Paid On</th>
                       </tr>
                     </thead>
@@ -384,6 +385,9 @@ export function ProjectDetailsView({ projectId, role }: { projectId: string; rol
                           <td className="px-4 py-3 font-semibold text-emerald-600 text-right">{formatINR(payment.paidAmount || 0)}</td>
                           <td className="px-4 py-3 text-center">
                             <StatusBadge status={payment.status} />
+                          </td>
+                          <td className="px-4 py-3 text-center text-slate-500 dark:text-slate-400">
+                            {payment.dueDate ? format(new Date(payment.dueDate), "MMM d, yyyy") : "-"}
                           </td>
                           <td className="px-4 py-3 text-slate-500 dark:text-slate-400">
                             {payment.paidDate ? format(new Date(payment.paidDate), "MMM d, yyyy") : "-"}
