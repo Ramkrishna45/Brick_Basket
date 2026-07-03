@@ -44,6 +44,61 @@ export async function signUpAction(data: z.infer<typeof signUpSchema>) {
 }
 
 // ============================================
+// Login OTP 
+// ============================================
+
+export async function verifyCredentialsAndSendOtpAction(emailRaw: string, password: string): Promise<{ success?: boolean; error?: string }> {
+  try {
+    const email = emailRaw.toLowerCase();
+    const user = await prisma.user.findUnique({ where: { email } });
+    
+    if (!user || !user.passwordHash) {
+      return { error: "Invalid credentials. Please try again." };
+    }
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) {
+      return { error: "Invalid credentials. Please try again." };
+    }
+
+    // Generate 6 digit OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    // Expiry 10 minutes from now
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+
+    await prisma.user.update({
+      where: { email },
+      data: { otpCode, otpExpiry },
+    });
+
+    const html = `
+      <h2>Login Verification</h2>
+      <p>Hello ${user.name},</p>
+      <p>Your One-Time Password to securely log in is:</p>
+      <h1 style="font-size: 32px; letter-spacing: 5px; color: #d97706;">${otpCode}</h1>
+      <p>This code will expire in 10 minutes.</p>
+      <p>If you did not request this, please secure your account.</p>
+    `;
+
+    const res = await sendEmail({
+      to: email,
+      subject: "Your Login OTP - Brick Basket",
+      html,
+    });
+
+    if (res.error) {
+       console.error("Failed to send OTP email:", res.error);
+       return { error: "Failed to send OTP to your email." };
+    }
+
+    return { success: true };
+  } catch (error) {
+    console.error("Error verifying credentials:", error);
+    return { error: "Failed to process request." };
+  }
+}
+
+// ============================================
 // OTP & Password Reset
 // ============================================
 
