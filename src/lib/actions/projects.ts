@@ -363,7 +363,7 @@ export async function updateProjectAction(
     // Fetch current project to check staff changes and get old dates for milestone recalculation
     const currentProj = await prisma.project.findUnique({
       where: { id },
-      include: { staff: true, payments: true }
+      include: { staff: true, payments: true, milestones: true }
     });
 
     let existingStaffIds: string[] = [];
@@ -377,45 +377,86 @@ export async function updateProjectAction(
       include: { staff: true, customer: true }
     });
 
-    // --- RECALCULATE PAYMENT MILESTONES ---
+    // --- RECALCULATE OR GENERATE MILESTONES ---
     if (parsed.data.totalValue !== undefined || parsed.data.startDate !== undefined || parsed.data.expectedCompletion !== undefined) {
-      if (currentProj && currentProj.payments.length > 0 && project.startDate && project.expectedCompletion) {
-        const lockedMilestones = currentProj.payments.filter(m => m.status === "paid" || m.status === "partial");
-        const unlockedMilestones = currentProj.payments.filter(m => m.status !== "paid" && m.status !== "partial");
+      if (currentProj && project.startDate && project.expectedCompletion) {
+        
+        // 1. Generate Construction Milestones if missing
+        if (currentProj.milestones.length === 0) {
+          await prisma.projectMilestone.createMany({
+            data: DEFAULT_MILESTONES.map((m) => ({
+              projectId: project.id,
+              stage: m.stage,
+              title: m.title,
+              description: m.description,
+              status: "upcoming"
+            }))
+          });
+        }
 
-        const lockedAmount = lockedMilestones.reduce((sum, m) => sum + m.amount, 0);
-        let remainingValue = project.totalValue - lockedAmount;
-        if (remainingValue < 0) remainingValue = 0; // Prevent negative milestone amounts
+        // 2. Generate Payment Milestones if missing, otherwise recalculate
+        if (currentProj.payments.length === 0 && project.totalValue > 0) {
+          const durationMs = project.expectedCompletion.getTime() - project.startDate.getTime();
+          const paymentStages = [
+            { name: "Advance / Booking", percent: 0.10, timeOffset: 0 },
+            { name: "Foundation & Plinth", percent: 0.20, timeOffset: 0.15 },
+            { name: "Columns & Brickwork", percent: 0.20, timeOffset: 0.35 },
+            { name: "Roof Slab Casting", percent: 0.20, timeOffset: 0.60 },
+            { name: "Plastering & Finishing", percent: 0.20, timeOffset: 0.85 },
+            { name: "Final Handover", percent: 0.10, timeOffset: 1.0 },
+          ];
 
-        const oldStartDate = currentProj.startDate || project.startDate;
-        const oldExpectedCompletion = currentProj.expectedCompletion || project.expectedCompletion;
-        let oldDurationMs = oldExpectedCompletion.getTime() - oldStartDate.getTime();
-        if (oldDurationMs <= 0) oldDurationMs = 1; // prevent division by zero
+          await prisma.paymentMilestone.createMany({
+            data: paymentStages.map((stage) => {
+              const dueDate = new Date(project.startDate!.getTime() + durationMs * stage.timeOffset);
+              return {
+                projectId: project.id,
+                name: stage.name,
+                amount: project.totalValue * stage.percent,
+                dueDate: dueDate.toISOString(),
+                status: "pending",
+                description: `Payment for ${stage.name} stage`
+              };
+            })
+          });
+        } else if (currentProj.payments.length > 0) {
+          const lockedMilestones = currentProj.payments.filter(m => m.status === "paid" || m.status === "partial");
+          const unlockedMilestones = currentProj.payments.filter(m => m.status !== "paid" && m.status !== "partial");
 
-        const newDurationMs = project.expectedCompletion.getTime() - project.startDate.getTime();
-        const unlockedAmountSum = unlockedMilestones.reduce((sum, m) => sum + m.amount, 0);
+          const lockedAmount = lockedMilestones.reduce((sum, m) => sum + m.amount, 0);
+          let remainingValue = project.totalValue - lockedAmount;
+          if (remainingValue < 0) remainingValue = 0; // Prevent negative milestone amounts
 
-        for (const um of unlockedMilestones) {
-            let newAmount = 0;
-            if (unlockedAmountSum > 0) {
-              newAmount = remainingValue * (um.amount / unlockedAmountSum);
-            } else {
-              newAmount = remainingValue / unlockedMilestones.length;
-            }
+          const oldStartDate = currentProj.startDate || project.startDate;
+          const oldExpectedCompletion = currentProj.expectedCompletion || project.expectedCompletion;
+          let oldDurationMs = oldExpectedCompletion.getTime() - oldStartDate.getTime();
+          if (oldDurationMs <= 0) oldDurationMs = 1; // prevent division by zero
 
-            // Recalculate date dynamically based on original time offset
-            const oldDueDate = new Date(um.dueDate);
-            const timeOffset = (oldDueDate.getTime() - oldStartDate.getTime()) / oldDurationMs;
-            const clampedOffset = Math.max(0, Math.min(1, timeOffset));
-            const newDueDate = new Date(project.startDate.getTime() + newDurationMs * clampedOffset);
+          const newDurationMs = project.expectedCompletion.getTime() - project.startDate.getTime();
+          const unlockedAmountSum = unlockedMilestones.reduce((sum, m) => sum + m.amount, 0);
 
-            await prisma.paymentMilestone.update({
-              where: { id: um.id },
-              data: {
-                amount: newAmount,
-                dueDate: newDueDate.toISOString()
+          for (const um of unlockedMilestones) {
+              let newAmount = 0;
+              if (unlockedAmountSum > 0) {
+                newAmount = remainingValue * (um.amount / unlockedAmountSum);
+              } else {
+                newAmount = remainingValue / unlockedMilestones.length;
               }
-            });
+
+              // Recalculate date dynamically based on original time offset
+              const oldDueDate = new Date(um.dueDate);
+              const timeOffset = (oldDueDate.getTime() - oldStartDate.getTime()) / oldDurationMs;
+              const clampedOffset = Math.max(0, Math.min(1, timeOffset));
+              const newDueDate = new Date(project.startDate.getTime() + newDurationMs * clampedOffset);
+
+              await prisma.paymentMilestone.update({
+                where: { id: um.id },
+                data: {
+                  amount: newAmount,
+                  dueDate: newDueDate.toISOString()
+                }
+              });
+          }
         }
       }
     }
