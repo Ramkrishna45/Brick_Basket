@@ -381,6 +381,15 @@ export async function updateProjectAction(
     if (parsed.data.totalValue !== undefined || parsed.data.startDate !== undefined || parsed.data.expectedCompletion !== undefined) {
       if (currentProj && project.startDate && project.expectedCompletion) {
         
+        const paymentStages = [
+          { name: "Advance / Booking", percent: 0.10, timeOffset: 0 },
+          { name: "Foundation & Plinth", percent: 0.20, timeOffset: 0.15 },
+          { name: "Columns & Brickwork", percent: 0.20, timeOffset: 0.35 },
+          { name: "Roof Slab Casting", percent: 0.20, timeOffset: 0.60 },
+          { name: "Plastering & Finishing", percent: 0.20, timeOffset: 0.85 },
+          { name: "Final Handover", percent: 0.10, timeOffset: 1.0 },
+        ];
+
         // 1. Generate Construction Milestones if missing
         if (currentProj.milestones.length === 0) {
           await prisma.projectMilestone.createMany({
@@ -397,15 +406,7 @@ export async function updateProjectAction(
         // 2. Generate Payment Milestones if missing, otherwise recalculate
         if (currentProj.payments.length === 0 && project.totalValue > 0) {
           const durationMs = project.expectedCompletion.getTime() - project.startDate.getTime();
-          const paymentStages = [
-            { name: "Advance / Booking", percent: 0.10, timeOffset: 0 },
-            { name: "Foundation & Plinth", percent: 0.20, timeOffset: 0.15 },
-            { name: "Columns & Brickwork", percent: 0.20, timeOffset: 0.35 },
-            { name: "Roof Slab Casting", percent: 0.20, timeOffset: 0.60 },
-            { name: "Plastering & Finishing", percent: 0.20, timeOffset: 0.85 },
-            { name: "Final Handover", percent: 0.10, timeOffset: 1.0 },
-          ];
-
+          
           await prisma.paymentMilestone.createMany({
             data: paymentStages.map((stage) => {
               const dueDate = new Date(project.startDate!.getTime() + durationMs * stage.timeOffset);
@@ -435,12 +436,25 @@ export async function updateProjectAction(
           const newDurationMs = project.expectedCompletion.getTime() - project.startDate.getTime();
           const unlockedAmountSum = unlockedMilestones.reduce((sum, m) => sum + m.amount, 0);
 
+          let unlockedPercentSum = 0;
+          if (unlockedAmountSum === 0) {
+            for (const um of unlockedMilestones) {
+              const stage = paymentStages.find(s => s.name === um.name);
+              if (stage) unlockedPercentSum += stage.percent;
+            }
+          }
+
           for (const um of unlockedMilestones) {
               let newAmount = 0;
               if (unlockedAmountSum > 0) {
                 newAmount = remainingValue * (um.amount / unlockedAmountSum);
               } else {
-                newAmount = remainingValue / unlockedMilestones.length;
+                const stage = paymentStages.find(s => s.name === um.name);
+                if (stage && unlockedPercentSum > 0) {
+                  newAmount = remainingValue * (stage.percent / unlockedPercentSum);
+                } else {
+                  newAmount = remainingValue / unlockedMilestones.length;
+                }
               }
 
               // Recalculate date dynamically based on original time offset
