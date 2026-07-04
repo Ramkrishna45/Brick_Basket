@@ -85,6 +85,14 @@ export async function createProgressUpdateAction(
       },
     });
 
+    await prisma.project.update({
+      where: { id: parsed.data.projectId },
+      data: {
+        currentStage: parsed.data.stage,
+        completionPercentage: parsed.data.completionPercentage,
+      },
+    });
+
     return { success: true, data: { id: update.id } };
   } catch {
     return { error: "Failed to create progress update." };

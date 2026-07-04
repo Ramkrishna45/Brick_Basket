@@ -82,6 +82,7 @@ export async function createProgressUpdateAction(data: { projectId: string; titl
         title: data.title,
         description: data.description,
         stage: data.stage,
+        completionPercentage: data.completionPercentage,
         photos: JSON.stringify(data.images),
         date: new Date().toLocaleDateString(),
         time: new Date().toLocaleTimeString(),
