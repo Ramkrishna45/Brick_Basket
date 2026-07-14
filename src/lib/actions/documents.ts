@@ -1,42 +1,9 @@
 "use server";
 
-import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
-import { z } from "zod";
 import { revalidatePath } from "next/cache";
-
-// ── Get Documents ───────────────────────────────────────────────────
-
-export async function getDocumentsAction(
-  projectId: string,
-  category?: string
-) {
-  try {
-    const session = await auth();
-    if (!session) return { error: "Unauthorized" };
-
-    const where: Record<string, unknown> = { projectId };
-    if (category && category !== "all") {
-      where.category = category;
-    }
-
-    const documents = await prisma.document.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
-    });
-
-    const data = documents.map((d) => ({
-      ...d,
-      createdAt: d.createdAt.toISOString(),
-    }));
-
-    return { success: true, data };
-  } catch {
-    return { error: "Failed to fetch documents." };
-  }
-}
-
-// ── Admin: Upload Document (create record) ──────────────────────────
+import * as documentService from "@/lib/services/document.service";
+import { z } from "zod";
 
 const uploadDocSchema = z.object({
   name: z.string().min(1),
@@ -47,88 +14,63 @@ const uploadDocSchema = z.object({
   projectId: z.string().min(1),
 });
 
-export async function uploadDocumentAction(
-  data: z.infer<typeof uploadDocSchema>
-) {
+export async function getDocumentsAction(projectId: string, category?: string) {
   try {
     const session = await auth();
     if (!session) return { error: "Unauthorized" };
-    if ((session.user as { role?: string }).role !== "admin")
-      return { error: "Forbidden" };
 
-    const parsed = uploadDocSchema.safeParse(data);
-    if (!parsed.success) return { error: "Invalid data" };
+    const data = await documentService.getDocuments(projectId, category);
+    return { success: true, data };
+  } catch (error: any) {
+    return { error: error.message || "Failed to fetch documents." };
+  }
+}
 
-    const now = new Date();
-    const uploadDate = now.toISOString().split("T")[0];
+export async function uploadDocumentAction(data: z.infer<typeof uploadDocSchema>) {
+  try {
+    const session = await auth();
+    if (!session) return { error: "Unauthorized" };
 
-    const doc = await prisma.document.create({
-      data: {
-        name: parsed.data.name,
-        category: parsed.data.category,
-        fileType: parsed.data.fileType,
-        fileSize: parsed.data.fileSize,
-        url: parsed.data.url,
-        uploadDate,
-        uploadedBy: session.user?.name ?? "Admin",
-        projectId: parsed.data.projectId,
-      },
-    });
+    const result = await documentService.uploadDocument(
+      (session.user as any).role || "",
+      session.user?.name || "Admin",
+      data
+    );
 
     revalidatePath("/admin-documents");
     revalidatePath("/documents");
-    revalidatePath(`/projects/${parsed.data.projectId}`);
+    revalidatePath(`/projects/${data.projectId}`);
 
-    return { success: true, data: { id: doc.id } };
-  } catch {
-    return { error: "Failed to upload document." };
+    return { success: true, data: result };
+  } catch (error: any) {
+    return { error: error.message || "Failed to upload document." };
   }
 }
-// -- Admin: Get All Documents ------------------------------------------
 
 export async function getAllDocumentsAction() {
   try {
     const session = await auth();
     if (!session) return { error: "Unauthorized" };
-    if ((session.user as { role?: string }).role !== "admin")
-      return { error: "Forbidden" };
 
-    const documents = await prisma.document.findMany({
-      include: {
-        project: { select: { name: true, customer: { select: { name: true } } } }
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const data = documents.map((d) => ({
-      ...d,
-      createdAt: d.createdAt.toISOString(),
-    }));
-
+    const data = await documentService.getAllDocuments((session.user as any).role || "");
     return { success: true, data };
-  } catch {
-    return { error: "Failed to fetch documents." };
+  } catch (error: any) {
+    return { error: error.message || "Failed to fetch documents." };
   }
 }
-
-// -- Admin: Delete Document --------------------------------------------
 
 export async function deleteDocumentAction(id: string) {
   try {
     const session = await auth();
     if (!session) return { error: "Unauthorized" };
-    if ((session.user as { role?: string }).role !== "admin")
-      return { error: "Forbidden" };
 
-    await prisma.document.delete({
-      where: { id },
-    });
+    await documentService.deleteDocument((session.user as any).role || "", id);
 
     revalidatePath("/admin-documents");
     revalidatePath("/documents");
 
     return { success: true };
-  } catch {
-    return { error: "Failed to delete document." };
+  } catch (error: any) {
+    return { error: error.message || "Failed to delete document." };
   }
 }

@@ -1,107 +1,55 @@
 "use server";
 
-import { prisma } from "@/lib/db";
 import { auth } from "@/lib/auth";
+import * as projectService from "@/lib/services/project.service";
+import * as progressService from "@/lib/services/progress.service";
 
 export async function getStaffAssignedProjectsAction() {
   try {
     const session = await auth();
-    if (!session) return { error: "Unauthorized" };
+    if (!session || !session.user?.id) return { error: "Unauthorized" };
 
     const userRole = (session.user as any).role;
     if (userRole !== "engineer" && userRole !== "contractor" && userRole !== "admin") {
       return { error: "Forbidden" };
     }
 
-    const userId = session.user?.id;
-    if (!userId) return { error: "Unauthorized" };
-
-    const projects = await prisma.project.findMany({
-      where: {
-        staff: {
-          some: { id: userId }
-        }
-      },
-      include: {
-        customer: { select: { name: true, phone: true } },
-        milestones: { orderBy: { createdAt: "asc" } },
-        progressUpdates: {
-          orderBy: { createdAt: "desc" },
-          take: 3,
-        }
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const data = projects.map(p => ({
-      ...p,
-      startDate: p.startDate?.toISOString() ?? null,
-      expectedCompletion: p.expectedCompletion?.toISOString() ?? null,
-      createdAt: p.createdAt.toISOString(),
-      updatedAt: p.updatedAt.toISOString(),
-      milestones: p.milestones.map((m: any) => ({
-        ...m,
-        startDate: m.startDate?.toISOString() ?? null,
-        completedDate: m.completedDate?.toISOString() ?? null,
-        createdAt: m.createdAt.toISOString(),
-      })),
-      progressUpdates: p.progressUpdates.map((u: any) => ({
-        ...u,
-        createdAt: u.createdAt.toISOString(),
-      })),
-    }));
-
+    const data = await projectService.getStaffAssignedProjects(session.user.id);
     return { success: true, data };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Failed to fetch assigned projects:", error);
-    return { error: "Failed to fetch assigned projects." };
+    return { error: error.message || "Failed to fetch assigned projects." };
   }
 }
 
-export async function createProgressUpdateAction(data: { projectId: string; title: string; description: string; stage: string; completionPercentage: number; images: string[] }) {
+export async function createProgressUpdateAction(data: {
+  projectId: string;
+  title: string;
+  description: string;
+  stage: string;
+  completionPercentage: number;
+  images: string[];
+}) {
   try {
     const session = await auth();
-    if (!session) return { error: "Unauthorized" };
+    if (!session || !session.user?.id) return { error: "Unauthorized" };
 
-    const userId = session.user?.id;
-    if (!userId) return { error: "Unauthorized" };
-
-    const project = await prisma.project.findUnique({
-      where: { id: data.projectId },
-      include: { staff: true },
-    });
-
-    if (!project) return { error: "Project not found" };
-
-    const isAssigned = project.staff.some(s => s.id === userId);
-    if (!isAssigned) return { error: "Forbidden" };
-
-    const update = await prisma.progressUpdate.create({
-      data: {
+    const result = await progressService.createProgressUpdate(
+      {
         projectId: data.projectId,
         title: data.title,
         description: data.description,
         stage: data.stage,
         completionPercentage: data.completionPercentage,
-        photos: JSON.stringify(data.images),
-        date: new Date().toLocaleDateString(),
-        time: new Date().toLocaleTimeString(),
-        uploadedById: userId,
-      }
-    });
+        photos: data.images,
+      },
+      session.user.id,
+      (session.user as any).role || ""
+    );
 
-    await prisma.project.update({
-      where: { id: data.projectId },
-      data: {
-        currentStage: data.stage,
-        completionPercentage: data.completionPercentage,
-      }
-    });
-
-    return { success: true, data: update };
-  } catch (error) {
+    return { success: true, data: result };
+  } catch (error: any) {
     console.error("Failed to create progress update:", error);
-    return { error: "Failed to create progress update." };
+    return { error: error.message || "Failed to create progress update." };
   }
 }
-

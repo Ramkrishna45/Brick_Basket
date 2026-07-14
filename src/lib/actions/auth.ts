@@ -1,11 +1,8 @@
 "use server";
 
-import bcrypt from "bcryptjs";
-import { prisma } from "@/lib/db";
 import { z } from "zod";
-
-import { sendEmail } from "@/lib/mail";
 import { auth } from "@/lib/auth";
+import * as authService from "@/lib/services/auth.service";
 
 const signUpSchema = z.object({
   name: z.string().min(2),
@@ -16,218 +13,62 @@ const signUpSchema = z.object({
 
 export async function signUpAction(data: z.infer<typeof signUpSchema>) {
   try {
-    const parsed = signUpSchema.safeParse(data);
-    if (!parsed.success) return { error: "Invalid data" };
-
-    const email = parsed.data.email.toLowerCase();
-
-    const existing = await prisma.user.findUnique({
-      where: { email },
-    });
-    if (existing) return { error: "Email already registered" };
-
-    const passwordHash = await bcrypt.hash(parsed.data.password, 10);
-
-    // Generate 6 digit OTP for new user verification
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 mins
-
-    const user = await prisma.user.create({
-      data: {
-        name: parsed.data.name,
-        email,
-        phone: parsed.data.phone,
-        passwordHash,
-        role: "customer",
-        otpCode,
-        otpExpiry,
-      },
-    });
-
-    // Send Welcome & OTP Email
-    const html = `
-      <h2>Welcome to Brick Basket, ${user.name}!</h2>
-      <p>Please verify your email address to complete your registration.</p>
-      <p>Your One-Time Password (OTP) is:</p>
-      <h1 style="font-size: 32px; letter-spacing: 5px; color: #d97706;">${otpCode}</h1>
-      <p>This code will expire in 10 minutes.</p>
-    `;
-
-    await sendEmail({
-      to: email,
-      subject: "Verify Your Email - Brick Basket",
-      html,
-    });
-
-    return { success: true, requireOtp: true };
-  } catch (err) {
+    const result = await authService.signUp(data);
+    return { success: true, requireOtp: result.requireOtp };
+  } catch (err: any) {
     console.error("Signup error:", err);
-    return { error: "Something went wrong. Please try again." };
+    return { error: err.message || "Something went wrong. Please try again." };
   }
 }
 
 export async function verifySignupOtpAction(emailRaw: string, otp: string) {
   try {
-    const email = emailRaw.toLowerCase();
-    const user = await prisma.user.findUnique({ where: { email } });
-    
-    if (!user || !user.otpCode || !user.otpExpiry) {
-      return { error: "Invalid or expired OTP." };
-    }
-
-    if (user.otpCode !== otp) {
-      return { error: "Incorrect OTP." };
-    }
-
-    if (new Date() > user.otpExpiry) {
-      return { error: "OTP has expired. Please request a new one." };
-    }
-
-    // OTP is valid. Clear it out.
-    await prisma.user.update({
-      where: { email },
-      data: { otpCode: null, otpExpiry: null },
-    });
-    
+    await authService.verifySignupOtp(emailRaw, otp);
     return { success: true };
-  } catch (error) {
-    return { error: "Failed to verify OTP." };
+  } catch (error: any) {
+    return { error: error.message || "Failed to verify OTP." };
   }
 }
 
-// ============================================
-// OTP & Password Reset
-// ============================================
-
 export async function sendOtpAction(emailRaw: string): Promise<{ success?: boolean; error?: string }> {
   try {
-    const email = emailRaw.toLowerCase();
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) {
-      // Don't reveal if user exists or not for security, just pretend success
-      return { success: true };
-    }
-
-    // Generate 6 digit OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    // Expiry 10 minutes from now
-    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
-
-    await prisma.user.update({
-      where: { email },
-      data: { otpCode, otpExpiry },
-    });
-
-    const html = `
-      <h2>Password Reset OTP</h2>
-      <p>Hello ${user.name},</p>
-      <p>Your One-Time Password for password reset is:</p>
-      <h1 style="font-size: 32px; letter-spacing: 5px; color: #d97706;">${otpCode}</h1>
-      <p>This code will expire in 10 minutes.</p>
-      <p>If you did not request this, please ignore this email.</p>
-    `;
-
-    await sendEmail({
-      to: email,
-      subject: "Password Reset - Brick Basket",
-      html,
-    });
-
+    await authService.sendOtp(emailRaw);
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error sending OTP:", error);
-    return { error: "Failed to send OTP. Please try again." };
+    return { error: error.message || "Failed to send OTP. Please try again." };
   }
 }
 
 export async function verifyOtpAction(emailRaw: string, otp: string): Promise<{ success?: boolean; error?: string }> {
   try {
-    const email = emailRaw.toLowerCase();
-    const user = await prisma.user.findUnique({ where: { email } });
-    
-    if (!user || !user.otpCode || !user.otpExpiry) {
-      return { error: "Invalid or expired OTP." };
-    }
-
-    if (user.otpCode !== otp) {
-      return { error: "Incorrect OTP." };
-    }
-
-    if (new Date() > user.otpExpiry) {
-      return { error: "OTP has expired. Please request a new one." };
-    }
-
-    // OTP is valid. Clear it out so it can't be used again immediately,
-    // though for a reset flow we might just leave it or use a separate verified flag.
-    // For simplicity, we just return success. The next step is resetting the password.
-    
+    await authService.verifyOtp(emailRaw, otp);
     return { success: true };
-  } catch (error) {
-    return { error: "Failed to verify OTP." };
+  } catch (error: any) {
+    return { error: error.message || "Failed to verify OTP." };
   }
 }
 
 export async function resetPasswordAction(emailRaw: string, otp: string, newPassword: string): Promise<{ success?: boolean; error?: string }> {
   try {
-    const email = emailRaw.toLowerCase();
-    // Verify OTP again just to be secure before changing password
-    const verify = await verifyOtpAction(email, otp);
-    if (verify.error) return verify;
-
-    const passwordHash = await bcrypt.hash(newPassword, 10);
-
-    await prisma.user.update({
-      where: { email },
-      data: { 
-        passwordHash,
-        otpCode: null, // Clear OTP after successful reset
-        otpExpiry: null
-      },
-    });
-
+    await authService.resetPassword(emailRaw, otp, newPassword);
     return { success: true };
-  } catch (error) {
-    return { error: "Failed to reset password." };
+  } catch (error: any) {
+    return { error: error.message || "Failed to reset password." };
   }
 }
-
-// ============================================
-// Logged in User Change Password
-// ============================================
 
 export async function changePasswordAction(oldPassword: string, newPassword: string): Promise<{ success?: boolean; error?: string }> {
   try {
     const session = await auth();
-    if (!session?.user?.email) {
+    if (!session?.user?.id) {
       return { error: "Unauthorized" };
     }
 
-    const email = session.user.email;
-    const user = await prisma.user.findUnique({ where: { email } });
-    
-    if (!user) {
-      return { error: "User not found" };
-    }
-
-    if (!user.passwordHash) {
-      return { error: "This account uses Google login. Password cannot be changed here." };
-    }
-
-    const isValid = await bcrypt.compare(oldPassword, user.passwordHash);
-    if (!isValid) {
-      return { error: "Incorrect current password." };
-    }
-
-    const passwordHash = await bcrypt.hash(newPassword, 10);
-
-    await prisma.user.update({
-      where: { email },
-      data: { passwordHash },
-    });
-
+    await authService.changePassword(session.user.id, oldPassword, newPassword);
     return { success: true };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Change password error:", error);
-    return { error: "Failed to change password." };
+    return { error: error.message || "Failed to change password." };
   }
 }
