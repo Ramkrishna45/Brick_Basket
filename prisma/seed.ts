@@ -331,11 +331,13 @@ async function main() {
           "Completed brick laying on the east wall of the ground floor. Mortar quality checked and approved. Window openings left as per design. Ready for lintel casting next week.",
         stage: "walls",
         completionPercentage: 42,
-        photos: JSON.stringify([
-          "/api/placeholder/800/600",
-          "/api/placeholder/800/600",
-          "/api/placeholder/800/600",
-        ]),
+        media: {
+          create: [
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+          ]
+        },
         date: "2026-06-14",
         time: "17:30",
       },
@@ -349,10 +351,12 @@ async function main() {
           "Started brick laying on south wall. Foundation alignment verified. Using Grade-A bricks as specified. 40% of south wall completed today.",
         stage: "walls",
         completionPercentage: 38,
-        photos: JSON.stringify([
-          "/api/placeholder/800/600",
-          "/api/placeholder/800/600",
-        ]),
+        media: {
+          create: [
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+          ]
+        },
         date: "2026-06-13",
         time: "18:00",
       },
@@ -366,7 +370,11 @@ async function main() {
           "Steel reinforcement bars cut and bent for lintel. Binding work started for ground floor lintels above windows and doors. TMT bars checked for quality certification.",
         stage: "walls",
         completionPercentage: 35,
-        photos: JSON.stringify(["/api/placeholder/800/600"]),
+        media: {
+          create: [
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id }
+          ]
+        },
         date: "2026-06-12",
         time: "16:45",
       },
@@ -380,12 +388,14 @@ async function main() {
           "Completed the north-facing wall of ground floor. Checked plumb line and horizontal levels — all within tolerance. Curing started.",
         stage: "walls",
         completionPercentage: 30,
-        photos: JSON.stringify([
-          "/api/placeholder/800/600",
-          "/api/placeholder/800/600",
-          "/api/placeholder/800/600",
-          "/api/placeholder/800/600",
-        ]),
+        media: {
+          create: [
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+          ]
+        },
         date: "2026-06-10",
         time: "17:15",
       },
@@ -399,10 +409,12 @@ async function main() {
           "All 16 columns for ground floor have been successfully cast. M25 grade concrete used. Vibrator compaction done. Curing schedule — 7 days water curing started.",
         stage: "columns",
         completionPercentage: 25,
-        photos: JSON.stringify([
-          "/api/placeholder/800/600",
-          "/api/placeholder/800/600",
-        ]),
+        media: {
+          create: [
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+            { url: "/api/placeholder/800/600", fileType: "image", uploadedById: engineer.id },
+          ]
+        },
         date: "2025-11-18",
         time: "16:00",
       },

@@ -22,8 +22,6 @@ model User {
   passwordHash String?
   role         String   @default("customer") // customer | engineer | admin | contractor
   avatar       String?
-  otpCode      String?
-  otpExpiry    DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -35,9 +33,19 @@ model User {
   assignedLeads    Lead[]           @relation("AssignedLeads")
   markedPayments   PaymentMilestone[] @relation("MarkedPayments")
   recordedTransactions PaymentTransaction[] @relation("RecordedTransactions")
+  uploadedMedia    Media[]
+  auditLogs        AuditLog[]
   
   accounts      Account[]
   sessions      Session[]
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
 }
 
 model Account {
@@ -101,6 +109,7 @@ model Project {
   documents           Document[]
   paymentTransactions PaymentTransaction[]
   payments            PaymentMilestone[]
+  media               Media[]
 }
 
 // ============================================
@@ -133,7 +142,6 @@ model ProgressUpdate {
   description          String
   stage                String
   completionPercentage Int      @default(0)
-  photos               String   @default("[]") // JSON array of photo URLs
   date                 String
   time                 String
   createdAt            DateTime @default(now())
@@ -142,6 +150,28 @@ model ProgressUpdate {
   project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   uploadedById String
   uploadedBy   User    @relation(fields: [uploadedById], references: [id])
+  media        Media[]
+}
+
+// ============================================
+// Media
+// ============================================
+
+model Media {
+  id               String   @id @default(cuid())
+  url              String
+  fileType         String
+  size             Int?     // bytes
+  createdAt        DateTime @default(now())
+
+  projectId        String?
+  project          Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  progressUpdateId String?
+  progressUpdate   ProgressUpdate? @relation(fields: [progressUpdateId], references: [id], onDelete: SetNull)
+
+  uploadedById     String
+  uploadedBy       User     @relation(fields: [uploadedById], references: [id])
 }
 
 // ============================================
@@ -173,6 +203,7 @@ model PaymentTransaction {
   amount        Float
   method        String   // upi|card|bank_transfer|cash|check
   transactionId String?
+  idempotencyKey String? @unique
   notes         String?
   date          DateTime @default(now())
 
@@ -246,4 +277,20 @@ model Notification {
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ============================================
+// Audit Log
+// ============================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  entityType String
+  entityId   String
+  userId     String
+  details    String?  @db.Text // JSON string
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id])
 }

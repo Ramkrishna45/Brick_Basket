@@ -207,7 +207,7 @@ export async function getProjectById(projectId: string) {
       progressUpdates: {
         orderBy: { createdAt: "desc" },
         take: 10,
-        include: { uploadedBy: { select: { id: true, name: true } } },
+        include: { uploadedBy: { select: { id: true, name: true } }, media: true },
       },
       documents: { orderBy: { createdAt: "desc" } },
       payments: { orderBy: { dueDate: "asc" } },
@@ -232,9 +232,10 @@ export async function getProjectById(projectId: string) {
       completedDate: m.completedDate?.toISOString() ?? null,
       createdAt: m.createdAt.toISOString(),
     })),
-    progressUpdates: project.progressUpdates.map((u) => ({
+    progressUpdates: project.progressUpdates.map((u: any) => ({
       ...u,
-      photos: JSON.parse(u.photos) as string[],
+      photos: u.media?.filter((m: any) => m.fileType === "image").map((m: any) => m.url) || [],
+      media: undefined,
       createdAt: u.createdAt.toISOString(),
     })),
     documents: project.documents.map((d) => ({

@@ -39,9 +39,19 @@ export async function signUp(data: { name: string; email: string; phone: string;
       phone: parsed.data.phone,
       passwordHash,
       role: "customer",
-      otpCode,
-      otpExpiry,
     },
+  });
+
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: email }
+  });
+
+  await prisma.verificationToken.create({
+    data: {
+      identifier: email,
+      token: otpCode,
+      expires: otpExpiry,
+    }
   });
 
   // Send Welcome & OTP Email
@@ -66,24 +76,22 @@ export async function signUp(data: { name: string; email: string; phone: string;
 
 export async function verifySignupOtp(emailRaw: string, otp: string) {
   const email = emailRaw.toLowerCase();
-  const user = await prisma.user.findUnique({ where: { email } });
+  
+  const token = await prisma.verificationToken.findFirst({
+    where: { identifier: email, token: otp },
+  });
 
-  if (!user || !user.otpCode || !user.otpExpiry) {
+  if (!token) {
     throw new Error("Invalid or expired OTP.");
   }
 
-  if (user.otpCode !== otp) {
-    throw new Error("Incorrect OTP.");
-  }
-
-  if (new Date() > user.otpExpiry) {
+  if (new Date() > token.expires) {
     throw new Error("OTP has expired. Please request a new one.");
   }
 
   // OTP is valid. Clear it out.
-  await prisma.user.update({
-    where: { email },
-    data: { otpCode: null, otpExpiry: null },
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: email },
   });
 
   return { verified: true };
@@ -104,9 +112,12 @@ export async function sendOtp(emailRaw: string) {
   // Expiry 10 minutes from now
   const otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
 
-  await prisma.user.update({
-    where: { email },
-    data: { otpCode, otpExpiry },
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: email }
+  });
+
+  await prisma.verificationToken.create({
+    data: { identifier: email, token: otpCode, expires: otpExpiry },
   });
 
   const html = `
@@ -131,26 +142,21 @@ export async function sendOtp(emailRaw: string) {
 
 export async function verifyOtp(emailRaw: string, otp: string) {
   const email = emailRaw.toLowerCase();
-  const user = await prisma.user.findUnique({ where: { email } });
+  
+  const token = await prisma.verificationToken.findFirst({
+    where: { identifier: email, token: otp },
+  });
 
-  if (!user || !user.otpCode || !user.otpExpiry) {
+  if (!token) {
     throw new Error("Invalid or expired OTP.");
   }
 
-  if (user.otpCode !== otp) {
-    throw new Error("Incorrect OTP.");
-  }
-
-  if (new Date() > user.otpExpiry) {
+  if (new Date() > token.expires) {
     throw new Error("OTP has expired. Please request a new one.");
   }
 
-  // OTP is valid. Clear it out immediately to prevent reuse (race condition fix)
-  await prisma.user.update({
-    where: { email },
-    data: { otpCode: null, otpExpiry: null },
-  });
-
+  // OTP is valid. For the reset flow we return success.
+  // The next step is resetting the password.
   return { verified: true };
 }
 
@@ -167,9 +173,12 @@ export async function resetPassword(emailRaw: string, otp: string, newPassword: 
     where: { email },
     data: {
       passwordHash,
-      otpCode: null, // Clear OTP after successful reset
-      otpExpiry: null,
     },
+  });
+
+  // Clear OTP after successful reset
+  await prisma.verificationToken.deleteMany({
+    where: { identifier: email },
   });
 
   return { reset: true };
@@ -214,7 +223,7 @@ export async function loginWithCredentials(email: string, password: string) {
   }
 
   if (!user.passwordHash) {
-    throw new Error("Invalid email or password.");
+    throw new Error("This account uses Google login. Please use Google Sign-In.");
   }
 
   const isValid = await bcrypt.compare(password, user.passwordHash);

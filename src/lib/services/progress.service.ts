@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { z } from "zod";
 
-// ── Zod Schema ──────────────────────────────────────────────────────
+// ── Zod Schema ────────────────────────────────────────────────────────
 
 const createProgressSchema = z.object({
   title: z.string().min(2),
@@ -12,7 +12,7 @@ const createProgressSchema = z.object({
   projectId: z.string().min(1),
 });
 
-// ── Get Progress Updates ────────────────────────────────────────────
+// ── Get Progress Updates ──────────────────────────────────────────────
 
 export async function getProgressUpdates(projectId: string, stage?: string) {
   const where: Record<string, unknown> = { projectId };
@@ -24,18 +24,23 @@ export async function getProgressUpdates(projectId: string, stage?: string) {
     where,
     include: {
       uploadedBy: { select: { id: true, name: true } },
+      media: true,
     },
     orderBy: { createdAt: "desc" },
   });
 
-  return updates.map((u) => ({
-    ...u,
-    photos: JSON.parse(u.photos) as string[],
-    createdAt: u.createdAt.toISOString(),
-  }));
+  return updates.map((u) => {
+    const photos = u.media?.filter(m => m.fileType === "image").map(m => m.url) || [];
+    return {
+      ...u,
+      photos,
+      createdAt: u.createdAt.toISOString(),
+      media: undefined
+    };
+  });
 }
 
-// ── Create Progress Update ──────────────────────────────────────────
+// ── Create Progress Update ────────────────────────────────────────────
 // Unified from progress.ts and staff-projects.ts variants.
 // Both create a ProgressUpdate and sync the project's currentStage
 // and completionPercentage.
@@ -76,11 +81,18 @@ export async function createProgressUpdate(
       description: parsed.data.description,
       stage: parsed.data.stage,
       completionPercentage: parsed.data.completionPercentage,
-      photos: JSON.stringify(parsed.data.photos ?? []),
       date: dateStr,
       time: timeStr,
       projectId: parsed.data.projectId,
       uploadedById: userId,
+      media: {
+        create: (parsed.data.photos ?? []).map((url) => ({
+          url,
+          fileType: "image",
+          uploadedById: userId,
+          projectId: parsed.data.projectId,
+        }))
+      }
     },
   });
 
