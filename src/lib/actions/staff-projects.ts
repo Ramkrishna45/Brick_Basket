@@ -3,6 +3,7 @@
 import { auth } from "@/lib/auth";
 import * as projectService from "@/lib/services/project.service";
 import * as progressService from "@/lib/services/progress.service";
+import { checkProjectAccess } from "@/lib/rbac";
 
 export async function getStaffAssignedProjectsAction() {
   try {
@@ -34,6 +35,14 @@ export async function createProgressUpdateAction(data: {
     const session = await auth();
     if (!session || !session.user?.id) return { error: "Unauthorized" };
 
+    const project = await projectService.getProjectById(data.projectId);
+    if (!project) return { error: "Project not found" };
+
+    const access = checkProjectAccess(session.user.id, (session.user as any).role, project);
+    if (!access.authorized || (session.user as any).role === "customer") {
+      return { error: "Forbidden: You are not authorized to update this project" };
+    }
+
     const result = await progressService.createProgressUpdate(
       {
         projectId: data.projectId,
@@ -43,8 +52,7 @@ export async function createProgressUpdateAction(data: {
         completionPercentage: data.completionPercentage,
         photos: data.images,
       },
-      session.user.id,
-      (session.user as any).role || ""
+      session.user.id
     );
 
     return { success: true, data: result };

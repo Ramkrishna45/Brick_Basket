@@ -1,14 +1,12 @@
 import { prisma } from "@/lib/db";
 import { z } from "zod";
-import { auditLog } from "@/lib/audit";
-
-const CONSTRUCTION_STAGES = ["planning", "foundation", "columns", "walls", "slab", "plumbing", "electrical", "finishing", "handover"] as const;
 
 const createProgressSchema = z.object({
   projectId: z.string(),
-  stage: z.enum(CONSTRUCTION_STAGES),
+  title: z.string().optional().default("Update"),
+  description: z.string().optional().default(""),
+  stage: z.string(),
   completionPercentage: z.number().min(0).max(100),
-  notes: z.string().optional(),
   photos: z.array(z.string()).optional(),
   reason: z.string().optional(), // For backward progress
 });
@@ -19,7 +17,7 @@ export async function getProjectProgress(projectId: string) {
     orderBy: { createdAt: "desc" },
     include: {
       media: true,
-      postedBy: { select: { name: true, role: true } },
+      uploadedBy: { select: { name: true, role: true } },
     }
   });
 }
@@ -30,7 +28,7 @@ export async function createProgressUpdate(data: any, userId: string) {
     throw new Error("Invalid progress data");
   }
 
-  const { projectId, stage, completionPercentage, notes, photos, reason } = parsed.data;
+  const { projectId, title, description, stage, completionPercentage, photos, reason } = parsed.data;
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -45,13 +43,21 @@ export async function createProgressUpdate(data: any, userId: string) {
 
   // Create the progress update in a transaction
   return await prisma.$transaction(async (tx) => {
+    // Generate simple date/time strings for the required fields
+    const now = new Date();
+    const dateStr = now.toISOString().split("T")[0];
+    const timeStr = now.toISOString().split("T")[1].substring(0, 5);
+
     const update = await tx.progressUpdate.create({
       data: {
         projectId,
+        title,
+        description,
         stage,
         completionPercentage,
-        notes,
-        postedById: userId,
+        date: dateStr,
+        time: timeStr,
+        uploadedById: userId,
       },
     });
 
@@ -62,43 +68,33 @@ export async function createProgressUpdate(data: any, userId: string) {
           entityType: "ProgressUpdate",
           entityId: update.id,
           projectId,
-          uploadedBy: userId,
+          fileType: "image",
+          uploadedById: userId,
         })),
       });
     }
 
-    // Sync project master data
+    // Update project overall completion
     await tx.project.update({
       where: { id: projectId },
-      data: {
-        currentStage: stage,
-        completionPercentage,
-      },
+      data: { completionPercentage },
     });
 
-    // Audit log if there was a regression
-    if (completionPercentage < project.completionPercentage) {
-      // Create a mock audit log function or just insert if AuditLog exists
-      // Assuming AuditLog model exists based on the master plan.
-      try {
-        await tx.auditLog.create({
-          data: {
-            userId,
-            action: "PROGRESS_REGRESSION",
-            entityType: "Project",
-            entityId: projectId,
-            details: JSON.stringify({ 
-              old: project.completionPercentage, 
-              new: completionPercentage, 
-              reason 
-            })
-          }
-        });
-      } catch (e) {
-        // Fallback if AuditLog isn't migrated yet
-        console.warn("AuditLog failed. Model might not exist yet.", e);
+    // Record audit log for project timeline/financial audit trail
+    await tx.auditLog.create({
+      data: {
+        action: "PROGRESS_UPDATE",
+        details: JSON.stringify({
+          message: `Project progress updated to ${completionPercentage}% (Stage: ${stage})`,
+          previousPercentage: project.completionPercentage,
+          newPercentage: completionPercentage,
+          reason: reason || "Normal progression",
+        }),
+        userId: userId,
+        entityType: "Project",
+        entityId: projectId,
       }
-    }
+    });
 
     return update;
   });

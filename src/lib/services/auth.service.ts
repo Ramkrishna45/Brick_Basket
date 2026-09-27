@@ -6,7 +6,7 @@ import { randomInt } from "crypto";
 import jwt from "jsonwebtoken";
 
 // --- Escape HTML for emails ---
-function escapeHtml(str) {
+function escapeHtml(str: string) {
   if (!str) return '';
   return str
     .replace(/&/g, "&amp;")

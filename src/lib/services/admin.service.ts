@@ -76,7 +76,7 @@ export async function getDashboardStats() {
 
   const recentTransactions = await prisma.paymentTransaction.findMany({
     take: 5,
-    orderBy: { createdAt: "desc" },
+    orderBy: { date: "desc" },
     include: {
       project: { select: { clientName: true } }
     }
