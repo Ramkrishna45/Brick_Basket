@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'images.unsplash.com' },
+    ],
+  },
+
   async headers() {
     return [
       {
@@ -54,7 +60,7 @@ const nextConfig: NextConfig = {
               // Allow fonts from Google and self
               "font-src 'self' https://fonts.gstatic.com",
               // Allow images from self, data URIs, and Supabase storage
-              "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in",
+              "img-src 'self' data: blob: https://*.supabase.co https://*.supabase.in https://images.unsplash.com",
               // Allow connections to self and Supabase
               "connect-src 'self' https://*.supabase.co https://*.supabase.in",
               // Allow frames from self only
