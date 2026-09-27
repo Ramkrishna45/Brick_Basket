@@ -15,12 +15,13 @@ import {
   createProgressUpdate,
 } from "@/lib/services/progress.service";
 import { getProjectById } from "@/lib/services/project.service";
+import { checkProjectAccess } from "@/lib/rbac";
 
 export async function OPTIONS(req: Request) {
   return handleCors(req);
 }
 
-// GET /api/projects/[id]/progress?stage=xxx — Get progress updates
+// GET /api/projects/[id]/progress?stage=xxx
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -52,7 +53,7 @@ export async function GET(
   }
 }
 
-// POST /api/projects/[id]/progress — Create a progress update
+// POST /api/projects/[id]/progress
 export async function POST(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -62,19 +63,28 @@ export async function POST(
     if (!user) return withCors(unauthorized(), req);
 
     const { id } = await params;
-    const body = await req.json();
 
-    // Inject projectId from the URL path
+    // RBAC + IDOR fix
+    const project = await getProjectById(id);
+    if (!project) return withCors(notFound('Project not found'), req);
+    
+    // Only admins and assigned staff can create progress updates
+    const access = checkProjectAccess(user.id, user.role, project);
+    if (!access.authorized || user.role === 'customer') {
+      return withCors(forbidden("You are not authorized to update this project"), req);
+    }
+
+    const body = await req.json();
     const payload = { ...body, projectId: id };
 
-    const data = await createProgressUpdate(payload, user.id, user.role);
+    // Removed the 3rd argument to match the updated service signature
+    const data = await createProgressUpdate(payload, user.id);
     return withCors(created(data), req);
   } catch (error) {
     const message = (error as Error).message;
     if (message.startsWith("Forbidden")) return withCors(forbidden(message), req);
     if (message === "Invalid data") return withCors(badRequest(message), req);
-    if (message === "Project not found")
-      return withCors(badRequest("Project not found"), req);
+    if (message === "Project not found") return withCors(badRequest("Project not found"), req);
     return withCors(serverError(message), req);
   }
 }
