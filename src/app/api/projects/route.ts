@@ -24,7 +24,7 @@ export async function GET(req: Request) {
 
     const { searchParams } = new URL(req.url);
     const pageStr = searchParams.get('page');
-    if (pageStr, req) {
+    if (pageStr !== null) {
       const page = parseInt(pageStr, 10) || 1;
       const limit = parseInt(searchParams.get('limit') || '20', 10);
       const data = await getAllProjects(page, limit);
