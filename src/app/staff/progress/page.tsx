@@ -73,18 +73,26 @@ export default function StaffProgressUploadPage() {
           return;
         }
 
-        const formData = new FormData();
-        formData.append("file", imageFile);
-        const uploadRes = await uploadFileAction(formData);
-        
-        if (uploadRes.error) {
-          toast.error(uploadRes.error);
+        const urlRes = await uploadFileAction(imageFile.name, imageFile.type);
+        if (!urlRes.success || !urlRes.data) {
+          toast.error(urlRes.error || "Failed to secure upload URL");
           setIsSubmitting(false);
           return;
         }
-        if (uploadRes.url) {
-          imageUrl = uploadRes.url;
+        
+        const putRes = await fetch(urlRes.data.signedUrl, {
+          method: 'PUT',
+          headers: { 'Content-Type': imageFile.type },
+          body: imageFile
+        });
+        
+        if (!putRes.ok) {
+          toast.error("Failed to upload file to storage");
+          setIsSubmitting(false);
+          return;
         }
+        
+        imageUrl = urlRes.data.publicUrl;
       }
 
       const res = await createProgressUpdateAction({
