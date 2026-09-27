@@ -49,20 +49,26 @@ export default function UploadsPage() {
           toast.error(`File ${file.name} is too large. Must be under 4.5MB.`);
           continue;
         }
-        const formData = new FormData();
-        formData.append("file", file);
-        const uploadRes = await uploadFileAction(formData);
-        if (uploadRes.success && uploadRes.url) {
-          uploadedUrls.push(uploadRes.url);
+        const urlRes = await uploadFileAction(file.name, file.type);
+        if (urlRes.success && urlRes.data) {
+          const putRes = await fetch(urlRes.data.signedUrl, {
+            method: 'PUT',
+            headers: { 'Content-Type': file.type },
+            body: file
+          });
+          if (putRes.ok) {
+            uploadedUrls.push(urlRes.data.publicUrl);
+          } else {
+            toast.error(`Failed to upload ${file.name} to storage.`);
+          }
         } else {
-          toast.error(`Failed to upload ${file.name}: ${uploadRes.error || 'Unknown error'}`);
+          toast.error(`Failed to secure upload URL for ${file.name}: ${urlRes.error || 'Unknown error'}`);
         }
       }
 
       const res = await createProgressUpdateAction({
         projectId: data.project,
-        title: data.title,
-        description: data.description,
+        notes: data.title + " - " + data.description,
         stage: data.stage,
         completionPercentage: completionPercentage[0],
         photos: uploadedUrls,

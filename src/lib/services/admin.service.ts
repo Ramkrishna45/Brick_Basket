@@ -1,204 +1,115 @@
 import { prisma } from "@/lib/db";
 
-// ── Admin: Get Dashboard Stats ──────────────────────────────────────
-
-export async function getAdminStats(userRole: string) {
-  if (userRole !== "admin") throw new Error("Forbidden");
-
-  // Run all aggregate queries in parallel
+export async function getDashboardStats() {
   const [
     totalUsers,
     totalProjects,
-    activeProjects,
-    completedProjects,
-    onHoldProjects,
     totalLeads,
-    newLeads,
-    contactedLeads,
-    convertedLeads,
-    payments,
-    todayUpdates,
-    recentLeads,
-    recentTransactions,
-    recentUpdates,
-    recentDocs,
+    totalRevenue,
+    activeProjects,
+    pendingLeads,
   ] = await Promise.all([
     prisma.user.count(),
     prisma.project.count(),
-    prisma.project.count({ where: { status: "in_progress" } }),
-    prisma.project.count({ where: { status: "completed" } }),
-    prisma.project.count({ where: { status: "on_hold" } }),
     prisma.lead.count(),
-    prisma.lead.count({ where: { status: "new" } }),
-    prisma.lead.count({ where: { status: "contacted" } }),
-    prisma.lead.count({ where: { status: "converted" } }),
-    prisma.paymentMilestone.findMany({
-      select: { amount: true, status: true },
+    prisma.paymentTransaction.aggregate({
+      _sum: { amount: true },
+    }).then(res => res._sum.amount || 0),
+    prisma.project.count({
+      where: { status: "in_progress" },
     }),
-    prisma.progressUpdate.count({
-      where: {
-        createdAt: {
-          gte: new Date(new Date().setHours(0, 0, 0, 0)),
-        },
-      },
+    prisma.lead.count({
+      where: { status: "new" },
     }),
-    prisma.lead.findMany({ orderBy: { createdAt: "desc" }, take: 100 }),
-    prisma.paymentTransaction.findMany({ orderBy: { date: "desc" }, take: 100, include: { project: { select: { name: true } } } }),
-    prisma.progressUpdate.findMany({ orderBy: { createdAt: "desc" }, take: 10, include: { project: { select: { name: true } } } }),
-    prisma.document.findMany({ orderBy: { createdAt: "desc" }, take: 10, include: { project: { select: { name: true } } } }),
   ]);
 
-  const totalRevenue = payments
-    .filter((p) => p.status === "paid")
-    .reduce((sum, p) => sum + p.amount, 0);
-  const pendingPayments = payments
-    .filter((p) => p.status === "pending" || p.status === "overdue")
-    .reduce((sum, p) => sum + p.amount, 0);
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  sixMonthsAgo.setDate(1);
+  sixMonthsAgo.setHours(0,0,0,0);
 
-  // ── Generate Last 6 Months Labels ──
-  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const monthlyEnquiriesMap = new Map<string, number>();
-  const revenueByMonthMap = new Map<string, number>();
+  // Grouping by raw SQL for exact monthly buckets
+  const leadsRaw = await prisma.$queryRaw<{ month: Date, count: number }[]>`
+    SELECT DATE_TRUNC('month', "createdAt") as month, COUNT(*)::int as count
+    FROM "Lead"
+    WHERE "createdAt" >= ${sixMonthsAgo}
+    GROUP BY month
+    ORDER BY month
+  `;
 
-  for (let i = 5; i >= 0; i--) {
-    const d = new Date();
-    d.setMonth(d.getMonth() - i);
-    const m = monthNames[d.getMonth()];
-    monthlyEnquiriesMap.set(m, 0);
-    revenueByMonthMap.set(m, 0);
+  const revenueRaw = await prisma.$queryRaw<{ month: Date, revenue: number }[]>`
+    SELECT DATE_TRUNC('month', "createdAt") as month, SUM("amount")::float as revenue
+    FROM "PaymentTransaction"
+    WHERE "createdAt" >= ${sixMonthsAgo}
+    GROUP BY month
+    ORDER BY month
+  `;
+
+  // Backfill gaps (0 count/revenue)
+  const monthlyLeads = [];
+  const monthlyRevenue = [];
+  
+  for (let i = 0; i <= 6; i++) {
+    const d = new Date(sixMonthsAgo);
+    d.setMonth(d.getMonth() + i);
+    const monthName = d.toLocaleString('default', { month: 'short' });
+    
+    // Find matching lead data
+    const leadMatch = leadsRaw.find(r => r.month.getTime() === d.getTime());
+    monthlyLeads.push({
+      month: monthName,
+      count: leadMatch ? Number(leadMatch.count) : 0
+    });
+
+    // Find matching revenue data
+    const revMatch = revenueRaw.find(r => r.month.getTime() === d.getTime());
+    monthlyRevenue.push({
+      month: monthName,
+      revenue: revMatch ? Number(revMatch.revenue) : 0
+    });
   }
 
-  // ── Calculate Monthly Enquiries ──
-  recentLeads.forEach(lead => {
-    const m = monthNames[lead.createdAt.getMonth()];
-    if (monthlyEnquiriesMap.has(m)) {
-      monthlyEnquiriesMap.set(m, monthlyEnquiriesMap.get(m)! + 1);
+  const recentLeads = await prisma.lead.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+  });
+
+  const recentTransactions = await prisma.paymentTransaction.findMany({
+    take: 5,
+    orderBy: { createdAt: "desc" },
+    include: {
+      project: { select: { clientName: true } }
     }
   });
 
-  // ── Calculate Monthly Revenue ──
-  recentTransactions.forEach(tx => {
-    const m = monthNames[tx.date.getMonth()];
-    if (revenueByMonthMap.has(m)) {
-      revenueByMonthMap.set(m, revenueByMonthMap.get(m)! + tx.amount);
-    }
+  const projectsByStatus = await prisma.project.groupBy({
+    by: ['status'],
+    _count: true,
   });
 
-  const monthlyEnquiries = Array.from(monthlyEnquiriesMap, ([month, count]) => ({ month, count }));
-  const revenueByMonth = Array.from(revenueByMonthMap, ([month, amount]) => ({ month, amount }));
-
-  // ── Compile Recent Activity ──
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let activities: any[] = [];
-
-  recentLeads.slice(0, 5).forEach(l => {
-    activities.push({
-      action: "New enquiry received",
-      project: `${l.name}${l.city ? ', ' + l.city : ''}`,
-      dateObj: l.createdAt,
-      color: "bg-blue-500"
-    });
-  });
-
-  recentTransactions.slice(0, 5).forEach(t => {
-    activities.push({
-      action: "Payment received",
-      project: `${t.project?.name || 'Unknown'} — ₹${t.amount.toLocaleString('en-IN')}`,
-      dateObj: t.date,
-      color: "bg-emerald-500"
-    });
-  });
-
-  recentUpdates.slice(0, 5).forEach(u => {
-    activities.push({
-      action: "Progress update uploaded",
-      project: `${u.project?.name || 'Unknown'} → ${u.stage}`,
-      dateObj: u.createdAt,
-      color: "bg-amber-500"
-    });
-  });
-
-  recentDocs.slice(0, 5).forEach(d => {
-    activities.push({
-      action: "Document uploaded",
-      project: `${d.project?.name || 'Unknown'} — ${d.name}`,
-      dateObj: d.createdAt,
-      color: "bg-orange-500"
-    });
-  });
-
-  activities.sort((a, b) => b.dateObj.getTime() - a.dateObj.getTime());
-  const recentActivity = activities.slice(0, 10).map(a => {
-    const diffMs = Date.now() - a.dateObj.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMins / 60);
-    const diffDays = Math.floor(diffHours / 24);
-
-    let timeStr = "";
-    if (diffMins < 60) timeStr = `${diffMins}m ago`;
-    else if (diffHours < 24) timeStr = `${diffHours}h ago`;
-    else timeStr = `${diffDays}d ago`;
-
-    return {
-      action: a.action,
-      project: a.project,
-      time: timeStr,
-      color: a.color
-    };
-  });
+  const formattedProjectsByStatus = projectsByStatus.map(item => ({
+    name: item.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+    value: item._count
+  }));
 
   return {
-    users: {
-      total: totalUsers,
-    },
-    projects: {
-      total: totalProjects,
-      active: activeProjects,
-      completed: completedProjects,
-      onHold: onHoldProjects,
-    },
-    leads: {
-      total: totalLeads,
-      new: newLeads,
-      contacted: contactedLeads,
-      converted: convertedLeads,
-    },
-    financials: {
-      totalRevenue,
-      pendingPayments,
-    },
-    todayUpdates,
-    monthlyEnquiries,
-    revenueByMonth,
-    recentActivity,
+    totalUsers,
+    totalProjects,
+    totalLeads,
+    totalRevenue,
+    activeProjects,
+    pendingLeads,
+    monthlyLeads,
+    monthlyRevenue,
+    recentLeads,
+    recentTransactions,
+    projectsByStatus: formattedProjectsByStatus,
   };
 }
 
-// ── Admin: Get Staff (engineers + contractors) ──────────────────────
-
-export async function getStaffList(userRole: string) {
-  if (userRole !== "admin") throw new Error("Forbidden");
-
-  const staff = await prisma.user.findMany({
-    where: {
-      OR: [{ role: "engineer" }, { role: "contractor" }],
-    },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      phone: true,
-      role: true,
-      avatar: true,
-      createdAt: true,
-    },
-    orderBy: { name: "asc" },
+export async function getStaffList() {
+  return await prisma.user.findMany({
+    where: { role: { in: ['admin', 'engineer', 'contractor'] } },
+    select: { id: true, name: true, role: true, email: true, phone: true }
   });
-
-  const data = staff.map((s) => ({
-    ...s,
-    createdAt: s.createdAt.toISOString(),
-  }));
-
-  return data;
 }

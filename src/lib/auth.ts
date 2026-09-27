@@ -13,7 +13,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true,
+      
     }),
     Credentials({
       name: "credentials",
@@ -35,6 +35,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const isValid = await bcrypt.compare(password, user.passwordHash);
         if (!isValid) return null;
+
+        if (!user.emailVerified) {
+          throw new Error('Please verify your email before logging in.');
+        }
 
         return {
           id: user.id,

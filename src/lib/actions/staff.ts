@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { requireRole } from "@/lib/rbac";
 import * as staffService from "@/lib/services/staff.service";
 
 export async function getAllStaffAction() {

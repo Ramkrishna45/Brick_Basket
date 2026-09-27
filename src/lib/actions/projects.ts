@@ -2,6 +2,7 @@
 
 import { auth } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { requireRole, checkProjectAccess } from "@/lib/rbac";
 import * as projectService from "@/lib/services/project.service";
 
 export async function getMyProjectAction() {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { AppError } from "@/lib/errors";
 
 /**
  * Standard API response helpers for Route Handlers.
@@ -93,4 +94,12 @@ export function withCors(response: NextResponse, request?: Request) {
     response.headers.set(key, value);
   });
   return response;
+}
+
+export function safeServerError(error: unknown) {
+  console.error("[API Error]", error instanceof Error ? error.message : "Unknown error", error instanceof Error ? error.stack : "");
+  if (error instanceof AppError && error.isOperational) {
+    return NextResponse.json({ error: error.message }, { status: error.statusCode });
+  }
+  return NextResponse.json({ error: "An unexpected error occurred. Please try again." }, { status: 500 });
 }

@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { useCurrentUser } from "@/lib/auth-client";
-import { getAdminStatsAction } from "@/lib/actions/admin";
+import { getDashboardStatsAction } from "@/lib/actions/admin";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   AreaChart, Area, PieChart, Pie, Cell, Legend,
@@ -31,7 +31,7 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await getAdminStatsAction();
+      const res = await getDashboardStatsAction();
       if (res.success) setStats(res.data);
       setLoading(false);
     }

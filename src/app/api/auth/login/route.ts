@@ -2,8 +2,8 @@ import { loginWithCredentials } from "@/lib/services/auth.service";
 import { generateApiToken } from "@/lib/api-auth";
 import { success, badRequest, unauthorized, serverError, withCors, handleCors } from "@/lib/api-utils";
 
-export async function OPTIONS() {
-  return handleCors();
+export async function OPTIONS(req: Request) {
+  return handleCors(req);
 }
 
 export async function POST(req: Request) {

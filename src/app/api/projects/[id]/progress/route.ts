@@ -11,7 +11,7 @@ import {
   handleCors,
 } from "@/lib/api-utils";
 import {
-  getProgressUpdates,
+  getProjectProgress,
   createProgressUpdate,
 } from "@/lib/services/progress.service";
 import { getProjectById } from "@/lib/services/project.service";
@@ -45,7 +45,7 @@ export async function GET(
     const { searchParams } = new URL(req.url);
     const stage = searchParams.get("stage") ?? undefined;
 
-    const data = await getProgressUpdates(id, stage);
+    const data = await getProjectProgress(id);
     return withCors(success(data), req);
   } catch (error) {
     return withCors(serverError((error as Error).message), req);

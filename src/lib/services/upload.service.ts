@@ -1,44 +1,40 @@
 import { createClient } from "@supabase/supabase-js";
 
-// ── Upload File to Supabase Storage ─────────────────────────────────
-
-export async function uploadFile(file: File): Promise<string> {
-  if (!file) throw new Error("No file provided");
-
+export async function getPresignedUploadUrl(fileName: string, contentType: string) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // MUST use Service Role Key to bypass RLS for secure uploads
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !supabaseKey) {
+  if (!supabaseUrl || !supabaseServiceKey) {
     throw new Error(
-      "Supabase storage is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY to your environment variables."
+      "Missing SUPABASE_SERVICE_ROLE_KEY. You must add it to your .env file to generate secure upload URLs."
     );
   }
 
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-  const bytes = await file.arrayBuffer();
-  const buffer = Buffer.from(bytes);
-
-  // Create unique filename
   const timestamp = Date.now();
-  const cleanFileName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "");
-  const filename = `${timestamp}-${cleanFileName}`;
+  const cleanFileName = fileName.replace(/[^a-zA-Z0-9.\-_]/g, "");
+  const uniqueName = `${timestamp}-${cleanFileName}`;
 
-  const { error } = await supabase.storage
+  const { data, error } = await supabase.storage
     .from("uploads")
-    .upload(filename, buffer, {
-      contentType: file.type,
-      upsert: false,
-    });
+    .createSignedUploadUrl(uniqueName);
 
-  if (error) {
-    console.error("Supabase storage error:", error);
-    throw new Error(`Supabase Storage Error: ${error.message}`);
+  if (error || !data) {
+    console.error("Supabase signed URL error:", error);
+    throw new Error("Failed to generate secure upload URL");
   }
 
+  // Also pre-compute the future public URL so the client knows where it will live
   const {
     data: { publicUrl },
-  } = supabase.storage.from("uploads").getPublicUrl(filename);
+  } = supabase.storage.from("uploads").getPublicUrl(uniqueName);
 
-  return publicUrl;
+  return {
+    signedUrl: data.signedUrl,
+    token: data.token, // Some clients need the token separately
+    path: data.path,
+    publicUrl,
+  };
 }

@@ -3,22 +3,17 @@
 import { auth } from "@/lib/auth";
 import * as uploadService from "@/lib/services/upload.service";
 
-export async function uploadFileAction(formData: FormData) {
+export async function uploadFileAction(fileName: string, contentType: string) {
   try {
     const session = await auth();
     if (!session) {
       return { error: "Unauthorized" };
     }
 
-    const file = formData.get("file") as File;
-    if (!file) {
-      return { error: "No file provided" };
-    }
-
-    const url = await uploadService.uploadFile(file);
-    return { success: true, url };
+    const data = await uploadService.getPresignedUploadUrl(fileName, contentType);
+    return { success: true, data };
   } catch (error: any) {
-    console.error("Upload error:", error);
-    return { error: error.message || "Failed to upload file to cloud storage" };
+    console.error("Upload URL generation error:", error);
+    return { error: error.message || "Failed to generate upload URL" };
   }
 }

@@ -2,11 +2,17 @@
 
 import { auth } from "@/lib/auth";
 import * as paymentService from "@/lib/services/payment.service";
+import { getProjectById } from "@/lib/services/project.service";
+import { requireRole, checkProjectAccess } from "@/lib/rbac";
 
 export async function getPaymentMilestonesAction(projectId: string) {
   try {
-    const session = await auth();
-    if (!session) return { error: "Unauthorized" };
+    const { authorized, user, error } = await requireRole(["admin", "engineer", "contractor", "customer"]);
+    if (!authorized) return { error };
+
+    const project = await getProjectById(projectId);
+    const access = checkProjectAccess(user.id, (user as any).role, project);
+    if (!access.authorized) return { error: access.error };
 
     const data = await paymentService.getPaymentMilestones(projectId);
     return { success: true, data };
@@ -17,8 +23,12 @@ export async function getPaymentMilestonesAction(projectId: string) {
 
 export async function getPaymentTransactionsAction(projectId: string) {
   try {
-    const session = await auth();
-    if (!session) return { error: "Unauthorized" };
+    const { authorized, user, error } = await requireRole(["admin", "engineer", "contractor", "customer"]);
+    if (!authorized) return { error };
+
+    const project = await getProjectById(projectId);
+    const access = checkProjectAccess(user.id, (user as any).role, project);
+    if (!access.authorized) return { error: access.error };
 
     const data = await paymentService.getPaymentTransactions(projectId);
     return { success: true, data };
@@ -29,8 +39,12 @@ export async function getPaymentTransactionsAction(projectId: string) {
 
 export async function getPaymentSummaryAction(projectId: string) {
   try {
-    const session = await auth();
-    if (!session) return { error: "Unauthorized" };
+    const { authorized, user, error } = await requireRole(["admin", "engineer", "contractor", "customer"]);
+    if (!authorized) return { error };
+
+    const project = await getProjectById(projectId);
+    const access = checkProjectAccess(user.id, (user as any).role, project);
+    if (!access.authorized) return { error: access.error };
 
     const data = await paymentService.getPaymentSummary(projectId);
     return { success: true, data };
@@ -47,17 +61,16 @@ export async function recordProjectPaymentAction(data: {
   notes?: string;
 }) {
   try {
-    const session = await auth();
-    if (!session) return { error: "Unauthorized" };
-    
-    const userRole = (session.user as any).role;
-    if (userRole !== "admin" && userRole !== "engineer" && userRole !== "contractor") {
-      return { error: "Forbidden" };
-    }
+    const { authorized, user, error } = await requireRole(["admin", "engineer", "contractor"]);
+    if (!authorized) return { error };
 
-    const userId = (session.user as any).id;
-    const result = await paymentService.recordPayment(data, userId);
+    if (!data.amount || data.amount <= 0) return { error: "Amount must be positive" };
 
+    const project = await getProjectById(data.projectId);
+    const access = checkProjectAccess(user.id, (user as any).role, project);
+    if (!access.authorized) return { error: access.error };
+
+    const result = await paymentService.recordPayment(data, user.id);
     return { success: true, data: result };
   } catch (error: any) {
     console.error("Failed to record project payment:", error);

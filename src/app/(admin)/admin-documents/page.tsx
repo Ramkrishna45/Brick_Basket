@@ -73,15 +73,23 @@ export default function AdminDocumentsPage() {
     setIsUploading(true);
     
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      
-      const uploadRes = await uploadFileAction(formData);
-      if (uploadRes.error) {
-        toast.error(uploadRes.error);
+      const urlRes = await uploadFileAction(file.name, file.type);
+      if (!urlRes.success || !urlRes.data) {
+        toast.error(urlRes.error || "Failed to secure upload URL");
         setIsUploading(false);
         return;
       }
+      const putRes = await fetch(urlRes.data.signedUrl, {
+        method: 'PUT',
+        headers: { 'Content-Type': file.type },
+        body: file
+      });
+      if (!putRes.ok) {
+        toast.error("Failed to upload file to storage");
+        setIsUploading(false);
+        return;
+      }
+      const uploadRes = { error: null, url: urlRes.data.publicUrl };
 
       if (uploadRes.url) {
         const docRes = await uploadDocumentAction({

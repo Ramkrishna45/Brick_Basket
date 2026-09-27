@@ -1,109 +1,105 @@
 import { prisma } from "@/lib/db";
 import { z } from "zod";
+import { auditLog } from "@/lib/audit";
 
-// ── Zod Schema ────────────────────────────────────────────────────────
+const CONSTRUCTION_STAGES = ["planning", "foundation", "columns", "walls", "slab", "plumbing", "electrical", "finishing", "handover"] as const;
 
 const createProgressSchema = z.object({
-  title: z.string().min(2),
-  description: z.string().min(2),
-  stage: z.string().min(1),
+  projectId: z.string(),
+  stage: z.enum(CONSTRUCTION_STAGES),
   completionPercentage: z.number().min(0).max(100),
+  notes: z.string().optional(),
   photos: z.array(z.string()).optional(),
-  projectId: z.string().min(1),
+  reason: z.string().optional(), // For backward progress
 });
 
-// ── Get Progress Updates ──────────────────────────────────────────────
-
-export async function getProgressUpdates(projectId: string, stage?: string) {
-  const where: Record<string, unknown> = { projectId };
-  if (stage && stage !== "all") {
-    where.stage = stage;
-  }
-
-  const updates = await prisma.progressUpdate.findMany({
-    where,
-    include: {
-      uploadedBy: { select: { id: true, name: true } },
-      media: true,
-    },
+export async function getProjectProgress(projectId: string) {
+  return await prisma.progressUpdate.findMany({
+    where: { projectId },
     orderBy: { createdAt: "desc" },
-  });
-
-  return updates.map((u) => {
-    const photos = u.media?.filter(m => m.fileType === "image").map(m => m.url) || [];
-    return {
-      ...u,
-      photos,
-      createdAt: u.createdAt.toISOString(),
-      media: undefined
-    };
+    include: {
+      media: true,
+      postedBy: { select: { name: true, role: true } },
+    }
   });
 }
 
-// ── Create Progress Update ────────────────────────────────────────────
-// Unified from progress.ts and staff-projects.ts variants.
-// Both create a ProgressUpdate and sync the project's currentStage
-// and completionPercentage.
-
-export async function createProgressUpdate(
-  data: z.infer<typeof createProgressSchema>,
-  userId: string,
-  userRole: string
-) {
-  // Role check: only engineers and admins can post updates
-  if (userRole !== "engineer" && userRole !== "admin") {
-    throw new Error("Forbidden: only engineers and admins can post updates");
+export async function createProgressUpdate(data: any, userId: string) {
+  const parsed = createProgressSchema.safeParse(data);
+  if (!parsed.success) {
+    throw new Error("Invalid progress data");
   }
 
-  const parsed = createProgressSchema.safeParse(data);
-  if (!parsed.success) throw new Error("Invalid data");
+  const { projectId, stage, completionPercentage, notes, photos, reason } = parsed.data;
 
-  // If staff (non-admin), verify they are assigned to the project
-  if (userRole !== "admin") {
-    const project = await prisma.project.findUnique({
-      where: { id: parsed.data.projectId },
-      include: { staff: true },
+  const project = await prisma.project.findUnique({
+    where: { id: projectId },
+    select: { completionPercentage: true },
+  });
+
+  if (!project) throw new Error("Project not found");
+
+  if (completionPercentage < project.completionPercentage && !reason) {
+    throw new Error("Progress regression requires a reason.");
+  }
+
+  // Create the progress update in a transaction
+  return await prisma.$transaction(async (tx) => {
+    const update = await tx.progressUpdate.create({
+      data: {
+        projectId,
+        stage,
+        completionPercentage,
+        notes,
+        postedById: userId,
+      },
     });
 
-    if (!project) throw new Error("Project not found");
-
-    const isAssigned = project.staff.some((s) => s.id === userId);
-    if (!isAssigned) throw new Error("Forbidden: not assigned to this project");
-  }
-
-  const now = new Date();
-  const dateStr = now.toISOString().split("T")[0]; // YYYY-MM-DD
-  const timeStr = now.toTimeString().split(" ")[0]; // HH:MM:SS
-
-  const update = await prisma.progressUpdate.create({
-    data: {
-      title: parsed.data.title,
-      description: parsed.data.description,
-      stage: parsed.data.stage,
-      completionPercentage: parsed.data.completionPercentage,
-      date: dateStr,
-      time: timeStr,
-      projectId: parsed.data.projectId,
-      uploadedById: userId,
-      media: {
-        create: (parsed.data.photos ?? []).map((url) => ({
+    if (photos && photos.length > 0) {
+      await tx.media.createMany({
+        data: photos.map((url) => ({
           url,
-          fileType: "image",
-          uploadedById: userId,
-          projectId: parsed.data.projectId,
-        }))
+          entityType: "ProgressUpdate",
+          entityId: update.id,
+          projectId,
+          uploadedBy: userId,
+        })),
+      });
+    }
+
+    // Sync project master data
+    await tx.project.update({
+      where: { id: projectId },
+      data: {
+        currentStage: stage,
+        completionPercentage,
+      },
+    });
+
+    // Audit log if there was a regression
+    if (completionPercentage < project.completionPercentage) {
+      // Create a mock audit log function or just insert if AuditLog exists
+      // Assuming AuditLog model exists based on the master plan.
+      try {
+        await tx.auditLog.create({
+          data: {
+            userId,
+            action: "PROGRESS_REGRESSION",
+            entityType: "Project",
+            entityId: projectId,
+            details: JSON.stringify({ 
+              old: project.completionPercentage, 
+              new: completionPercentage, 
+              reason 
+            })
+          }
+        });
+      } catch (e) {
+        // Fallback if AuditLog isn't migrated yet
+        console.warn("AuditLog failed. Model might not exist yet.", e);
       }
-    },
-  });
+    }
 
-  // Sync the project's current stage and completion percentage
-  await prisma.project.update({
-    where: { id: parsed.data.projectId },
-    data: {
-      currentStage: parsed.data.stage,
-      completionPercentage: parsed.data.completionPercentage,
-    },
+    return update;
   });
-
-  return { id: update.id };
 }

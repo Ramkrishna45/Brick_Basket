@@ -1,5 +1,5 @@
 import { getApiUser } from "@/lib/api-auth";
-import { getAdminStats } from "@/lib/services/admin.service";
+import { getDashboardStats } from "@/lib/services/admin.service";
 import { success, unauthorized, forbidden, serverError, withCors, handleCors } from "@/lib/api-utils";
 
 export async function OPTIONS(req: Request) {
@@ -12,7 +12,7 @@ export async function GET(req: Request) {
     if (!user) return withCors(unauthorized(), req);
     if (user.role !== "admin") return withCors(forbidden(), req);
 
-    const data = await getAdminStats(user.role);
+    const data = await getDashboardStats();
     return withCors(success(data), req);
   } catch (error) {
     const message = (error as Error).message;

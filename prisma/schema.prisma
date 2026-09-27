@@ -13,31 +13,31 @@ datasource db {
 // ============================================
 
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
   emailVerified DateTime?
-  image        String?
-  phone        String?
-  passwordHash String?
-  role         String   @default("customer") // customer | engineer | admin | contractor
-  avatar       String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  image         String?
+  phone         String?
+  passwordHash  String?
+  role          String    @default("customer") // customer | engineer | admin | contractor
+  avatar        String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   // Relations
-  customerProjects Project[]        @relation("CustomerProjects")
-  assignedProjects Project[]        @relation("ProjectStaff")
-  progressUpdates  ProgressUpdate[]
-  notifications    Notification[]
-  assignedLeads    Lead[]           @relation("AssignedLeads")
-  markedPayments   PaymentMilestone[] @relation("MarkedPayments")
+  customerProjects     Project[]            @relation("CustomerProjects")
+  assignedProjects     Project[]            @relation("ProjectStaff")
+  progressUpdates      ProgressUpdate[]
+  notifications        Notification[]
+  assignedLeads        Lead[]               @relation("AssignedLeads")
+  markedPayments       PaymentMilestone[]   @relation("MarkedPayments")
   recordedTransactions PaymentTransaction[] @relation("RecordedTransactions")
-  uploadedMedia    Media[]
-  auditLogs        AuditLog[]
-  
-  accounts      Account[]
-  sessions      Session[]
+  uploadedMedia        Media[]
+  auditLogs            AuditLog[]
+
+  accounts Account[]
+  sessions Session[]
 }
 
 model VerificationToken {
@@ -49,18 +49,18 @@ model VerificationToken {
 }
 
 model Account {
-  id                 String  @id @default(cuid())
-  userId             String
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  @db.Text
-  access_token       String?  @db.Text
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  @db.Text
-  session_state      String?
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -80,7 +80,7 @@ model Session {
 // ============================================
 
 model Project {
-  id                   String   @id @default(cuid())
+  id                   String    @id @default(cuid())
   name                 String
   siteAddress          String
   city                 String
@@ -88,7 +88,7 @@ model Project {
   builtUpArea          String
   startDate            DateTime?
   expectedCompletion   DateTime?
-  currentStage         String    @default("planning")  // planning|foundation|columns|walls|slab|plumbing|electrical|finishing|handover
+  currentStage         String    @default("planning") // planning|foundation|columns|walls|slab|plumbing|electrical|finishing|handover
   status               String    @default("not_started") // not_started|in_progress|on_hold|completed|cancelled
   completionPercentage Int       @default(0)
   totalValue           Float     @default(0)
@@ -117,16 +117,16 @@ model Project {
 // ============================================
 
 model ProjectMilestone {
-  id            String   @id @default(cuid())
-  stage         String   // planning|foundation|columns|walls|slab|plumbing|electrical|finishing|handover
+  id            String    @id @default(cuid())
+  stage         String // planning|foundation|columns|walls|slab|plumbing|electrical|finishing|handover
   title         String
-  status        String   @default("upcoming") // completed|in_progress|upcoming
+  status        String    @default("upcoming") // completed|in_progress|upcoming
   startDate     DateTime?
   completedDate DateTime?
   description   String
-  photoCount    Int      @default(0)
+  photoCount    Int       @default(0)
   notes         String?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime  @default(now())
 
   projectId String
   project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
@@ -146,8 +146,8 @@ model ProgressUpdate {
   time                 String
   createdAt            DateTime @default(now())
 
-  projectId  String
-  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId    String
+  project      Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
   uploadedById String
   uploadedBy   User    @relation(fields: [uploadedById], references: [id])
   media        Media[]
@@ -158,20 +158,20 @@ model ProgressUpdate {
 // ============================================
 
 model Media {
-  id               String   @id @default(cuid())
-  url              String
-  fileType         String
-  size             Int?     // bytes
-  createdAt        DateTime @default(now())
+  id        String   @id @default(cuid())
+  url       String
+  fileType  String
+  size      Int? // bytes
+  createdAt DateTime @default(now())
 
-  projectId        String?
-  project          Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String?
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   progressUpdateId String?
   progressUpdate   ProgressUpdate? @relation(fields: [progressUpdateId], references: [id], onDelete: SetNull)
 
-  uploadedById     String
-  uploadedBy       User     @relation(fields: [uploadedById], references: [id])
+  uploadedById String
+  uploadedBy   User   @relation(fields: [uploadedById], references: [id])
 }
 
 // ============================================
@@ -181,8 +181,8 @@ model Media {
 model Document {
   id         String   @id @default(cuid())
   name       String
-  category   String   // agreement|plan|receipt|certificate|government|other
-  fileType   String   // pdf|doc|img|dwg|xls
+  category   String // agreement|plan|receipt|certificate|government|other
+  fileType   String // pdf|doc|img|dwg|xls
   fileSize   String
   uploadDate String
   uploadedBy String
@@ -199,19 +199,19 @@ model Document {
 // ============================================
 
 model PaymentTransaction {
-  id            String   @id @default(cuid())
-  amount        Float
-  method        String   // upi|card|bank_transfer|cash|check
-  transactionId String?
-  idempotencyKey String? @unique
-  notes         String?
-  date          DateTime @default(now())
+  id             String   @id @default(cuid())
+  amount         Float
+  method         String // upi|card|bank_transfer|cash|check
+  transactionId  String?
+  idempotencyKey String?  @unique
+  notes          String?
+  date           DateTime @default(now())
 
-  projectId     String
-  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
 
-  recordedById  String?
-  recordedBy    User?    @relation("RecordedTransactions", fields: [recordedById], references: [id])
+  recordedById String?
+  recordedBy   User?   @relation("RecordedTransactions", fields: [recordedById], references: [id])
 }
 
 // ============================================
@@ -230,8 +230,8 @@ model PaymentMilestone {
   description String
   createdAt   DateTime @default(now())
 
-  projectId String
-  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  projectId      String
+  project        Project @relation(fields: [projectId], references: [id], onDelete: Restrict)
   markedPaidById String?
   markedPaidBy   User?   @relation("MarkedPayments", fields: [markedPaidById], references: [id])
 }
@@ -241,7 +241,7 @@ model PaymentMilestone {
 // ============================================
 
 model Lead {
-  id               String   @id @default(cuid())
+  id               String    @id @default(cuid())
   name             String
   email            String
   phone            String
@@ -249,13 +249,13 @@ model Lead {
   plotSize         String?
   builtUpArea      String?
   budgetRange      String?
-  homeType         String?  // independent_house|duplex|villa|row_house|farmhouse|commercial
-  servicesNeeded   String   @default("[]") // JSON array
+  homeType         String? // independent_house|duplex|villa|row_house|farmhouse|commercial
+  servicesNeeded   String    @default("[]") // JSON array
   timeline         String?
-  preferredContact String   @default("phone") // phone|email|whatsapp
+  preferredContact String    @default("phone") // phone|email|whatsapp
   notes            String?
-  status           String   @default("new") // new|contacted|qualified|converted|rejected
-  createdAt        DateTime @default(now())
+  status           String    @default("new") // new|contacted|qualified|converted|rejected
+  createdAt        DateTime  @default(now())
   lastContactedAt  DateTime?
 
   assignedToId String?
@@ -292,5 +292,15 @@ model AuditLog {
   details    String?  @db.Text // JSON string
   createdAt  DateTime @default(now())
 
-  user       User     @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model PendingSignup {
+  email        String   @id
+  name         String
+  phone        String
+  passwordHash String
+  otp          String
+  expiresAt    DateTime
+  createdAt    DateTime @default(now())
 }

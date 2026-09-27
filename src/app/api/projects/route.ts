@@ -11,8 +11,8 @@ import {
 } from "@/lib/api-utils";
 import { getAllProjects, createProject } from "@/lib/services/project.service";
 
-export async function OPTIONS() {
-  return handleCors();
+export async function OPTIONS(req: Request) {
+  return handleCors(req);
 }
 
 // GET /api/projects — Admin: get all projects
@@ -22,6 +22,14 @@ export async function GET(req: Request) {
     if (!user) return withCors(unauthorized());
     if (user.role !== "admin") return withCors(forbidden());
 
+    const { searchParams } = new URL(req.url);
+    const pageStr = searchParams.get('page');
+    if (pageStr, req) {
+      const page = parseInt(pageStr, 10) || 1;
+      const limit = parseInt(searchParams.get('limit') || '20', 10);
+      const data = await getAllProjects(page, limit);
+      return withCors(success(data, req), req); // Wait, success(data)
+    }
     const data = await getAllProjects();
     return withCors(success(data));
   } catch (error) {
@@ -42,6 +50,6 @@ export async function POST(req: Request) {
   } catch (error) {
     const message = (error as Error).message;
     if (message === "Invalid data") return withCors(badRequest(message));
-    return withCors(serverError(message));
+    return withCors(serverError(message), req);
   }
 }
