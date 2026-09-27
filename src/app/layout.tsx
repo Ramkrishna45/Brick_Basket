@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Providers } from "@/components/providers";
@@ -15,8 +15,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const fraunces = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-fraunces",
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  weight: ["400", "500", "600", "700"],
+});
+
+const jbMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-jbmono",
+  weight: ["400", "500"],
+});
+
 export const metadata: Metadata = {
-  title: "Brick Basket — Build Your Dream Home With Complete Transparency",
+  title: "Brick Basket - Build Your Dream Home With Complete Transparency",
   description:
     "India's trusted home construction management platform. Track every brick, every day. Get daily photo updates, transparent payments, and complete project visibility.",
   keywords: [
@@ -30,7 +49,7 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Brick Basket" }],
   openGraph: {
-    title: "Brick Basket — Build Your Dream Home With Complete Transparency",
+    title: "Brick Basket - Build Your Dream Home With Complete Transparency",
     description:
       "Track your home construction progress daily with photos, documents, and payment tracking.",
     type: "website",
@@ -46,10 +65,10 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${inter.variable} ${jbMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col font-sans">
         <Providers>
           <TooltipProvider>
             {children}

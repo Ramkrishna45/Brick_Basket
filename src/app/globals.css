@@ -128,3 +128,54 @@
     @apply font-sans;
   }
 }
+/* --- V3 Landing Page Tokens --- */
+@theme inline {
+  --color-red: #EF1C22;
+  --color-red-dark: #C6151B;
+  --color-charcoal: #423D3A;
+  --color-ink: #1C2126;
+  --color-paper: #F5F1E7;
+  --color-paperdim: #ECE5D5;
+  --color-mortar: #B7ACA0;
+  --color-amber: #E7A23C;
+
+  --font-display: var(--font-fraunces), serif;
+  --font-body: var(--font-inter), sans-serif;
+  --font-mono: var(--font-jbmono), monospace;
+
+  --animate-pulse2: pulse2 2s ease-out infinite;
+  --animate-float: float 5s ease-in-out infinite;
+
+  @keyframes pulse2 {
+    0% { transform: scale(0.7); opacity: 0.7; }
+    100% { transform: scale(1.9); opacity: 0; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+}
+
+/* Landing Page Custom CSS */
+html { scroll-behavior: smooth; }
+
+/* subtle plaster/paper grain instead of a flat fill */
+.paper-texture {
+  background-image: radial-gradient(rgba(66, 61, 58, 0.035) 1px, transparent 1px);
+  background-size: 14px 14px;
+}
+
+/* blueprint grid used behind dark sections */
+.blueprint-grid {
+  background-image:
+    linear-gradient(rgba(245, 241, 231, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(245, 241, 231, 0.06) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+.tag-mono {
+  font-family: var(--font-jbmono), monospace;
+  letter-spacing: 0.08em;
+}
+
+::selection { background: #EF1C22; color: #fff; }
