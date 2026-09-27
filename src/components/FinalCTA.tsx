@@ -1,12 +1,11 @@
+import Link from "next/link";
 "use client";
 
 import Image from "next/image";
 import Reveal from "./ui/Reveal";
-import { useComingSoon } from "./ui/ComingSoonModal";
 
 export default function FinalCTA() {
-  const { open: openModal } = useComingSoon();
-
+  
   return (
     <section id="contact" className="relative py-24 lg:py-28 px-6 lg:px-10 overflow-hidden">
       <div className="absolute inset-0">
@@ -30,12 +29,7 @@ export default function FinalCTA() {
           obligation, and no pressure. We&apos;ll walk you through the app on the same call.
         </p>
         <div className="mt-9 flex flex-wrap justify-center gap-4">
-          <button
-            onClick={openModal}
-            className="bg-ink hover:bg-charcoal text-paper font-semibold px-8 py-4 rounded-full transition-colors"
-          >
-            Book a Free Consultation
-          </button>
+          <Link href="/enquiry" className="bg-ink hover:bg-charcoal text-paper font-semibold px-8 py-4 rounded-full transition-colors">Book a Free Consultation</Link>
           <a
             href="mailto:hello@brickbasket.in"
             className="border border-paper/50 hover:border-paper font-semibold px-8 py-4 rounded-full transition-colors"

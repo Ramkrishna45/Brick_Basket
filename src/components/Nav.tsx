@@ -1,9 +1,9 @@
+import Link from "next/link";
 "use client";
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useComingSoon } from "./ui/ComingSoonModal";
 
 const links = [
   { href: "#process", label: "Process" },
@@ -17,8 +17,7 @@ const links = [
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const { open: openModal } = useComingSoon();
-
+  
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
@@ -87,18 +86,8 @@ export default function Nav() {
           </nav>
 
           <div className="hidden lg:flex items-center gap-4">
-            <button
-              onClick={openModal}
-              className="text-[15px] font-semibold text-charcoal/80 hover:text-red transition-colors"
-            >
-              Track My Project
-            </button>
-            <button
-              onClick={openModal}
-              className="inline-flex items-center gap-2 bg-red hover:bg-red-dark text-paper text-[15px] font-semibold px-5 py-2.5 rounded-full transition-colors"
-            >
-              Book Free Consultation
-            </button>
+            <Link href="/login" className="text-[15px] font-semibold text-charcoal/80 hover:text-red transition-colors">Track My Project</Link>
+            <Link href="/enquiry" className="inline-flex items-center gap-2 bg-red hover:bg-red-dark text-paper text-[15px] font-semibold px-5 py-2.5 rounded-full transition-colors">Book Free Consultation</Link>
           </div>
 
           <button

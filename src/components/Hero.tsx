@@ -1,10 +1,11 @@
+import Link from "next/link";
 // @ts-nocheck
 "use client";
 
 import Image from "next/image";
 import { motion } from "framer-motion";
 import AnimatedCounter from "./ui/AnimatedCounter";
-import { useComingSoon } from "./ui/ComingSoonModal";
+
 
 const headlineLine1 = "Your home, built";
 const headlineLine2 = "in the open.";
@@ -22,7 +23,7 @@ const word = {
 };
 
 export default function Hero() {
-  const { open: openModal } = useComingSoon();
+  
   return (
     <section className="paper-texture pt-32 pb-20 lg:pt-40 lg:pb-28 px-6 lg:px-10 border-b border-charcoal/10 overflow-hidden">
       <div className="max-w-7xl mx-auto grid lg:grid-cols-[1.05fr_0.95fr] gap-16 items-center">
@@ -75,12 +76,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.62 }}
             className="mt-9 flex flex-wrap items-center gap-4"
           >
-            <button
-              onClick={openModal}
-              className="bg-red hover:bg-red-dark text-paper font-semibold px-7 py-3.5 rounded-full transition-colors"
-            >
-              Book a Free Consultation
-            </button>
+            <Link href="/enquiry" className="bg-red hover:bg-red-dark text-paper font-semibold px-7 py-3.5 rounded-full transition-colors">Book a Free Consultation</Link>
             <a
               href="#platform"
               className="inline-flex items-center gap-2 font-semibold text-charcoal border border-charcoal/25 hover:border-charcoal px-7 py-3.5 rounded-full transition-colors"
