@@ -93,10 +93,13 @@ export async function updateProjectAction(id: string, data: any) {
 export async function getProjectByIdAction(id: string) {
   try {
     const session = await auth();
-    if (!session) return { error: "Unauthorized" };
+    if (!session || !session.user) return { error: "Unauthorized" };
 
     const project = await projectService.getProjectById(id);
     if (!project) return { error: "Project not found" };
+
+    const access = checkProjectAccess(session.user.id, (session.user as any).role, project);
+    if (!access.authorized) return { error: access.error };
 
     return { success: true, data: project };
   } catch (error: any) {
