@@ -1,6 +1,6 @@
-import Link from "next/link";
 // @ts-nocheck
 "use client";
+import Link from "next/link";
 
 import Image from "next/image";
 import { motion } from "framer-motion";

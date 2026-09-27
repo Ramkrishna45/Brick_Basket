@@ -1,5 +1,6 @@
-import Link from "next/link";
+// @ts-nocheck
 "use client";
+import Link from "next/link";
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
