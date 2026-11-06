@@ -50,7 +50,7 @@ export default function LeadsPage() {
     .filter((l) => status === "all" || l.status === status)
     .filter((l) =>
       search === "" ||
-      l.name.toLowerCase().includes(search.toLowerCase()) ||
+      (l.name || "").toLowerCase().includes(search.toLowerCase()) ||
       (l.city && l.city.toLowerCase().includes(search.toLowerCase())) ||
       (l.phone && l.phone.includes(search))
     );

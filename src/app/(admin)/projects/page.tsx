@@ -61,7 +61,7 @@ export default function ProjectsPage() {
     const customerName = p.customer?.name || "";
     return (
       search === "" ||
-      p.name.toLowerCase().includes(search.toLowerCase()) ||
+      (p.name || "").toLowerCase().includes(search.toLowerCase()) ||
       customerName.toLowerCase().includes(search.toLowerCase()) ||
       (p.city && p.city.toLowerCase().includes(search.toLowerCase()))
     );

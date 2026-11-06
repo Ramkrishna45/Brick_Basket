@@ -133,8 +133,7 @@ export default function AdminDocumentsPage() {
   };
 
   const filteredDocs = documents.filter(d => {
-    const matchesSearch = d.name.toLowerCase().includes(search.toLowerCase()) || 
-                          d.project?.name.toLowerCase().includes(search.toLowerCase());
+    const matchesSearch = (d.name || "").toLowerCase().includes(search.toLowerCase()) || ((d.project?.name || "").toLowerCase().includes(search.toLowerCase()));
     const matchesCategory = categoryFilter === "all" || d.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });

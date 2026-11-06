@@ -5,6 +5,7 @@ const createProgressSchema = z.object({
   projectId: z.string(),
   title: z.string().optional().default("Update"),
   description: z.string().optional().default(""),
+  notes: z.string().optional(),
   stage: z.string(),
   completionPercentage: z.number().min(0).max(100),
   photos: z.array(z.string()).optional(),
@@ -12,14 +13,19 @@ const createProgressSchema = z.object({
 });
 
 export async function getProjectProgress(projectId: string) {
-  return await prisma.progressUpdate.findMany({
+  const updates = await prisma.progressUpdate.findMany({
     where: { projectId },
     orderBy: { createdAt: "desc" },
     include: {
       media: true,
-      uploadedBy: { select: { name: true, role: true } },
+      uploadedBy: { select: { id: true, name: true, role: true } },
     }
   });
+
+  return updates.map(u => ({
+    ...u,
+    photos: u.media?.map(m => m.url) || [],
+  }));
 }
 
 export async function createProgressUpdate(data: any, userId: string) {
@@ -28,7 +34,10 @@ export async function createProgressUpdate(data: any, userId: string) {
     throw new Error("Invalid progress data");
   }
 
-  const { projectId, title, description, stage, completionPercentage, photos, reason } = parsed.data;
+  const { projectId, title, description, notes, stage, completionPercentage, photos, reason } = parsed.data;
+
+  const resolvedTitle = (title && title !== "Update") ? title : (notes ? notes.split("-")[0].trim() : "Update");
+  const resolvedDescription = description || notes || "";
 
   const project = await prisma.project.findUnique({
     where: { id: projectId },
@@ -51,8 +60,8 @@ export async function createProgressUpdate(data: any, userId: string) {
     const update = await tx.progressUpdate.create({
       data: {
         projectId,
-        title,
-        description,
+        title: resolvedTitle,
+        description: resolvedDescription,
         stage,
         completionPercentage,
         date: dateStr,
