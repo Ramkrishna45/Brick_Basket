@@ -1,110 +1,129 @@
 import { prisma } from "@/lib/db";
 
 export async function getDashboardStats() {
-  const [
-    totalUsers,
-    totalProjects,
-    totalLeads,
-    totalRevenue,
-    activeProjects,
-    pendingLeads,
-  ] = await Promise.all([
-    prisma.user.count(),
-    prisma.project.count(),
-    prisma.lead.count(),
-    prisma.paymentTransaction.aggregate({
-      _sum: { amount: true },
-    }).then(res => res._sum.amount || 0),
-    prisma.project.count({
-      where: { status: "in_progress" },
-    }),
-    prisma.lead.count({
-      where: { status: "new" },
-    }),
-  ]);
+  try {
+    // 1. Basic counts
+    const [
+      totalUsers,
+      activeProjects,
+      completedProjects,
+      onHoldProjects,
+      newLeads,
+      projects,
+      todayUpdates,
+    ] = await Promise.all([
+      prisma.user.count().catch(() => 0),
+      prisma.project.count({ where: { status: "in_progress" } }).catch(() => 0),
+      prisma.project.count({ where: { status: "completed" } }).catch(() => 0),
+      prisma.project.count({ where: { status: "on_hold" } }).catch(() => 0),
+      prisma.lead.count({ where: { status: "new" } }).catch(() => 0),
+      prisma.project.findMany({
+        select: { totalValue: true, amountPaid: true },
+      }).catch(() => []),
+      prisma.progressUpdate.count({
+        where: {
+          createdAt: {
+            gte: new Date(new Date().setHours(0, 0, 0, 0)),
+          },
+        },
+      }).catch(() => 0),
+    ]);
 
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
-  sixMonthsAgo.setDate(1);
-  sixMonthsAgo.setHours(0,0,0,0);
+    // Financial calculations
+    const totalRevenue = projects.reduce((sum, p) => sum + (p.amountPaid || 0), 0);
+    const totalValue = projects.reduce((sum, p) => sum + (p.totalValue || 0), 0);
+    const pendingPayments = Math.max(0, totalValue - totalRevenue);
 
-  // Grouping by raw SQL for exact monthly buckets
-  const leadsRaw = await prisma.$queryRaw<{ month: Date, count: number }[]>`
-    SELECT DATE_TRUNC('month', "createdAt") as month, COUNT(*)::int as count
-    FROM "Lead"
-    WHERE "createdAt" >= ${sixMonthsAgo}
-    GROUP BY month
-    ORDER BY month
-  `;
+    // 2. Monthly buckets for past 6 months
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+    sixMonthsAgo.setDate(1);
+    sixMonthsAgo.setHours(0, 0, 0, 0);
 
-  const revenueRaw = await prisma.$queryRaw<{ month: Date, revenue: number }[]>`
-    SELECT DATE_TRUNC('month', "createdAt") as month, SUM("amount")::float as revenue
-    FROM "PaymentTransaction"
-    WHERE "createdAt" >= ${sixMonthsAgo}
-    GROUP BY month
-    ORDER BY month
-  `;
+    const leadsPast6Months = await prisma.lead.findMany({
+      where: { createdAt: { gte: sixMonthsAgo } },
+      select: { createdAt: true },
+    }).catch(() => []);
 
-  // Backfill gaps (0 count/revenue)
-  const monthlyLeads = [];
-  const monthlyRevenue = [];
-  
-  for (let i = 0; i <= 6; i++) {
-    const d = new Date(sixMonthsAgo);
-    d.setMonth(d.getMonth() + i);
-    const monthName = d.toLocaleString('default', { month: 'short' });
-    
-    // Find matching lead data
-    const leadMatch = leadsRaw.find(r => r.month.getTime() === d.getTime());
-    monthlyLeads.push({
-      month: monthName,
-      count: leadMatch ? Number(leadMatch.count) : 0
-    });
+    const txPast6Months = await prisma.paymentTransaction.findMany({
+      where: { date: { gte: sixMonthsAgo } },
+      select: { amount: true, date: true },
+    }).catch(() => []);
 
-    // Find matching revenue data
-    const revMatch = revenueRaw.find(r => r.month.getTime() === d.getTime());
-    monthlyRevenue.push({
-      month: monthName,
-      revenue: revMatch ? Number(revMatch.revenue) : 0
-    });
-  }
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const monthlyEnquiries = [];
+    const revenueByMonth = [];
 
-  const recentLeads = await prisma.lead.findMany({
-    take: 5,
-    orderBy: { createdAt: "desc" },
-  });
+    for (let i = 0; i < 6; i++) {
+      const d = new Date(sixMonthsAgo);
+      d.setMonth(d.getMonth() + i);
+      const mIdx = d.getMonth();
+      const yr = d.getFullYear();
+      const label = `${monthNames[mIdx]}`;
 
-  const recentTransactions = await prisma.paymentTransaction.findMany({
-    take: 5,
-    orderBy: { date: "desc" },
-    include: {
-      project: { select: { clientName: true } }
+      const lCount = leadsPast6Months.filter(l => {
+        const ld = new Date(l.createdAt);
+        return ld.getMonth() === mIdx && ld.getFullYear() === yr;
+      }).length;
+
+      const rSum = txPast6Months.filter(t => {
+        const td = new Date(t.date);
+        return td.getMonth() === mIdx && td.getFullYear() === yr;
+      }).reduce((sum, t) => sum + (t.amount || 0), 0);
+
+      monthlyEnquiries.push({ month: label, count: lCount });
+      revenueByMonth.push({ month: label, amount: rSum });
     }
-  });
 
-  const projectsByStatus = await prisma.project.groupBy({
-    by: ['status'],
-    _count: true,
-  });
+    // 3. Recent activity from progress updates and leads
+    const recentUpdates = await prisma.progressUpdate.findMany({
+      take: 4,
+      orderBy: { createdAt: "desc" },
+      include: { project: { select: { name: true } } },
+    }).catch(() => []);
 
-  const formattedProjectsByStatus = projectsByStatus.map(item => ({
-    name: item.status.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-    value: item._count
-  }));
+    const recentActivity = recentUpdates.map(u => ({
+      action: u.title || `Stage update: ${u.stage}`,
+      project: u.project?.name || "Project",
+      time: u.date || "Recent",
+      color: "bg-amber-500",
+    }));
 
-  return {
-    totalUsers,
-    totalProjects,
-    totalLeads,
-    totalRevenue,
-    activeProjects,
-    pendingLeads,
-    monthlyLeads,
-    monthlyRevenue,
-    recentLeads,
-    recentTransactions,
-    projectsByStatus: formattedProjectsByStatus,
-  };
+    return {
+      users: {
+        total: totalUsers,
+      },
+      projects: {
+        active: activeProjects,
+        completed: completedProjects,
+        onHold: onHoldProjects,
+        total: activeProjects + completedProjects + onHoldProjects,
+      },
+      leads: {
+        new: newLeads,
+      },
+      financials: {
+        totalRevenue,
+        pendingPayments,
+      },
+      todayUpdates,
+      monthlyEnquiries,
+      revenueByMonth,
+      recentActivity,
+    };
+  } catch (err) {
+    console.error("Error in getDashboardStats:", err);
+    return {
+      users: { total: 0 },
+      projects: { active: 0, completed: 0, onHold: 0, total: 0 },
+      leads: { new: 0 },
+      financials: { totalRevenue: 0, pendingPayments: 0 },
+      todayUpdates: 0,
+      monthlyEnquiries: [],
+      revenueByMonth: [],
+      recentActivity: [],
+    };
+  }
 }
 
 export async function getStaffList() {

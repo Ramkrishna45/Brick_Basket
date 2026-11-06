@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Users, Building2, FileText, CreditCard, AlertCircle, Upload, TrendingUp } from "lucide-react";
+import { Users, Building2, FileText, CreditCard, Upload, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,7 @@ import { useCurrentUser } from "@/lib/auth-client";
 import { getDashboardStatsAction } from "@/lib/actions/admin";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  AreaChart, Area, PieChart, Pie, Cell, Legend,
+  AreaChart, Area, PieChart, Pie, Cell,
 } from "recharts";
 
 function formatINR(n: number) {
@@ -31,9 +31,16 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await getDashboardStatsAction();
-      if (res.success) setStats(res.data);
-      setLoading(false);
+      try {
+        const res = await getDashboardStatsAction();
+        if (res.success && res.data) {
+          setStats(res.data);
+        }
+      } catch (err) {
+        console.error("Failed to load dashboard stats:", err);
+      } finally {
+        setLoading(false);
+      }
     }
     load();
   }, []);
@@ -41,7 +48,7 @@ export default function AdminDashboardPage() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
-  if (loading || !stats) {
+  if (loading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-8 w-64" />
@@ -55,30 +62,41 @@ export default function AdminDashboardPage() {
     );
   }
 
+  const data = stats || {
+    users: { total: 0 },
+    projects: { active: 0, completed: 0, onHold: 0 },
+    leads: { new: 0 },
+    financials: { pendingPayments: 0, totalRevenue: 0 },
+    todayUpdates: 0,
+    monthlyEnquiries: [],
+    revenueByMonth: [],
+    recentActivity: [],
+  };
+
   const overviewStats = [
-    { label: "Total Users", value: stats.users.total, icon: Users, iconBg: "bg-blue-50", iconColor: "text-blue-600", badge: null },
-    { label: "Active Projects", value: stats.projects.active, icon: Building2, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", badge: null },
-    { label: "New Enquiries", value: stats.leads.new, icon: FileText, iconBg: "bg-violet-50", iconColor: "text-violet-600", badge: { label: "New", cls: "bg-blue-50 text-blue-600 border-blue-200" } },
-    { label: "Pending Payments", value: formatINR(stats.financials.pendingPayments), icon: CreditCard, iconBg: "bg-amber-50 dark:bg-amber-950/40", iconColor: "text-amber-600 dark:text-amber-500", badge: { label: "Action Needed", cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-500 border-amber-200" } },
-    { label: "Total Revenue", value: formatINR(stats.financials.totalRevenue), icon: TrendingUp, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", badge: null },
-    { label: "Today's Updates", value: stats.todayUpdates, icon: Upload, iconBg: "bg-teal-50", iconColor: "text-teal-600", badge: { label: "Today", cls: "bg-teal-50 text-teal-600 border-teal-200" } },
+    { label: "Total Users", value: data.users?.total ?? 0, icon: Users, iconBg: "bg-blue-50", iconColor: "text-blue-600", badge: null },
+    { label: "Active Projects", value: data.projects?.active ?? 0, icon: Building2, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", badge: null },
+    { label: "New Enquiries", value: data.leads?.new ?? 0, icon: FileText, iconBg: "bg-violet-50", iconColor: "text-violet-600", badge: { label: "New", cls: "bg-blue-50 text-blue-600 border-blue-200" } },
+    { label: "Pending Payments", value: formatINR(data.financials?.pendingPayments ?? 0), icon: CreditCard, iconBg: "bg-amber-50 dark:bg-amber-950/40", iconColor: "text-amber-600 dark:text-amber-500", badge: { label: "Action Needed", cls: "bg-amber-50 dark:bg-amber-950/40 text-amber-600 dark:text-amber-500 border-amber-200" } },
+    { label: "Total Revenue", value: formatINR(data.financials?.totalRevenue ?? 0), icon: TrendingUp, iconBg: "bg-emerald-50", iconColor: "text-emerald-600", badge: null },
+    { label: "Today's Updates", value: data.todayUpdates ?? 0, icon: Upload, iconBg: "bg-teal-50", iconColor: "text-teal-600", badge: { label: "Today", cls: "bg-teal-50 text-teal-600 border-teal-200" } },
   ];
 
   const projectStatusBreakdown = [
-    { status: "Active", count: stats.projects.active },
-    { status: "Completed", count: stats.projects.completed },
-    { status: "On Hold", count: stats.projects.onHold },
+    { status: "Active", count: data.projects?.active ?? 0 },
+    { status: "Completed", count: data.projects?.completed ?? 0 },
+    { status: "On Hold", count: data.projects?.onHold ?? 0 },
   ];
 
-  const monthlyEnquiries = stats.monthlyEnquiries || [];
-  const revenueByMonth = stats.revenueByMonth || [];
-  const recentActivity = stats.recentActivity || [];
+  const monthlyEnquiries = data.monthlyEnquiries || [];
+  const revenueByMonth = data.revenueByMonth || [];
+  const recentActivity = data.recentActivity || [];
 
   return (
     <div className="space-y-6">
       <motion.div variants={fadeUp} custom={0} initial="hidden" animate="visible">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-          {greeting}, {user?.name?.split(" ")[0]} 👋
+          {greeting}, {user?.name?.split(" ")[0] || "Admin"} 👋
         </h1>
         <p className="text-slate-500 dark:text-slate-400 mt-1">Here&apos;s what&apos;s happening on the platform today</p>
       </motion.div>
