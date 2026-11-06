@@ -72,8 +72,8 @@ export default function Nav() {
         }`}
       >
         <div
-          className={`max-w-7xl mx-auto px-6 lg:px-10 flex items-center justify-between transition-all duration-300 ${
-            scrolled ? "h-[64px]" : "h-[80px]"
+          className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 flex items-center justify-between transition-all duration-300 ${
+            scrolled ? "h-[60px] sm:h-[64px]" : "h-[72px] sm:h-[80px]"
           }`}
         >
           <a href="#top" className="flex items-center">
@@ -82,7 +82,7 @@ export default function Nav() {
               src="/images/brand_logo.svg"
               alt="Brick Basket"
               className={`w-auto object-contain transition-all duration-300 ${
-                scrolled ? "h-11" : "h-14"
+                scrolled ? "h-9 sm:h-11" : "h-11 sm:h-14"
               }`}
             />
           </a>
@@ -95,6 +95,7 @@ export default function Nav() {
             ))}
           </nav>
 
+          {/* Desktop action buttons */}
           <div className="hidden lg:flex items-center gap-3">
             {isAuthenticated ? (
               <Link
@@ -128,14 +129,35 @@ export default function Nav() {
             </Link>
           </div>
 
-          <button
-            aria-label="Open menu"
-            aria-expanded={open}
-            onClick={() => setOpen((o) => !o)}
-            className="lg:hidden w-10 h-10 flex items-center justify-center text-charcoal"
-          >
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
+          {/* Mobile action buttons & hamburger toggle */}
+          <div className="flex lg:hidden items-center gap-2 sm:gap-2.5">
+            {isAuthenticated ? (
+              <Link
+                href={getDashboardLink()}
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-charcoal bg-charcoal/5 border border-charcoal/20 hover:border-red hover:text-red px-3 sm:px-3.5 py-1.5 rounded-full transition-all"
+              >
+                <User size={13} className="text-red" />
+                <span>Dashboard</span>
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-charcoal border border-charcoal/25 hover:border-red hover:text-red hover:bg-charcoal/5 px-3 sm:px-3.5 py-1.5 rounded-full transition-all"
+              >
+                <User size={13} className="text-red" />
+                <span>Login</span>
+              </Link>
+            )}
+
+            <button
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+              onClick={() => setOpen((o) => !o)}
+              className="w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center text-charcoal rounded-lg hover:bg-charcoal/5 transition-colors"
+            >
+              {open ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -153,6 +175,7 @@ export default function Nav() {
                 <a
                   key={l.href}
                   href={l.href}
+                  onClick={() => setOpen(false)}
                   className="block font-medium text-charcoal hover:text-red transition-colors"
                 >
                   {l.label}
@@ -166,17 +189,27 @@ export default function Nav() {
                     onClick={() => setOpen(false)}
                     className="flex items-center justify-center gap-2 w-full text-center font-semibold px-5 py-2.5 rounded-full border border-charcoal/25 text-charcoal hover:border-red hover:text-red transition-all"
                   >
-                    <User size={16} />
+                    <User size={16} className="text-red" />
                     Go to Dashboard
                   </Link>
                 ) : (
-                  <Link
-                    href="/login"
-                    onClick={() => setOpen(false)}
-                    className="block w-full text-center font-semibold px-5 py-2.5 rounded-full border border-charcoal/25 text-charcoal hover:border-red hover:text-red transition-all"
-                  >
-                    Login to Portal
-                  </Link>
+                  <>
+                    <Link
+                      href="/login"
+                      onClick={() => setOpen(false)}
+                      className="flex items-center justify-center gap-2 w-full text-center font-semibold px-5 py-2.5 rounded-full border border-charcoal/25 text-charcoal hover:border-red hover:text-red transition-all"
+                    >
+                      <User size={16} className="text-red" />
+                      Login to Portal
+                    </Link>
+                    <Link
+                      href="/login"
+                      onClick={() => setOpen(false)}
+                      className="block w-full text-center text-sm font-medium text-charcoal/70 hover:text-red transition-colors py-1"
+                    >
+                      Track Project Status
+                    </Link>
+                  </>
                 )}
                 <Link
                   href="/enquiry"
