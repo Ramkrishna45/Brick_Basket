@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
 export default function Footer() {
   const [logoError, setLogoError] = useState(false);
@@ -37,6 +38,7 @@ export default function Footer() {
           <ul className="space-y-2 text-[14px]">
             <li><a href="#platform" className="hover:text-paper transition-colors">Site Feed</a></li>
             <li><a href="#platform" className="hover:text-paper transition-colors">Digital Vault</a></li>
+            <li><Link href="/login" className="hover:text-paper text-paper/90 font-medium transition-colors">Customer & Staff Login →</Link></li>
             <li><a href="#faq" className="hover:text-paper transition-colors">FAQ</a></li>
           </ul>
         </div>
