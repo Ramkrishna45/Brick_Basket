@@ -40,6 +40,12 @@ const ALLOWED_ORIGINS = process.env.NODE_ENV === "production"
   ? [
       "https://brickbasket.vercel.app",
       "https://www.brickbasket.vercel.app",
+      "https://brickbasket.vercel.in",
+      "https://www.brickbasket.vercel.in",
+      "https://brick-basket.vercel.app",
+      "https://www.brick-basket.vercel.app",
+      "https://brickbasket.in",
+      "https://www.brickbasket.in",
     ]
   : [
       "http://localhost:3000",
@@ -59,9 +65,12 @@ export function corsHeaders(requestOrigin?: string) {
   // Allow all origins in dev; check allowlist in production
   let allowedOrigin = "*";
   if (!isDev && requestOrigin) {
-    allowedOrigin = ALLOWED_ORIGINS.includes(requestOrigin)
-      ? requestOrigin
-      : ALLOWED_ORIGINS[0]; // Default to primary domain
+    const isAllowed =
+      ALLOWED_ORIGINS.includes(requestOrigin) ||
+      /^https:\/\/[a-z0-9-]+-brick-?basket.*\.vercel\.(app|in)$/i.test(requestOrigin) ||
+      /^https:\/\/brick-?basket.*\.vercel\.(app|in)$/i.test(requestOrigin);
+
+    allowedOrigin = isAllowed ? requestOrigin : ALLOWED_ORIGINS[0];
   }
 
   return {
